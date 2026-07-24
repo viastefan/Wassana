@@ -32,7 +32,7 @@ export function SiteHeader() {
         <a
           href="#top"
           className={`font-display text-2xl tracking-tight transition-colors ${
-            scrolled ? "text-ink" : "text-white"
+            scrolled ? "text-[color:var(--ink)]" : "text-white"
           }`}
         >
           Wassana
@@ -44,7 +44,7 @@ export function SiteHeader() {
               key={link.href}
               href={link.href}
               className={`text-sm tracking-wide transition-opacity hover:opacity-70 ${
-                scrolled ? "text-ink" : "text-white/90"
+                scrolled ? "text-[color:var(--ink)]" : "text-white/90"
               }`}
             >
               {link.label}
@@ -54,7 +54,7 @@ export function SiteHeader() {
             href="#termine"
             className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               scrolled
-                ? "bg-accent text-white hover:bg-accent-hover"
+                ? "bg-[color:var(--accent)] text-white hover:bg-[color:var(--accent-hover)]"
                 : "bg-white/15 text-white backdrop-blur-sm hover:bg-white/25"
             }`}
           >
@@ -66,7 +66,7 @@ export function SiteHeader() {
           type="button"
           aria-label={open ? "Menü schließen" : "Menü öffnen"}
           aria-expanded={open}
-          className={`md:hidden ${scrolled ? "text-ink" : "text-white"}`}
+          className={`md:hidden ${scrolled ? "text-[color:var(--ink)]" : "text-white"}`}
           onClick={() => setOpen((value) => !value)}
         >
           <span className="sr-only">Menü</span>

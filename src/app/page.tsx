@@ -52,11 +52,11 @@ export default function Home() {
             aria-hidden
           />
 
-          <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
-            <p className="hero-copy font-display text-5xl leading-none text-white sm:text-6xl md:text-8xl">
+          <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-14 pt-28 md:px-8 md:pb-20">
+            <p className="hero-copy font-display text-[clamp(3rem,10vw,6.5rem)] leading-none text-white">
               Wassana
             </p>
-            <h1 className="hero-copy-delay mt-5 max-w-xl text-2xl font-light leading-snug text-white/95 md:text-3xl">
+            <h1 className="hero-copy-delay mt-5 max-w-xl text-[clamp(1.35rem,3.2vw,1.85rem)] font-light leading-snug text-white/95">
               Thai-Kochkurse — modern, schlicht, nah am Geschmack.
             </h1>
             <p className="hero-copy-delay-2 mt-4 max-w-md text-base leading-relaxed text-white/80 md:text-lg">
@@ -66,7 +66,7 @@ export default function Home() {
             <div className="hero-copy-delay-2 mt-8 flex flex-wrap gap-3">
               <a
                 href="#termine"
-                className="rounded-full bg-white px-6 py-3 text-sm font-medium text-ink transition hover:bg-white/90"
+                className="rounded-full bg-white px-6 py-3 text-sm font-medium text-[color:var(--ink)] transition hover:bg-white/90"
               >
                 Nächste Termine
               </a>

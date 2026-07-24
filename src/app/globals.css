@@ -101,24 +101,22 @@ img {
 }
 
 .hero-copy {
-  animation: rise-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .hero-copy-delay {
-  animation: rise-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+  animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
 .hero-copy-delay-2 {
-  animation: rise-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
+  animation: rise-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
 }
 
 @keyframes rise-in {
   from {
-    opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(16px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
