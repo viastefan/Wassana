@@ -46,6 +46,18 @@ export const site = {
     facebook:
       "https://www.facebook.com/pages/Wassanas-Thai-Imbiss-Feinkost/156423611044359",
   },
+  maps: {
+    query: "Wassanas Thai Imbiss und Feinkost, Regierungsplatz 542, 84028 Landshut",
+    embed: `https://www.google.com/maps?q=${encodeURIComponent(
+      "Wassanas Thai Imbiss und Feinkost, Regierungsplatz 542, 84028 Landshut"
+    )}&hl=de&z=16&output=embed`,
+    directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+      "Regierungsplatz 542, 84028 Landshut"
+    )}`,
+    place: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      "Wassanas Thai Imbiss und Feinkost, Regierungsplatz 542, 84028 Landshut"
+    )}`,
+  },
   seo: {
     locale: "de_DE",
     keywords: [

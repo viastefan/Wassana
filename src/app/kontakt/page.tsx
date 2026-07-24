@@ -15,9 +15,7 @@ export const metadata: Metadata = {
   },
 };
 
-const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  `${site.fullName}, ${site.address.street}, ${site.address.zip} ${site.address.city}`
-)}`;
+const mapsUrl = site.maps.place;
 
 export default function KontaktPage() {
   return (
