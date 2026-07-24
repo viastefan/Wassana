@@ -65,14 +65,14 @@ export function SiteHeader() {
             </Link>
           ))}
           <a
-            href={site.emailHref}
+            href="/kontakt"
             className={`rounded-full px-4 py-2 text-sm font-medium transition ${
               solid
                 ? "bg-[color:var(--red)] text-white hover:bg-[color:var(--red-hover)]"
                 : "border border-white/40 text-white hover:bg-white/10"
             }`}
           >
-            E-Mail
+            Kontakt
           </a>
         </nav>
 
@@ -112,8 +112,8 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            <a href={site.emailHref} className="btn-primary mt-2 w-fit">
-              E-Mail schreiben
+            <a href="/kontakt" className="btn-primary mt-2 w-fit">
+              Kontakt
             </a>
           </div>
         </div>

@@ -1,85 +1,73 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import Link from "next/link";
+import { ContactForm } from "@/components/ContactForm";
 import { Reveal } from "@/components/Reveal";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Kochkurs",
   description:
-    "Thailändischer Kochkurs bei Wassana — in drei Stunden beliebte Gerichte wie Pad Thai oder Tom Yam gemeinsam zubereiten.",
+    "Thailändischer Kochkurs bei Wassana — Pad Thai, Tom Yam und mehr in drei Stunden.",
 };
 
 export default function KochkursPage() {
   return (
     <main className="pt-24">
-      <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-20">
+      <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
             Kochkurs
           </p>
-          <h1 className="font-display mt-3 max-w-3xl text-4xl leading-tight text-[color:var(--red)] md:text-6xl">
-            Die thailändische Küche näher kennenlernen
+          <h1 className="font-display mt-3 max-w-3xl text-4xl leading-tight text-[color:var(--red)] md:text-5xl">
+            Thai kochen lernen
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[color:var(--muted)]">
-            Haben Sie Interesse, die thailändische Küche näher
-            kennenzulernen? Dafür bieten wir an bestimmten Tagen einen Kochkurs
-            an. In dem 3-stündigen Kurs bereiten wir zusammen mit Ihnen
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[color:var(--muted)]">
+            An ausgewählten Tagen: In drei Stunden bereiten wir gemeinsam
             beliebte Gerichte wie Pad Thai oder Tom Yam zu.
           </p>
-          <a href={site.cookingEmailHref} className="btn-primary mt-8">
-            Per E-Mail anfragen
-          </a>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href={site.cookingEmailHref} className="btn-primary">
+              Per E-Mail anfragen
+            </a>
+            <a href={site.phoneHref} className="btn-gold">
+              Anrufen
+            </a>
+          </div>
         </Reveal>
       </section>
 
-      <section className="bg-[color:var(--bg-soft)]">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-2 md:gap-16 md:px-8 md:py-24">
+      <section className="border-t border-[color:var(--line)] bg-[color:var(--bg-soft)]">
+        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-14 md:grid-cols-2 md:px-8 md:py-20">
           <Reveal>
-            <h2 className="font-display text-3xl text-[color:var(--ink)] md:text-4xl">
-              Drei Stunden. Frische Gewürze. Gemeinsam genießen.
-            </h2>
-            <div className="mt-8 space-y-6">
+            <div className="space-y-6">
               {[
-                {
-                  title: "Dauer",
-                  text: "Ca. 3 Stunden — praxisnah und in kleiner Runde.",
-                },
-                {
-                  title: "Gerichte",
-                  text: "Beliebte Klassiker wie Pad Thai oder Tom Yam.",
-                },
-                {
-                  title: "Termine",
-                  text: "An ausgewählten Tagen — einfach per E-Mail nachfragen.",
-                },
+                { label: "Dauer", value: "ca. 3 Stunden" },
+                { label: "Gerichte", value: "z. B. Pad Thai oder Tom Yam" },
+                { label: "Termine", value: "an bestimmten Tagen — einfach anfragen" },
               ].map((item) => (
-                <div key={item.title} className="border-t border-[color:var(--line)] pt-5">
+                <div key={item.label} className="border-t border-[color:var(--line)] pt-5">
                   <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                    {item.title}
+                    {item.label}
                   </p>
-                  <p className="mt-2 text-[color:var(--muted)]">{item.text}</p>
+                  <p className="mt-2 text-lg text-[color:var(--ink)]">{item.value}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-10 flex flex-wrap gap-3">
-              <a href={site.cookingEmailHref} className="btn-primary">
-                E-Mail an {site.cookingEmail}
-              </a>
-              <a href={site.phoneHref} className="btn-gold">
-                {site.phone}
-              </a>
-            </div>
+            <p className="mt-8 text-sm text-[color:var(--muted)]">
+              Auch über das{" "}
+              <Link href="/kontakt" className="text-[color:var(--red)] underline-offset-2 hover:underline">
+                Kontaktformular
+              </Link>{" "}
+              möglich.
+            </p>
           </Reveal>
           <Reveal delay={1}>
-            <div className="relative aspect-[4/5] overflow-hidden">
-              <Image
-                src="/images/ingredients.jpg"
-                alt="Zutaten für den Thai-Kochkurs"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </div>
+            <ContactForm
+              to={site.cookingEmail}
+              subject="Kochkurs Anfrage"
+              title="Kursplatz anfragen"
+              intro="Name, Personenanzahl und Wunschtermin reichen völlig."
+            />
           </Reveal>
         </div>
       </section>

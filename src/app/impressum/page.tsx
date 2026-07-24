@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Impressum",
-  description: "Impressum und Kontaktdaten von Wassanas Thai Imbiss und Feinkost in Landshut.",
+  description: "Impressum von Wassanas Thai Imbiss und Feinkost in Landshut.",
 };
 
 export default function ImpressumPage() {
@@ -21,7 +21,7 @@ export default function ImpressumPage() {
         </Reveal>
 
         <Reveal>
-          <div className="mt-12 space-y-8 text-[color:var(--ink)]">
+          <div className="mt-12 space-y-8">
             <div>
               <h2 className="font-display text-2xl">{site.fullName}</h2>
               <p className="mt-3 text-[color:var(--muted)]">
@@ -57,7 +57,7 @@ export default function ImpressumPage() {
                 Öffnungszeiten
               </h2>
               <p className="mt-3 text-[color:var(--muted)]">
-                {site.hours.weekdays}
+                {site.hours.weekdaysLong}
                 <br />
                 {site.hours.weekend}
               </p>
@@ -67,16 +67,14 @@ export default function ImpressumPage() {
               <h2 className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
                 Social Media
               </h2>
-              <div className="mt-3 flex flex-col gap-2">
-                <a
-                  href={site.social.facebook}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-[color:var(--red)]"
-                >
-                  Facebook — Wassanas Thai Imbiss & Feinkost
-                </a>
-              </div>
+              <a
+                href={site.social.facebook}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-block hover:text-[color:var(--red)]"
+              >
+                Facebook
+              </a>
             </div>
           </div>
         </Reveal>

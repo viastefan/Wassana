@@ -17,8 +17,9 @@ export const site = {
   cateringEmailHref:
     "mailto:Wassana.Huber@t-online.de?subject=Catering%20Anfrage",
   hours: {
-    weekdays: "Montag bis Freitag · 11:00–18:00 Uhr",
-    weekend: "Samstag, Sonntag und Feiertage geschlossen",
+    weekdays: "Mo–Fr 11:00–18:00",
+    weekdaysLong: "Montag bis Freitag von 11:00–18:00 Uhr",
+    weekend: "Sa, So & Feiertage geschlossen",
   },
   social: {
     facebook:
@@ -28,8 +29,8 @@ export const site = {
 
 export const navLinks = [
   { href: "/", label: "Start" },
-  { href: "/#speisekarte", label: "Speisekarte" },
+  { href: "/speisekarte", label: "Speisekarte" },
   { href: "/catering", label: "Catering" },
   { href: "/kochkurs", label: "Kochkurs" },
-  { href: "/impressum", label: "Impressum" },
+  { href: "/kontakt", label: "Kontakt" },
 ] as const;
