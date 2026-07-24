@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
-import { Fraunces, Outfit } from "next/font/google";
+import { Special_Elite } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+/* Schreibmaschinen-Stil in Richtung „Gabriele“ */
+const typewriter = Special_Elite({
+  variable: "--font-typewriter",
+  weight: "400",
   subsets: ["latin"],
   display: "swap",
 });
@@ -32,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body className={`${outfit.variable} ${fraunces.variable} antialiased`}>
+      <body className={`${typewriter.variable} antialiased`}>
         <div className="site-shell">
           <SiteHeader />
           {children}

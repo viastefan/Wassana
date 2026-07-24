@@ -29,7 +29,7 @@ export function SiteHeader() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-400 ${
         solid
-          ? "border-b border-[color:var(--line)] bg-white/95 backdrop-blur-md"
+          ? "border-b border-[color:var(--line)] bg-[color:var(--bg)]/95 backdrop-blur-md"
           : "bg-transparent"
       }`}
     >
@@ -100,7 +100,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <div className="border-t border-[color:var(--line)] bg-white px-5 py-6 md:hidden">
+        <div className="border-t border-[color:var(--line)] bg-[color:var(--bg)] px-5 py-6 md:hidden">
           <div className="flex flex-col gap-4">
             {navLinks.map((link) => (
               <Link

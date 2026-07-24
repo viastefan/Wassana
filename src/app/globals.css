@@ -1,21 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #ffffff;
-  --bg-soft: #faf8f5;
-  --ink: #1a1214;
-  --muted: #6b5e62;
-  --line: #e8ddd0;
+  /* Auftraggeber: warmer Beige-Hintergrund */
+  --bg: #e8e2d6;
+  --bg-soft: #efe9de;
+  --paper: #f3eee4;
+  /* Auftraggeber: Text schwarz mit Blauton */
+  --ink: #1e2129;
+  --muted: #4a505c;
+  --line: #d2cbbd;
+  /* Konzept: Gold + Dunkelrot */
   --red: #7a0c24;
   --red-hover: #5f091c;
   --gold: #b59551;
-  --gold-soft: #d4c09a;
-  --paper: #fffdf9;
+  --gold-soft: #cbb892;
   --hero-overlay: linear-gradient(
     120deg,
-    rgba(26, 10, 14, 0.78) 0%,
-    rgba(26, 10, 14, 0.42) 52%,
-    rgba(26, 10, 14, 0.22) 100%
+    rgba(30, 33, 41, 0.82) 0%,
+    rgba(30, 33, 41, 0.48) 52%,
+    rgba(30, 33, 41, 0.28) 100%
   );
 }
 
@@ -30,8 +33,9 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-paper: var(--paper);
-  --font-sans: var(--font-outfit);
-  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-typewriter);
+  --font-display: var(--font-typewriter);
+  --font-mono: var(--font-typewriter);
 }
 
 * {
@@ -46,12 +50,13 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  letter-spacing: 0.01em;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--gold) 35%, white);
+  background: color-mix(in srgb, var(--gold) 40%, white);
   color: var(--ink);
 }
 
@@ -66,11 +71,14 @@ img {
 }
 
 .font-display {
-  font-family: var(--font-fraunces), Georgia, serif;
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  letter-spacing: 0.02em;
 }
 
 .site-shell {
   overflow-x: clip;
+  min-height: 100svh;
+  background: var(--bg);
 }
 
 .gold-rule {
@@ -90,10 +98,11 @@ img {
   justify-content: center;
   border-radius: 999px;
   background: var(--red);
-  color: white;
+  color: #f7f3ea;
   padding: 0.75rem 1.4rem;
   font-size: 0.9rem;
   font-weight: 500;
+  letter-spacing: 0.03em;
   transition: background 0.25s ease, transform 0.25s ease;
 }
 
@@ -107,17 +116,19 @@ img {
   justify-content: center;
   border-radius: 999px;
   border: 1px solid var(--gold);
-  color: var(--red);
+  color: var(--ink);
+  background: transparent;
   padding: 0.75rem 1.4rem;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background 0.25s ease, color 0.25s ease;
+  letter-spacing: 0.03em;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
 .btn-gold:hover {
   background: var(--red);
   border-color: var(--red);
-  color: white;
+  color: #f7f3ea;
 }
 
 .chip {
@@ -129,13 +140,14 @@ img {
   padding: 0.45rem 0.9rem;
   font-size: 0.8rem;
   color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
   transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
 }
 
 .chip:hover {
   border-color: var(--gold);
   color: var(--red);
-  background: var(--bg-soft);
+  background: var(--paper);
 }
 
 .hero-media {
