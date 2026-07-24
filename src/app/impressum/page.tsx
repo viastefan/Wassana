@@ -4,7 +4,9 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Impressum",
-  description: "Impressum von Wassanas Thai Imbiss und Feinkost in Landshut.",
+  description: `Impressum von ${site.fullName}, ${site.address.street}, ${site.address.zip} ${site.address.city}.`,
+  alternates: { canonical: "/impressum" },
+  robots: { index: true, follow: true },
 };
 
 export default function ImpressumPage() {

@@ -5,9 +5,15 @@ import { Reveal } from "@/components/Reveal";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Catering",
+  title: "Thai Catering Landshut",
   description:
-    "Catering von Wassana Thai Imbiss für Events und Feierlichkeiten in Landshut.",
+    "Thai Catering in Landshut von Wassana: Menü nach Wunsch inkl. Geschirr für Events, Firmenfeiern und private Feiern.",
+  alternates: { canonical: "/catering" },
+  openGraph: {
+    title: "Thai Catering Landshut | Wassana",
+    description: "Catering-Service für Events in und um Landshut.",
+    url: "/catering",
+  },
 };
 
 export default function CateringPage() {
@@ -16,14 +22,14 @@ export default function CateringPage() {
       <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Catering
+            Catering Landshut
           </p>
           <h1 className="font-display mt-3 max-w-3xl text-4xl leading-tight text-[color:var(--red)] md:text-5xl">
-            Für Events und Feierlichkeiten
+            Thai Catering für Events und Feierlichkeiten
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[color:var(--muted)]">
             Wir erstellen nach Ihren Wünschen ein Menü und stellen das Geschirr
-            zur Verfügung.
+            zur Verfügung — in Landshut und Umgebung.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={site.cateringEmailHref} className="btn-primary">
@@ -56,7 +62,10 @@ export default function CateringPage() {
             </ul>
             <p className="mt-8 text-sm text-[color:var(--muted)]">
               Oder nutze unser{" "}
-              <Link href="/kontakt" className="text-[color:var(--red)] underline-offset-2 hover:underline">
+              <Link
+                href="/kontakt"
+                className="text-[color:var(--red)] underline-offset-2 hover:underline"
+              >
                 Kontaktformular
               </Link>
               .
@@ -65,7 +74,7 @@ export default function CateringPage() {
           <Reveal delay={1}>
             <ContactForm
               to={site.email}
-              subject="Catering Anfrage"
+              subject="Catering Anfrage Landshut"
               title="Catering anfragen"
               intro="Kurz Anlass, Personenzahl und Wunschtermin — wir melden uns."
             />
