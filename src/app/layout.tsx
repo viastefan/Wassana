@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Outfit } from "next/font/google";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -15,15 +17,12 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Wassana — Thai-Kochkurse",
-  description:
-    "Authentische Thai-Kochkurse mit Wassana: Warenkunde, Rezepte und sechs Gerichte zum gemeinsamen Kochen und Genießen.",
-  openGraph: {
-    title: "Wassana — Thai-Kochkurse",
-    description:
-      "Modern, schlicht und nah am Geschmack: Thai-Kochkurse, Privatkurse und Catering.",
-    type: "website",
+  title: {
+    default: "Wassana Thai Imbiss · Landshut",
+    template: "%s · Wassana",
   },
+  description:
+    "Wassana Thai Imbiss im Gewerbehaus am Regierungsplatz in Landshut — authentische Curries, Wok-Gerichte, Suppen, Catering und Kochkurse.",
 };
 
 export default function RootLayout({
@@ -34,7 +33,11 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className={`${outfit.variable} ${fraunces.variable} antialiased`}>
-        {children}
+        <div className="site-shell">
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+        </div>
       </body>
     </html>
   );
