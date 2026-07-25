@@ -7,6 +7,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { formatCourseDate } from "@/lib/cooking-course-format";
@@ -213,14 +214,18 @@ export function AdminClient() {
     setContent((await res.json()) as SiteContent);
   }, []);
 
+  const pagesLoadSeq = useRef(0);
   const loadPages = useCallback(async () => {
+    const seq = ++pagesLoadSeq.current;
     const res = await fetch("/api/admin/site-pages", { cache: "no-store" });
     if (res.status === 401) {
       setAuthed(false);
       return;
     }
     if (!res.ok) return;
-    setPages((await res.json()) as SitePages);
+    const data = (await res.json()) as SitePages;
+    if (seq !== pagesLoadSeq.current) return;
+    setPages(data);
   }, []);
 
   const loadBusiness = useCallback(async () => {
@@ -932,14 +937,12 @@ export function AdminClient() {
     });
   }
 
-  async function savePages(event: FormEvent) {
-    event.preventDefault();
-    if (!pages) return;
+  async function savePages(next: SitePages) {
     await runPublish("Alle Seiten-Texte veröffentlichen", async () => {
       const res = await fetch("/api/admin/site-pages", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pages),
+        body: JSON.stringify(next),
       });
       const data = (await res.json().catch(() => null)) as
         | (SitePages & {
@@ -3032,7 +3035,7 @@ export function AdminClient() {
                     }`}
                     onClick={() => {
                       setTextPanel("pages");
-                      void loadPages();
+                      if (!pages) void loadPages();
                     }}
                   >
                     Alle Seiten
@@ -3055,12 +3058,16 @@ export function AdminClient() {
 
                 {textPanel === "pages" && pages ? (
                   <AdminSitePagesEditor
+                    key={pages.updatedAt || "pages"}
                     pages={pages}
-                    setPages={setPages}
                     saving={saving}
                     publishPhase={publishPhase}
-                    onSave={savePages}
+                    onSave={(next) => void savePages(next)}
                   />
+                ) : textPanel === "pages" ? (
+                  <p className="admin-empty-hint px-1 py-6 text-center text-sm text-[color:var(--admin-muted)]">
+                    Texte werden geladen …
+                  </p>
                 ) : null}
 
                 {textPanel === "core" && content ? (

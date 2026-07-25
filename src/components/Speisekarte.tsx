@@ -153,14 +153,17 @@ export function SpeisekarteFull({
   labels,
   chipWeekly = "Beliebte Gerichte",
   chipPdf = "Als PDF",
+  pdfSaveLabel,
 }: {
   menu: WeeklyMenuData;
   sections: MenuSection[];
   labels?: SitePages["speisekarteUi"];
   chipWeekly?: string;
   chipPdf?: string;
+  pdfSaveLabel?: string;
 }) {
   const ui = labels ?? defaultSpeisekarteUi;
+  const pdfButtonLabel = pdfSaveLabel || chipPdf;
   return (
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
@@ -234,7 +237,7 @@ export function SpeisekarteFull({
                 <AllergenLegend variant="button" />
                 <MenuPdfDownload
                   className="btn-primary"
-                  label="Als PDF speichern"
+                  label={chipPdf}
                 />
               </div>
             </div>

@@ -586,8 +586,9 @@ function t(
   fallback: string,
   max: number,
 ): string {
-  const next = sanitizeText(String(value ?? ""), max);
-  return next || fallback;
+  // Explicit empty string from Admin must survive (missing/null → fallback).
+  if (value === undefined || value === null) return fallback;
+  return sanitizeText(String(value), max);
 }
 
 function mergeHrefLinks(
@@ -674,23 +675,23 @@ function mergeFlowSteps(
 }
 
 function mergeFaqs(raw: unknown, fallback: FaqItem[]): FaqItem[] {
-  const list = Array.isArray(raw) ? raw : [];
-  if (list.length === 0) {
-    return fallback.map((item) => ({
-      question: item.question,
-      answer: item.answer,
-    }));
+  // Missing / non-array → defaults. Explicit [] stays empty.
+  if (raw === undefined || raw === null) {
+    return fallback.map((item) => ({ ...item }));
   }
-  const next = list
+  if (!Array.isArray(raw)) {
+    return fallback.map((item) => ({ ...item }));
+  }
+  return raw
     .map((entry) => {
       const item = entry as { question?: unknown; answer?: unknown };
-      const question = sanitizeText(String(item?.question ?? ""), FAQ_Q);
-      const answer = sanitizeText(String(item?.answer ?? ""), FAQ_A);
-      if (!question || !answer) return null;
-      return { question, answer };
+      return {
+        question: sanitizeText(String(item?.question ?? ""), FAQ_Q),
+        answer: sanitizeText(String(item?.answer ?? ""), FAQ_A),
+      };
     })
-    .filter((item): item is FaqItem => Boolean(item));
-  return next.length > 0 ? next : fallback.map((item) => ({ ...item }));
+    .filter((item) => item.question.trim() || item.answer.trim())
+    .slice(0, 12);
 }
 
 /** Deep-merge partial CMS payload onto defaults with sanitized strings. */
@@ -1143,5 +1144,6 @@ export function normalizeSitePages(
         PARA,
       ),
     },
+    updatedAt: String(r.updatedAt || new Date().toISOString()),
   };
 }

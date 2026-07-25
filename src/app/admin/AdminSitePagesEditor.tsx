@@ -1,10 +1,10 @@
 "use client";
 
 import {
+  memo,
+  useEffect,
+  useRef,
   useState,
-  type Dispatch,
-  type FormEvent,
-  type SetStateAction,
 } from "react";
 import type { SitePages } from "@/lib/site-pages-shared";
 import {
@@ -45,7 +45,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "formular", label: "Formular" },
 ];
 
-function Text({
+const Text = memo(function Text({
   label,
   value,
   onChange,
@@ -76,29 +76,51 @@ function Text({
       )}
     </Field>
   );
-}
+});
 
 export function AdminSitePagesEditor({
   pages,
-  setPages,
   saving,
   publishPhase,
   onSave,
 }: {
   pages: SitePages;
-  setPages: Dispatch<SetStateAction<SitePages | null>>;
   saving: boolean;
   publishPhase: PublishPhase;
-  onSave: (event: FormEvent) => void;
+  onSave: (next: SitePages) => void;
 }) {
+  const [draft, setDraft] = useState(pages);
   const [tab, setTab] = useState<TabId>("allgemein");
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  // Sync only when server payload version changes; key remount covers full resets.
+  useEffect(() => {
+    setDraft(pages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: pages.updatedAt
+  }, [pages.updatedAt]);
 
   function update(updater: (prev: SitePages) => SitePages) {
-    setPages((prev) => (prev ? updater(prev) : prev));
+    setDraft((prev) => updater(prev));
+  }
+
+  function selectTab(id: TabId, button: HTMLButtonElement) {
+    setTab(id);
+    tabsRef.current?.scrollIntoView({ block: "start" });
+    button.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+      behavior: "smooth",
+    });
   }
 
   return (
-    <form onSubmit={onSave} className="admin-form space-y-3">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave(draft);
+      }}
+      className="admin-form space-y-3"
+    >
       <ScreenHeader
         kicker="Website"
         title="Alle Texte"
@@ -106,7 +128,8 @@ export function AdminSitePagesEditor({
       />
 
       <div
-        className="admin-page-tabs mb-3 flex gap-2 overflow-x-auto pb-1"
+        ref={tabsRef}
+        className="admin-page-tabs admin-page-tabs--sticky mb-3 flex gap-2 overflow-x-auto pb-1"
         role="tablist"
         aria-label="Seitenbereich"
       >
@@ -119,7 +142,7 @@ export function AdminSitePagesEditor({
               role="tab"
               aria-selected={active}
               className={`admin-chip shrink-0 ${active ? "is-active" : ""}`}
-              onClick={() => setTab(item.id)}
+              onClick={(e) => selectTab(item.id, e.currentTarget)}
             >
               {item.label}
             </button>
@@ -132,7 +155,7 @@ export function AdminSitePagesEditor({
           <Section title="Skip-Link & Navigation">
             <Text
               label="Skip-Link (Barrierefreiheit)"
-              value={pages.chrome.skipLink}
+              value={draft.chrome.skipLink}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -142,7 +165,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Nav · Start"
-              value={pages.chrome.nav.start}
+              value={draft.chrome.nav.start}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -155,7 +178,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Nav · Speisekarte"
-              value={pages.chrome.nav.speisekarte}
+              value={draft.chrome.nav.speisekarte}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -168,7 +191,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Nav · Catering"
-              value={pages.chrome.nav.catering}
+              value={draft.chrome.nav.catering}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -181,7 +204,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Nav · Kochkurs"
-              value={pages.chrome.nav.kochkurs}
+              value={draft.chrome.nav.kochkurs}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -194,7 +217,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Nav · Kontakt"
-              value={pages.chrome.nav.kontakt}
+              value={draft.chrome.nav.kontakt}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -210,7 +233,7 @@ export function AdminSitePagesEditor({
           <Section title="Kontakt-Menü (Header)">
             <Text
               label="Kontaktanfrage · Titel"
-              value={pages.chrome.contactMenu.inquiry}
+              value={draft.chrome.contactMenu.inquiry}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -223,7 +246,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Kontaktanfrage · Hinweis"
-              value={pages.chrome.contactMenu.inquiryHint}
+              value={draft.chrome.contactMenu.inquiryHint}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -239,7 +262,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Menü · E-Mail"
-              value={pages.chrome.contactMenu.email}
+              value={draft.chrome.contactMenu.email}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -252,7 +275,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Menü · Anrufen"
-              value={pages.chrome.contactMenu.call}
+              value={draft.chrome.contactMenu.call}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -265,7 +288,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Menü öffnen (Aria)"
-              value={pages.chrome.contactMenu.openMenu}
+              value={draft.chrome.contactMenu.openMenu}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -278,7 +301,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Menü schließen (Aria)"
-              value={pages.chrome.contactMenu.closeMenu}
+              value={draft.chrome.contactMenu.closeMenu}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -294,7 +317,7 @@ export function AdminSitePagesEditor({
           <Section title="Footer · Spalten & Links">
             <Text
               label="Footer · Entdecken-Überschrift"
-              value={pages.chrome.footer.exploreLabel}
+              value={draft.chrome.footer.exploreLabel}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -307,7 +330,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Öffnungszeiten-Überschrift"
-              value={pages.chrome.footer.hoursLabel}
+              value={draft.chrome.footer.hoursLabel}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -320,7 +343,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Kontakt-Überschrift"
-              value={pages.chrome.footer.contactLabel}
+              value={draft.chrome.footer.contactLabel}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -333,7 +356,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Anfahrt & Karte"
-              value={pages.chrome.footer.mapsLink}
+              value={draft.chrome.footer.mapsLink}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -346,7 +369,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Kontaktformular"
-              value={pages.chrome.footer.contactForm}
+              value={draft.chrome.footer.contactForm}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -359,7 +382,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Route"
-              value={pages.chrome.footer.route}
+              value={draft.chrome.footer.route}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -372,7 +395,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Impressum"
-              value={pages.chrome.footer.impressum}
+              value={draft.chrome.footer.impressum}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -385,7 +408,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Datenschutz"
-              value={pages.chrome.footer.datenschutz}
+              value={draft.chrome.footer.datenschutz}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -398,7 +421,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Cookies"
-              value={pages.chrome.footer.cookies}
+              value={draft.chrome.footer.cookies}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -411,7 +434,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Inhaber-Präfix"
-              value={pages.chrome.footer.ownerPrefix}
+              value={draft.chrome.footer.ownerPrefix}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -424,7 +447,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Footer · Instagram-Präfix"
-              value={pages.chrome.footer.instagramPrefix}
+              value={draft.chrome.footer.instagramPrefix}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -438,7 +461,7 @@ export function AdminSitePagesEditor({
           </Section>
 
           <Section title="Footer · Entdecken-Links">
-            {pages.chrome.footer.exploreLinks.map((link, index) => (
+            {draft.chrome.footer.exploreLinks.map((link, index) => (
               <div key={`explore-${index}`} className="admin-section-body space-y-2 border-b border-[color:var(--admin-line)] pb-3 last:border-0 last:pb-0">
                 <p className="text-xs font-medium text-[color:var(--admin-muted)]">
                   Link {index + 1}
@@ -462,25 +485,14 @@ export function AdminSitePagesEditor({
                     })
                   }
                 />
-                <Text
-                  label="Href (Pfad)"
-                  value={link.href}
-                  onChange={(value) =>
-                    update((p) => {
-                      const exploreLinks = p.chrome.footer.exploreLinks.map(
-                        (item, i) =>
-                          i === index ? { ...item, href: value } : item,
-                      );
-                      return {
-                        ...p,
-                        chrome: {
-                          ...p.chrome,
-                          footer: { ...p.chrome.footer, exploreLinks },
-                        },
-                      };
-                    })
-                  }
-                />
+                <Field label="Href (Pfad)" hint="Fest durch die Navigation — nicht änderbar.">
+                  <input
+                    value={link.href}
+                    disabled
+                    readOnly
+                    className={fieldClass}
+                  />
+                </Field>
               </div>
             ))}
           </Section>
@@ -488,7 +500,7 @@ export function AdminSitePagesEditor({
           <Section title="Cookie-Banner">
             <Text
               label="Cookie · Titel"
-              value={pages.chrome.cookie.title}
+              value={draft.chrome.cookie.title}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -501,7 +513,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Cookie · Fließtext"
-              value={pages.chrome.cookie.lead}
+              value={draft.chrome.cookie.lead}
               rows={4}
               hint="Platzhalter: {privacy} und {imprint}"
               onChange={(value) =>
@@ -516,7 +528,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Cookie · Datenschutz-Linktext"
-              value={pages.chrome.cookie.privacyLabel}
+              value={draft.chrome.cookie.privacyLabel}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -529,7 +541,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Cookie · Impressum-Linktext"
-              value={pages.chrome.cookie.imprintLabel}
+              value={draft.chrome.cookie.imprintLabel}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -542,7 +554,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Cookie · Nur notwendige"
-              value={pages.chrome.cookie.btnNecessary}
+              value={draft.chrome.cookie.btnNecessary}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -555,7 +567,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Cookie · Alle akzeptieren"
-              value={pages.chrome.cookie.btnAcceptAll}
+              value={draft.chrome.cookie.btnAcceptAll}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -571,7 +583,7 @@ export function AdminSitePagesEditor({
           <Section title="Kochkurs-Promo (Popup)">
             <Text
               label="Promo · Kicker"
-              value={pages.chrome.coursePromo.kicker}
+              value={draft.chrome.coursePromo.kicker}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -584,7 +596,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Promo · Nächster Termin"
-              value={pages.chrome.coursePromo.nextLabel}
+              value={draft.chrome.coursePromo.nextLabel}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -597,7 +609,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Promo · Mehr erfahren"
-              value={pages.chrome.coursePromo.more}
+              value={draft.chrome.coursePromo.more}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -610,7 +622,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Promo · Schließen (Aria)"
-              value={pages.chrome.coursePromo.close}
+              value={draft.chrome.coursePromo.close}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -623,7 +635,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Promo · Uhr-Suffix"
-              value={pages.chrome.coursePromo.atTime}
+              value={draft.chrome.coursePromo.atTime}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -639,7 +651,7 @@ export function AdminSitePagesEditor({
           <Section title="Karte (Consent)">
             <Text
               label="Karte · Kicker"
-              value={pages.chrome.map.kicker}
+              value={draft.chrome.map.kicker}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -652,7 +664,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Karte · Consent-Text"
-              value={pages.chrome.map.consentText}
+              value={draft.chrome.map.consentText}
               rows={2}
               onChange={(value) =>
                 update((p) => ({
@@ -666,7 +678,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Karte · Laden-Button"
-              value={pages.chrome.map.load}
+              value={draft.chrome.map.load}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -679,7 +691,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Karte · Extern öffnen"
-              value={pages.chrome.map.openExternal}
+              value={draft.chrome.map.openExternal}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -695,7 +707,7 @@ export function AdminSitePagesEditor({
           <Section title="Standort-Labels (überall)">
             <Text
               label="Label · Öffnungszeiten"
-              value={pages.chrome.locationLabels.hours}
+              value={draft.chrome.locationLabels.hours}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -711,7 +723,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Label · Telefon"
-              value={pages.chrome.locationLabels.phone}
+              value={draft.chrome.locationLabels.phone}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -727,7 +739,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="CTA · Route planen"
-              value={pages.chrome.locationLabels.routeCta}
+              value={draft.chrome.locationLabels.routeCta}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -743,7 +755,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="CTA · In Google Maps"
-              value={pages.chrome.locationLabels.mapsCta}
+              value={draft.chrome.locationLabels.mapsCta}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -766,7 +778,7 @@ export function AdminSitePagesEditor({
           <Section title="Hero">
             <Text
               label="Hero-Titel Zeile 1"
-              value={pages.home.heroTitleLine1}
+              value={draft.home.heroTitleLine1}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -776,7 +788,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Hero-Titel Zeile 2"
-              value={pages.home.heroTitleLine2}
+              value={draft.home.heroTitleLine2}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -786,7 +798,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Hero · Route-Hinweis"
-              value={pages.home.routeHint}
+              value={draft.home.routeHint}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -796,7 +808,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Hero · CTA Speisekarte"
-              value={pages.home.ctaMenu}
+              value={draft.home.ctaMenu}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -806,7 +818,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Hero · CTA Karte"
-              value={pages.home.ctaMap}
+              value={draft.home.ctaMap}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -819,7 +831,7 @@ export function AdminSitePagesEditor({
           <Section title="Marke">
             <Text
               label="Markenname"
-              value={pages.home.brandName}
+              value={draft.home.brandName}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -829,7 +841,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Marken-Tagline"
-              value={pages.home.brandTagline}
+              value={draft.home.brandTagline}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -842,7 +854,7 @@ export function AdminSitePagesEditor({
           <Section title="Küche">
             <Text
               label="Küche · Eyebrow"
-              value={pages.home.kitchenEyebrow}
+              value={draft.home.kitchenEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -852,7 +864,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Küche · Überschrift"
-              value={pages.home.kitchenTitle}
+              value={draft.home.kitchenTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -862,7 +874,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Küche · Absatz 1"
-              value={pages.home.kitchenP1}
+              value={draft.home.kitchenP1}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -873,7 +885,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Küche · Absatz 2"
-              value={pages.home.kitchenP2}
+              value={draft.home.kitchenP2}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -884,7 +896,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Küche · CTA"
-              value={pages.home.kitchenCta}
+              value={draft.home.kitchenCta}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -897,7 +909,7 @@ export function AdminSitePagesEditor({
           <Section title="Angebote (3 Karten)">
             <Text
               label="Angebote · CTA-Label"
-              value={pages.home.offersCta}
+              value={draft.home.offersCta}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -905,7 +917,7 @@ export function AdminSitePagesEditor({
                 }))
               }
             />
-            {pages.home.offers.map((offer, index) => (
+            {draft.home.offers.map((offer, index) => (
               <div
                 key={`offer-${index}`}
                 className="space-y-2 border-b border-[color:var(--admin-line)] pb-3 last:border-0 last:pb-0"
@@ -938,18 +950,14 @@ export function AdminSitePagesEditor({
                     })
                   }
                 />
-                <Text
-                  label="Href"
-                  value={offer.href}
-                  onChange={(value) =>
-                    update((p) => {
-                      const offers = p.home.offers.map((item, i) =>
-                        i === index ? { ...item, href: value } : item,
-                      );
-                      return { ...p, home: { ...p.home, offers } };
-                    })
-                  }
-                />
+                <Field label="Href" hint="Fest durch die Navigation — nicht änderbar.">
+                  <input
+                    value={offer.href}
+                    disabled
+                    readOnly
+                    className={fieldClass}
+                  />
+                </Field>
               </div>
             ))}
           </Section>
@@ -957,7 +965,7 @@ export function AdminSitePagesEditor({
           <Section title="Mitnehmen-Band">
             <Text
               label="Mitnehmen · Eyebrow"
-              value={pages.home.takeawayEyebrow}
+              value={draft.home.takeawayEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -967,7 +975,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Mitnehmen · Titel Zeile 1"
-              value={pages.home.takeawayTitleLine1}
+              value={draft.home.takeawayTitleLine1}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -977,7 +985,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Mitnehmen · Titel Zeile 2"
-              value={pages.home.takeawayTitleLine2}
+              value={draft.home.takeawayTitleLine2}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -987,7 +995,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Mitnehmen · Fließtext"
-              value={pages.home.takeawayText}
+              value={draft.home.takeawayText}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -998,7 +1006,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Mitnehmen · CTA 1"
-              value={pages.home.takeawayCta1}
+              value={draft.home.takeawayCta1}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1008,7 +1016,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Mitnehmen · CTA 2"
-              value={pages.home.takeawayCta2}
+              value={draft.home.takeawayCta2}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1021,7 +1029,7 @@ export function AdminSitePagesEditor({
           <Section title="FAQ-Teaser (Startseite)">
             <Text
               label="FAQ · Eyebrow"
-              value={pages.home.faqEyebrow}
+              value={draft.home.faqEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1031,7 +1039,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="FAQ · Überschrift"
-              value={pages.home.faqTitle}
+              value={draft.home.faqTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1041,7 +1049,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="FAQ · Einleitung"
-              value={pages.home.faqLead}
+              value={draft.home.faqLead}
               rows={2}
               onChange={(value) =>
                 update((p) => ({
@@ -1059,7 +1067,7 @@ export function AdminSitePagesEditor({
           <Section title="Hero">
             <Text
               label="Hero · Eyebrow"
-              value={pages.speisekarte.heroEyebrow}
+              value={draft.speisekarte.heroEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1069,7 +1077,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Hero · Titel"
-              value={pages.speisekarte.heroTitle}
+              value={draft.speisekarte.heroTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1079,7 +1087,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Hero · Text"
-              value={pages.speisekarte.heroText}
+              value={draft.speisekarte.heroText}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -1093,7 +1101,7 @@ export function AdminSitePagesEditor({
           <Section title="PDF-Bereich">
             <Text
               label="PDF · Eyebrow"
-              value={pages.speisekarte.pdfEyebrow}
+              value={draft.speisekarte.pdfEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1103,7 +1111,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="PDF · Text"
-              value={pages.speisekarte.pdfText}
+              value={draft.speisekarte.pdfText}
               rows={2}
               onChange={(value) =>
                 update((p) => ({
@@ -1114,7 +1122,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="PDF · CTA"
-              value={pages.speisekarte.pdfCta}
+              value={draft.speisekarte.pdfCta}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1124,40 +1132,10 @@ export function AdminSitePagesEditor({
             />
           </Section>
 
-          <Section title="Wochenangebot & Chips">
-            <Text
-              label="Woche · Eyebrow"
-              value={pages.speisekarte.weeklyEyebrow}
-              onChange={(value) =>
-                update((p) => ({
-                  ...p,
-                  speisekarte: { ...p.speisekarte, weeklyEyebrow: value },
-                }))
-              }
-            />
-            <Text
-              label="Woche · Titel"
-              value={pages.speisekarte.weeklyTitle}
-              onChange={(value) =>
-                update((p) => ({
-                  ...p,
-                  speisekarte: { ...p.speisekarte, weeklyTitle: value },
-                }))
-              }
-            />
-            <Text
-              label="CTA · Vollständige Speisekarte"
-              value={pages.speisekarte.fullMenuCta}
-              onChange={(value) =>
-                update((p) => ({
-                  ...p,
-                  speisekarte: { ...p.speisekarte, fullMenuCta: value },
-                }))
-              }
-            />
+          <Section title="Chips">
             <Text
               label="Chip · Beliebte Gerichte"
-              value={pages.speisekarte.chipWeekly}
+              value={draft.speisekarte.chipWeekly}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1167,7 +1145,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Chip · Als PDF"
-              value={pages.speisekarte.chipPdf}
+              value={draft.speisekarte.chipPdf}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1180,7 +1158,7 @@ export function AdminSitePagesEditor({
           <Section title="Speisekarte-UI (Komponente)">
             <Text
               label="UI · Woche Eyebrow"
-              value={pages.speisekarteUi.weekEyebrow}
+              value={draft.speisekarteUi.weekEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1190,7 +1168,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="UI · Woche Titel"
-              value={pages.speisekarteUi.weekTitle}
+              value={draft.speisekarteUi.weekTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1200,7 +1178,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="UI · Zur vollständigen Speisekarte"
-              value={pages.speisekarteUi.toFullMenu}
+              value={draft.speisekarteUi.toFullMenu}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1210,7 +1188,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="UI · Kennzeichnung Titel"
-              value={pages.speisekarteUi.markingTitle}
+              value={draft.speisekarteUi.markingTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1220,7 +1198,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="UI · Kennzeichnung Text"
-              value={pages.speisekarteUi.markingText}
+              value={draft.speisekarteUi.markingText}
               rows={4}
               onChange={(value) =>
                 update((p) => ({
@@ -1238,7 +1216,7 @@ export function AdminSitePagesEditor({
           <Section title="Hero">
             <Text
               label="Hero · Eyebrow"
-              value={pages.catering.heroEyebrow}
+              value={draft.catering.heroEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1248,7 +1226,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Hero · Titel"
-              value={pages.catering.heroTitle}
+              value={draft.catering.heroTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1258,7 +1236,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Hero · Text"
-              value={pages.catering.heroText}
+              value={draft.catering.heroText}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -1272,7 +1250,7 @@ export function AdminSitePagesEditor({
           <Section title="Service">
             <Text
               label="Service · Eyebrow"
-              value={pages.catering.serviceEyebrow}
+              value={draft.catering.serviceEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1282,7 +1260,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Service · Überschrift"
-              value={pages.catering.serviceTitle}
+              value={draft.catering.serviceTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1292,7 +1270,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Service · Einleitung"
-              value={pages.catering.serviceLead}
+              value={draft.catering.serviceLead}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -1304,7 +1282,7 @@ export function AdminSitePagesEditor({
           </Section>
 
           <Section title="Leistungen">
-            {pages.catering.offerings.map((item, index) => (
+            {draft.catering.offerings.map((item, index) => (
               <div
                 key={`offering-${index}`}
                 className="space-y-2 border-b border-[color:var(--admin-line)] pb-3 last:border-0 last:pb-0"
@@ -1344,7 +1322,7 @@ export function AdminSitePagesEditor({
           <Section title="CTAs & Formular">
             <Text
               label="CTA · E-Mail"
-              value={pages.catering.ctaEmail}
+              value={draft.catering.ctaEmail}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1354,7 +1332,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="CTA · Anrufen"
-              value={pages.catering.ctaCall}
+              value={draft.catering.ctaCall}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1364,7 +1342,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular-Hinweis · vor Link"
-              value={pages.catering.formHintBefore}
+              value={draft.catering.formHintBefore}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1374,7 +1352,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular-Hinweis · Linktext"
-              value={pages.catering.formHintLink}
+              value={draft.catering.formHintLink}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1384,7 +1362,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular-Hinweis · nach Link"
-              value={pages.catering.formHintAfter}
+              value={draft.catering.formHintAfter}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1394,7 +1372,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular · Titel"
-              value={pages.catering.formTitle}
+              value={draft.catering.formTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1404,7 +1382,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular · Intro"
-              value={pages.catering.formIntro}
+              value={draft.catering.formIntro}
               rows={2}
               onChange={(value) =>
                 update((p) => ({
@@ -1415,7 +1393,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular · Betreff"
-              value={pages.catering.formSubject}
+              value={draft.catering.formSubject}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1432,7 +1410,7 @@ export function AdminSitePagesEditor({
           <Section title="Eyebrows & Überschriften">
             <Text
               label="Hero · Eyebrow"
-              value={pages.kochkurs.heroEyebrow}
+              value={draft.kochkurs.heroEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1442,7 +1420,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Mitte · Eyebrow"
-              value={pages.kochkurs.midEyebrow}
+              value={draft.kochkurs.midEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1452,7 +1430,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Details · Eyebrow"
-              value={pages.kochkurs.detailsEyebrow}
+              value={draft.kochkurs.detailsEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1462,7 +1440,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Details · Titel"
-              value={pages.kochkurs.detailsTitle}
+              value={draft.kochkurs.detailsTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1472,7 +1450,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Inklusive · Titel"
-              value={pages.kochkurs.includesTitle}
+              value={draft.kochkurs.includesTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1482,7 +1460,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Mitbringen · Titel"
-              value={pages.kochkurs.bringTitle}
+              value={draft.kochkurs.bringTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1492,7 +1470,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Treffpunkt · Titel"
-              value={pages.kochkurs.meetupTitle}
+              value={draft.kochkurs.meetupTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1505,7 +1483,7 @@ export function AdminSitePagesEditor({
           <Section title="Ablauf">
             <Text
               label="Ablauf · Eyebrow"
-              value={pages.kochkurs.flowEyebrow}
+              value={draft.kochkurs.flowEyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1515,7 +1493,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Ablauf · Titel"
-              value={pages.kochkurs.flowTitle}
+              value={draft.kochkurs.flowTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1525,7 +1503,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Ablauf · Einleitung"
-              value={pages.kochkurs.flowLead}
+              value={draft.kochkurs.flowLead}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -1534,7 +1512,7 @@ export function AdminSitePagesEditor({
                 }))
               }
             />
-            {pages.kochkurs.flowSteps.map((step, index) => (
+            {draft.kochkurs.flowSteps.map((step, index) => (
               <div
                 key={`flow-${index}`}
                 className="space-y-2 border-b border-[color:var(--admin-line)] pb-3 last:border-0 last:pb-0"
@@ -1579,7 +1557,7 @@ export function AdminSitePagesEditor({
           <Section title="Fakten-Labels">
             <Text
               label="Fakt · Termin"
-              value={pages.kochkurs.factTermin}
+              value={draft.kochkurs.factTermin}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1589,7 +1567,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Fakt · Beginn"
-              value={pages.kochkurs.factBeginn}
+              value={draft.kochkurs.factBeginn}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1599,7 +1577,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Fakt · Dauer"
-              value={pages.kochkurs.factDauer}
+              value={draft.kochkurs.factDauer}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1609,7 +1587,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Fakt · Preis"
-              value={pages.kochkurs.factPreis}
+              value={draft.kochkurs.factPreis}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1619,7 +1597,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Fakt · Plätze"
-              value={pages.kochkurs.factPlaetze}
+              value={draft.kochkurs.factPlaetze}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1629,7 +1607,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Fakt · Niveau"
-              value={pages.kochkurs.factNiveau}
+              value={draft.kochkurs.factNiveau}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1639,7 +1617,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Fakt · Gericht"
-              value={pages.kochkurs.factGericht}
+              value={draft.kochkurs.factGericht}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1652,7 +1630,7 @@ export function AdminSitePagesEditor({
           <Section title="CTAs & Formular">
             <Text
               label="CTA · E-Mail"
-              value={pages.kochkurs.ctaEmail}
+              value={draft.kochkurs.ctaEmail}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1662,7 +1640,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="CTA · Anrufen"
-              value={pages.kochkurs.ctaCall}
+              value={draft.kochkurs.ctaCall}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1672,7 +1650,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Alt-Hinweis · vor Link"
-              value={pages.kochkurs.formAltBefore}
+              value={draft.kochkurs.formAltBefore}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1682,7 +1660,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Alt-Hinweis · Linktext"
-              value={pages.kochkurs.formAltLink}
+              value={draft.kochkurs.formAltLink}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1692,7 +1670,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Alt-Hinweis · nach Link"
-              value={pages.kochkurs.formAltAfter}
+              value={draft.kochkurs.formAltAfter}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1702,7 +1680,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular · Titel"
-              value={pages.kochkurs.formTitle}
+              value={draft.kochkurs.formTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1712,7 +1690,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular · Intro"
-              value={pages.kochkurs.formIntro}
+              value={draft.kochkurs.formIntro}
               rows={2}
               onChange={(value) =>
                 update((p) => ({
@@ -1723,7 +1701,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular · Betreff"
-              value={pages.kochkurs.formSubject}
+              value={draft.kochkurs.formSubject}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1740,7 +1718,7 @@ export function AdminSitePagesEditor({
           <Section title="Hero">
             <Text
               label="Eyebrow"
-              value={pages.mitnehmen.eyebrow}
+              value={draft.mitnehmen.eyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1750,7 +1728,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Titel"
-              value={pages.mitnehmen.title}
+              value={draft.mitnehmen.title}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1760,7 +1738,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Einleitung"
-              value={pages.mitnehmen.lead}
+              value={draft.mitnehmen.lead}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -1774,7 +1752,7 @@ export function AdminSitePagesEditor({
           <Section title="Blöcke">
             <Text
               label="Block 1 · Titel"
-              value={pages.mitnehmen.block1Title}
+              value={draft.mitnehmen.block1Title}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1784,7 +1762,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Block 1 · Absatz 1"
-              value={pages.mitnehmen.block1P1}
+              value={draft.mitnehmen.block1P1}
               rows={3}
               hint="Platzhalter: {phone}"
               onChange={(value) =>
@@ -1796,7 +1774,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Block 1 · Absatz 2"
-              value={pages.mitnehmen.block1P2}
+              value={draft.mitnehmen.block1P2}
               rows={2}
               hint="Platzhalter: {street}, {zip}, {city}"
               onChange={(value) =>
@@ -1808,7 +1786,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Block 2 · Titel"
-              value={pages.mitnehmen.block2Title}
+              value={draft.mitnehmen.block2Title}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1818,7 +1796,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Block 2 · Text"
-              value={pages.mitnehmen.block2P2}
+              value={draft.mitnehmen.block2P2}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -1829,7 +1807,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Block 3 · Titel"
-              value={pages.mitnehmen.block3Title}
+              value={draft.mitnehmen.block3Title}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1839,7 +1817,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Block 3 · Text"
-              value={pages.mitnehmen.block3P1}
+              value={draft.mitnehmen.block3P1}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -1853,7 +1831,7 @@ export function AdminSitePagesEditor({
           <Section title="CTAs">
             <Text
               label="CTA · Speisekarte"
-              value={pages.mitnehmen.ctaMenu}
+              value={draft.mitnehmen.ctaMenu}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1863,7 +1841,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="CTA · Anfahrt"
-              value={pages.mitnehmen.ctaAnfahrt}
+              value={draft.mitnehmen.ctaAnfahrt}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1880,7 +1858,7 @@ export function AdminSitePagesEditor({
           <Section title="Hero">
             <Text
               label="Eyebrow"
-              value={pages.ueberUns.eyebrow}
+              value={draft.ueberUns.eyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1890,7 +1868,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Titel"
-              value={pages.ueberUns.title}
+              value={draft.ueberUns.title}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1900,7 +1878,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Einleitung"
-              value={pages.ueberUns.lead}
+              value={draft.ueberUns.lead}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -1914,7 +1892,7 @@ export function AdminSitePagesEditor({
           <Section title="Abschnitte">
             <Text
               label="Bedeutung · Titel"
-              value={pages.ueberUns.meaningTitle}
+              value={draft.ueberUns.meaningTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1924,7 +1902,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Ort · Titel"
-              value={pages.ueberUns.placeTitle}
+              value={draft.ueberUns.placeTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1934,7 +1912,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Ort · Absatz 1"
-              value={pages.ueberUns.placeP1}
+              value={draft.ueberUns.placeP1}
               rows={3}
               hint="Platzhalter: {fullName}, {street}"
               onChange={(value) =>
@@ -1946,7 +1924,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Ort · Inhaber-Präfix"
-              value={pages.ueberUns.placeP2Prefix}
+              value={draft.ueberUns.placeP2Prefix}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1956,7 +1934,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Öffnungszeiten · Titel"
-              value={pages.ueberUns.hoursTitle}
+              value={draft.ueberUns.hoursTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1966,7 +1944,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Öffnungszeiten · Text"
-              value={pages.ueberUns.hoursP2}
+              value={draft.ueberUns.hoursP2}
               rows={2}
               onChange={(value) =>
                 update((p) => ({
@@ -1980,7 +1958,7 @@ export function AdminSitePagesEditor({
           <Section title="CTAs">
             <Text
               label="CTA · Speisekarte"
-              value={pages.ueberUns.ctaMenu}
+              value={draft.ueberUns.ctaMenu}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -1990,7 +1968,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="CTA · Kontakt"
-              value={pages.ueberUns.ctaKontakt}
+              value={draft.ueberUns.ctaKontakt}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2007,7 +1985,7 @@ export function AdminSitePagesEditor({
           <Section title="Hero">
             <Text
               label="Eyebrow"
-              value={pages.anfahrt.eyebrow}
+              value={draft.anfahrt.eyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2017,7 +1995,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Titel"
-              value={pages.anfahrt.title}
+              value={draft.anfahrt.title}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2027,7 +2005,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Einleitung"
-              value={pages.anfahrt.lead}
+              value={draft.anfahrt.lead}
               rows={2}
               hint="Platzhalter: {street}, {zip}, {city}"
               onChange={(value) =>
@@ -2042,7 +2020,7 @@ export function AdminSitePagesEditor({
           <Section title="Abschnitte">
             <Text
               label="Adresse · Titel"
-              value={pages.anfahrt.addressTitle}
+              value={draft.anfahrt.addressTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2052,7 +2030,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Telefon-Label"
-              value={pages.anfahrt.phoneLabel}
+              value={draft.anfahrt.phoneLabel}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2062,7 +2040,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Öffnungszeiten · Titel"
-              value={pages.anfahrt.hoursTitle}
+              value={draft.anfahrt.hoursTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2072,7 +2050,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Anreise · Titel"
-              value={pages.anfahrt.travelTitle}
+              value={draft.anfahrt.travelTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2082,7 +2060,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Anreise · Text"
-              value={pages.anfahrt.travelText}
+              value={draft.anfahrt.travelText}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -2096,7 +2074,7 @@ export function AdminSitePagesEditor({
           <Section title="CTAs">
             <Text
               label="CTA · Route"
-              value={pages.anfahrt.ctaRoute}
+              value={draft.anfahrt.ctaRoute}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2106,7 +2084,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="CTA · Anrufen"
-              value={pages.anfahrt.ctaCall}
+              value={draft.anfahrt.ctaCall}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2116,7 +2094,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="CTA · Kontakt"
-              value={pages.anfahrt.ctaKontakt}
+              value={draft.anfahrt.ctaKontakt}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2133,7 +2111,7 @@ export function AdminSitePagesEditor({
           <Section title="Hero">
             <Text
               label="Eyebrow"
-              value={pages.kontakt.eyebrow}
+              value={draft.kontakt.eyebrow}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2143,7 +2121,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Titel"
-              value={pages.kontakt.title}
+              value={draft.kontakt.title}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2153,7 +2131,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Einleitung"
-              value={pages.kontakt.lead}
+              value={draft.kontakt.lead}
               rows={3}
               onChange={(value) =>
                 update((p) => ({
@@ -2167,7 +2145,7 @@ export function AdminSitePagesEditor({
           <Section title="Kontakt-Labels">
             <Text
               label="Label · Telefon"
-              value={pages.kontakt.labelPhone}
+              value={draft.kontakt.labelPhone}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2177,7 +2155,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Label · E-Mail"
-              value={pages.kontakt.labelEmail}
+              value={draft.kontakt.labelEmail}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2187,7 +2165,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Label · Adresse"
-              value={pages.kontakt.labelAddress}
+              value={draft.kontakt.labelAddress}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2197,7 +2175,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Label · Öffnungszeiten"
-              value={pages.kontakt.labelHours}
+              value={draft.kontakt.labelHours}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2207,7 +2185,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Maps-Linktext"
-              value={pages.kontakt.mapsLink}
+              value={draft.kontakt.mapsLink}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2220,7 +2198,7 @@ export function AdminSitePagesEditor({
           <Section title="Formular auf /kontakt">
             <Text
               label="Formular · Titel"
-              value={pages.kontakt.formTitle}
+              value={draft.kontakt.formTitle}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2230,7 +2208,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular · Intro"
-              value={pages.kontakt.formIntro}
+              value={draft.kontakt.formIntro}
               rows={2}
               onChange={(value) =>
                 update((p) => ({
@@ -2241,7 +2219,7 @@ export function AdminSitePagesEditor({
             />
             <Text
               label="Formular · Betreff"
-              value={pages.kontakt.formSubject}
+              value={draft.kontakt.formSubject}
               onChange={(value) =>
                 update((p) => ({
                   ...p,
@@ -2260,7 +2238,7 @@ export function AdminSitePagesEditor({
             <button
               type="button"
               className="btn-gold !px-3 !py-1.5 text-sm"
-              disabled={pages.faqs.length >= MAX_FAQS}
+              disabled={draft.faqs.length >= MAX_FAQS}
               onClick={() =>
                 update((p) => {
                   if (p.faqs.length >= MAX_FAQS) return p;
@@ -2282,12 +2260,12 @@ export function AdminSitePagesEditor({
             Maximal {MAX_FAQS} Einträge. Wird auf der Startseite und ggf. in
             FAQ-Bereichen genutzt.
           </p>
-          {pages.faqs.length === 0 ? (
+          {draft.faqs.length === 0 ? (
             <p className="text-sm text-[color:var(--admin-muted)]">
               Noch keine FAQ-Einträge.
             </p>
           ) : null}
-          {pages.faqs.map((item, index) => (
+          {draft.faqs.map((item, index) => (
             <div
               key={`faq-${index}`}
               className="space-y-2 border-b border-[color:var(--admin-line)] pb-3 last:border-0 last:pb-0"
@@ -2343,7 +2321,7 @@ export function AdminSitePagesEditor({
         <Section title="Kontaktformular (geteilt)">
           <Text
             label="Standard · Titel"
-            value={pages.contactForm.defaultTitle}
+            value={draft.contactForm.defaultTitle}
             onChange={(value) =>
               update((p) => ({
                 ...p,
@@ -2353,7 +2331,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Standard · Intro"
-            value={pages.contactForm.defaultIntro}
+            value={draft.contactForm.defaultIntro}
             rows={2}
             onChange={(value) =>
               update((p) => ({
@@ -2364,7 +2342,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Feld · Name"
-            value={pages.contactForm.nameLabel}
+            value={draft.contactForm.nameLabel}
             onChange={(value) =>
               update((p) => ({
                 ...p,
@@ -2374,7 +2352,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Feld · E-Mail"
-            value={pages.contactForm.emailLabel}
+            value={draft.contactForm.emailLabel}
             onChange={(value) =>
               update((p) => ({
                 ...p,
@@ -2384,7 +2362,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Feld · Telefon"
-            value={pages.contactForm.phoneLabel}
+            value={draft.contactForm.phoneLabel}
             onChange={(value) =>
               update((p) => ({
                 ...p,
@@ -2394,7 +2372,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Feld · Nachricht"
-            value={pages.contactForm.messageLabel}
+            value={draft.contactForm.messageLabel}
             onChange={(value) =>
               update((p) => ({
                 ...p,
@@ -2404,7 +2382,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Button · Senden"
-            value={pages.contactForm.submit}
+            value={draft.contactForm.submit}
             onChange={(value) =>
               update((p) => ({
                 ...p,
@@ -2414,7 +2392,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Status · Wird gesendet"
-            value={pages.contactForm.sending}
+            value={draft.contactForm.sending}
             onChange={(value) =>
               update((p) => ({
                 ...p,
@@ -2424,7 +2402,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Status · Erfolgreich"
-            value={pages.contactForm.sent}
+            value={draft.contactForm.sent}
             rows={2}
             onChange={(value) =>
               update((p) => ({
@@ -2435,7 +2413,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Fehler · Senden"
-            value={pages.contactForm.errorSend}
+            value={draft.contactForm.errorSend}
             rows={2}
             onChange={(value) =>
               update((p) => ({
@@ -2446,7 +2424,7 @@ export function AdminSitePagesEditor({
           />
           <Text
             label="Fehler · Netzwerk"
-            value={pages.contactForm.errorNetwork}
+            value={draft.contactForm.errorNetwork}
             rows={2}
             onChange={(value) =>
               update((p) => ({
@@ -2462,7 +2440,7 @@ export function AdminSitePagesEditor({
         saving={saving}
         phase={publishPhase}
         label="Alle Texte veröffentlichen"
-        hint="Speichert alle Marketing-Texte und geht sofort live auf der Website."
+        hint="Sofort live."
       />
     </form>
   );
