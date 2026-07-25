@@ -8,12 +8,14 @@ Admin: https://www.wassana-thai-imbiss.de/admin
 
 1. **Admin-App** unter `/admin` öffnen und Passwort eingeben.
 2. Auf dem Handy als App speichern (Android: installieren / iPhone: Teilen → Home-Bildschirm).
-3. Unten navigieren:
+3. In der App **Benachrichtigungen erlauben** (Home oder Betrieb) — dann kommen Hinweise zu Kochkursen und News wie bei einer echten App.
+4. Unten navigieren:
    - **Kochkurs** — Termin & Texte
    - **Anfragen** — Nachrichten aus Formularen
    - **Banner** — Top-Leiste (Mittagsangebot): Text, Link, Farben
    - **Texte** — Startseite, Zeiten, Schüler-Mittag, Standort
    - **Wochenkarte** — Mo–Fr Gerichte & Preise
+   - **Betrieb** — Inhaberdaten, Kontakt, Social, Benachrichtigungen / News senden
 
 ## Vercel (einmalig prüfen)
 
@@ -28,6 +30,12 @@ Project **wassana** → Settings → Environment Variables:
 | `CONTACT_TO` | Empfänger (Inhaber-Mail) |
 | `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | Dauerhafte CMS-Speicherung (Texte/Menü/Kochkurs) |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional Search-Console Meta |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Push-Benachrichtigungen Admin-App (Public) |
+| `VAPID_PRIVATE_KEY` | Push-Benachrichtigungen Admin-App (Private) |
+| `VAPID_SUBJECT` | z. B. `mailto:wassanathaiimbiss@icloud.de` |
+
+VAPID-Keys erzeugen: `npx web-push generate-vapid-keys`  
+Ohne diese Keys funktionieren lokale Mitteilungen auf dem Gerät; Push bei geschlossener App braucht die Keys auf Vercel.
 
 Nach Änderungen an Env-Variablen: Redeploy.
 

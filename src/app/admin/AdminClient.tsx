@@ -26,6 +26,12 @@ import {
   Toggle,
 } from "./ui";
 import { ADMIN_TAB_ICONS } from "./icons";
+import {
+  enableAdminPushNotifications,
+  getNotificationPermission,
+  sendAdminPush,
+  showLocalAdminNotification,
+} from "./push-client";
 
 type Course = CookingCourseData;
 
@@ -108,6 +114,12 @@ export function AdminClient() {
   const [business, setBusiness] = useState<BusinessProfile | null>(null);
   const [runtime, setRuntime] = useState<SiteRuntime | null>(null);
   const [liveBusy, setLiveBusy] = useState<"banner" | "course" | null>(null);
+  const [notifPermission, setNotifPermission] = useState<
+    NotificationPermission | "unsupported" | "unknown"
+  >("unknown");
+  const [pushDeviceCount, setPushDeviceCount] = useState(0);
+  const [newsTitle, setNewsTitle] = useState("Wassana News");
+  const [newsBody, setNewsBody] = useState("");
 
   const loadInbox = useCallback(async () => {
     const res = await fetch("/api/admin/inquiries", { cache: "no-store" });
@@ -272,6 +284,79 @@ export function AdminClient() {
     };
   }, []);
 
+  useEffect(() => {
+    void getNotificationPermission().then(setNotifPermission);
+  }, [authed]);
+
+  async function refreshPushCount() {
+    try {
+      const res = await fetch("/api/admin/push/subscribe", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = (await res.json()) as { count?: number };
+      setPushDeviceCount(data.count || 0);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  useEffect(() => {
+    if (authed) void refreshPushCount();
+  }, [authed]);
+
+  async function enableNotifications() {
+    setSaving(true);
+    setError("");
+    setStatus("");
+    try {
+      const result = await enableAdminPushNotifications();
+      setNotifPermission(result.permission || (await getNotificationPermission()));
+      if (!result.ok) {
+        setError(result.error || "Benachrichtigungen nicht aktiv.");
+        return;
+      }
+      await refreshPushCount();
+      setStatus(result.error || "Benachrichtigungen sind aktiv.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function sendNewsNotification(event?: FormEvent) {
+    event?.preventDefault();
+    if (!newsTitle.trim() || !newsBody.trim()) {
+      setError("Bitte Titel und Text für die News ausfüllen.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    setStatus("");
+    try {
+      await showLocalAdminNotification({
+        title: newsTitle.trim(),
+        body: newsBody.trim(),
+        url: "/admin",
+        tag: "news",
+      });
+      const result = await sendAdminPush({
+        title: newsTitle.trim(),
+        body: newsBody.trim(),
+        url: "/admin",
+        tag: "news",
+      });
+      if (!result.ok) {
+        setStatus(
+          result.error ||
+            "Lokal angezeigt. Push an andere Geräte ggf. noch nicht konfiguriert.",
+        );
+        return;
+      }
+      setStatus(`News gesendet (${result.sent} Gerät${result.sent === 1 ? "" : "e"}).`);
+      setNewsBody("");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function dismissInstallBanner() {
     try {
       window.localStorage.setItem("wassana-admin-install-dismissed", "1");
@@ -364,6 +449,22 @@ export function AdminClient() {
         data?.warning ||
           `Kochkurs gespeichert — Widget: ${course.title} am ${formatCourseDate(course.date)}`,
       );
+      if (data?.active) {
+        const title = "Neuer Kochkurs";
+        const body = `${data.title || "Thai Kochkurs"} am ${formatCourseDate(data.date)}`;
+        void showLocalAdminNotification({
+          title,
+          body,
+          url: "/admin",
+          tag: "course",
+        });
+        void sendAdminPush({
+          title,
+          body,
+          url: "/admin",
+          tag: "course",
+        });
+      }
     } catch {
       setError("Netzwerkfehler beim Speichern.");
     } finally {
@@ -808,6 +909,23 @@ export function AdminClient() {
                   </button>
                 </div>
 
+
+                {notifPermission === "default" || notifPermission === "unknown" ? (
+                  <Section title="Mitteilungen">
+                    <p className="text-sm text-[color:var(--muted)]">
+                      App-Benachrichtigungen für Kochkurse und News aktivieren —
+                      erscheint wie bei einer echten Handy-App.
+                    </p>
+                    <button
+                      type="button"
+                      className="btn-primary mt-3 w-full"
+                      onClick={() => void enableNotifications()}
+                      disabled={saving}
+                    >
+                      Benachrichtigungen erlauben
+                    </button>
+                  </Section>
+                ) : null}
                 <Section title="Live-Schaltung">
                   <Toggle
                     checked={Boolean(content?.topBanner.active)}
@@ -1928,6 +2046,69 @@ export function AdminClient() {
                     />
                   </Field>
                 </Section>
+
+                <Section title="App-Benachrichtigungen">
+                  <p className="text-sm text-[color:var(--muted)]">
+                    Wie bei einer echten App: Nachrichten zu Kochkursen und News
+                    auf dem Homescreen. Am besten in der installierten App
+                    erlauben.
+                  </p>
+                  <div className="admin-status-grid mt-2">
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">Status</p>
+                      <p className="admin-status-value">
+                        {notifPermission === "granted"
+                          ? "An"
+                          : notifPermission === "denied"
+                            ? "Blockiert"
+                            : notifPermission === "unsupported"
+                              ? "— "
+                              : "Aus"}
+                      </p>
+                      <p className="admin-status-meta">
+                        {pushDeviceCount
+                          ? `${pushDeviceCount} Gerät registriert`
+                          : "noch kein Push-Gerät"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-primary mt-3 w-full"
+                    onClick={() => void enableNotifications()}
+                    disabled={saving || notifPermission === "granted"}
+                  >
+                    {notifPermission === "granted"
+                      ? "Benachrichtigungen aktiv"
+                      : "Benachrichtigungen erlauben"}
+                  </button>
+                  <Field label="News-Titel">
+                    <input
+                      value={newsTitle}
+                      onChange={(e) => setNewsTitle(e.target.value)}
+                      className={fieldClass}
+                      placeholder="Wassana News"
+                    />
+                  </Field>
+                  <Field label="News-Text">
+                    <textarea
+                      value={newsBody}
+                      onChange={(e) => setNewsBody(e.target.value)}
+                      className={fieldClass}
+                      rows={3}
+                      placeholder="Kurze Nachricht an die App…"
+                    />
+                  </Field>
+                  <button
+                    type="button"
+                    className="btn-gold w-full"
+                    onClick={() => void sendNewsNotification()}
+                    disabled={saving}
+                  >
+                    News jetzt senden
+                  </button>
+                </Section>
+
                 <StickySave saving={saving} label="Betriebsdaten speichern" />
               </form>
             ) : null}
