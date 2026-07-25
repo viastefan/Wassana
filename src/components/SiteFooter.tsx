@@ -75,23 +75,8 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="relative min-h-[120px] overflow-hidden border-t border-[color:var(--line)]">
-        <Image
-          src="/images/soup.jpg"
-          alt=""
-          fill
-          className="object-cover opacity-30"
-          sizes="100vw"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, var(--bg-soft) 0%, color-mix(in srgb, var(--bg-soft) 70%, transparent) 45%, color-mix(in srgb, var(--bg-soft) 85%, transparent) 100%)",
-          }}
-          aria-hidden
-        />
-        <div className="relative mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 text-sm text-[color:var(--muted)] md:flex-row md:items-center md:justify-between md:px-8">
+      <div className="border-t border-[color:var(--line)]">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 text-sm text-[color:var(--muted)] md:flex-row md:items-center md:justify-between md:px-8">
           <p>
             © {new Date().getFullYear()} {site.fullName}
           </p>

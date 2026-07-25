@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { ContactForm } from "@/components/ContactForm";
-import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import { site } from "@/lib/site";
 
@@ -21,29 +19,21 @@ const mapsUrl = site.maps.place;
 
 export default function KontaktPage() {
   return (
-    <main>
-      <MediaBand
-        src="/images/hero.jpg"
-        alt="Wassana Thai Imbiss in Landshut"
-        eyebrow="Kontakt Landshut"
-        title="Schreib uns oder ruf an"
-        text="Für Bestellungen, Catering oder den Kochkurs — mitten in Landshut."
-        priority
-        height="short"
-      />
-
-      <section className="mx-auto grid max-w-6xl gap-14 px-5 py-12 md:grid-cols-2 md:gap-16 md:px-8 md:py-20">
+    <main className="pt-24">
+      <section className="mx-auto grid max-w-6xl gap-14 px-5 py-12 md:grid-cols-2 md:gap-20 md:px-8 md:py-20">
         <Reveal>
-          <div className="relative mb-10 aspect-[4/3] overflow-hidden">
-            <Image
-              src="/images/curry.jpg"
-              alt="Gerichte von Wassana"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </div>
-          <div className="space-y-6">
+          <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+            Kontakt Landshut
+          </p>
+          <h1 className="font-display mt-3 text-4xl text-[color:var(--red)] md:text-5xl">
+            Schreib uns oder ruf an
+          </h1>
+          <p className="mt-5 max-w-md text-lg text-[color:var(--muted)]">
+            Für Bestellungen, Catering oder den Kochkurs sind wir gerne für dich
+            da — mitten in Landshut.
+          </p>
+
+          <div className="mt-10 space-y-6">
             <div>
               <p className="text-sm text-[color:var(--gold)]">Telefon</p>
               <a

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ImageStrip, SplitMedia } from "@/components/Media";
+import { SplitMedia } from "@/components/Media";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
@@ -118,48 +118,52 @@ export default function HomePage() {
         </Reveal>
       </SplitMedia>
 
-      <ImageStrip
-        items={[
-          {
-            src: "/images/soup.jpg",
-            alt: "Thai-Suppe",
-            label: "Speisekarte",
-            href: "/speisekarte",
-          },
-          {
-            src: "/images/ingredients.jpg",
-            alt: "Frische Zutaten",
-            label: "Kochkurs",
-            href: "/kochkurs",
-          },
-          {
-            src: "/images/hero.jpg",
-            alt: "Thai-Gericht zum Mitnehmen",
-            label: "Catering",
-            href: "/catering",
-          },
-        ]}
-      />
+      <section className="bg-[color:var(--bg-soft)]" aria-label="Angebot">
+        <div className="mx-auto grid max-w-6xl gap-0 px-5 md:grid-cols-3 md:px-8">
+          {[
+            {
+              title: "Speisekarte",
+              text: "Wochenkarte und Klassiker bei Wassana.",
+              href: "/speisekarte",
+            },
+            {
+              title: "Catering",
+              text: "Events inkl. Geschirr — von Wassana.",
+              href: "/catering",
+            },
+            {
+              title: "Kochkurs",
+              text: "Schritt für Schritt Thai kochen mit Wassana.",
+              href: "/kochkurs",
+            },
+          ].map((item, index) => (
+            <Reveal key={item.title} delay={(index % 3) as 0 | 1 | 2}>
+              <Link
+                href={item.href}
+                className="group block border-t border-[color:var(--line)] py-10 transition md:border-t-0 md:border-l md:px-8 md:first:border-l-0 md:first:pl-0"
+              >
+                <p className="text-sm text-[color:var(--gold)]">0{index + 1}</p>
+                <h2 className="font-display mt-3 text-2xl text-[color:var(--red)] transition group-hover:opacity-75">
+                  {item.title}
+                </h2>
+                <p className="mt-2 text-[color:var(--muted)]">{item.text}</p>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
       <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
         <Wochenkarte compact />
       </section>
 
-      <section className="closing-band">
-        <Image
-          src="/images/ingredients.jpg"
-          alt=""
-          fill
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="closing-band-veil" aria-hidden />
-        <div className="closing-band-copy">
+      <section className="border-t border-[color:var(--line)] bg-[color:var(--paper)]">
+        <div className="mx-auto max-w-2xl px-5 py-14 text-center md:px-8 md:py-16">
           <Reveal>
-            <p className="font-display text-3xl md:text-4xl">
+            <p className="font-display text-3xl text-[color:var(--red)] md:text-4xl">
               Bis bald bei Wassana
             </p>
-            <p className="mt-4 leading-relaxed text-white/80">
+            <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
               {site.hours.weekdaysLong}. {site.hours.weekend}.
             </p>
             <a href={site.phoneHref} className="btn-primary mt-8 inline-flex">
