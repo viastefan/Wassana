@@ -45,7 +45,8 @@ async function writeToBlob(
       contentType: "application/json",
       addRandomSuffix: false,
       allowOverwrite: true,
-      cacheControlMaxAge: 60,
+      // CMS must be readable immediately after Admin publish.
+      cacheControlMaxAge: 0,
     });
     return { ok: true };
   } catch (error) {
@@ -67,7 +68,14 @@ export async function readJsonFromBlob<T>(
 
   try {
     const meta = await head(cmsBlobPath(githubPath), { token });
-    const res = await fetch(meta.url, { cache: "no-store" });
+    const bust = encodeURIComponent(
+      String(meta.uploadedAt || meta.pathname || Date.now()),
+    );
+    const url = `${meta.url}${meta.url.includes("?") ? "&" : "?"}v=${bust}`;
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
@@ -75,22 +83,38 @@ export async function readJsonFromBlob<T>(
   }
 }
 
+function updatedAtMs(value: unknown) {
+  if (!value || typeof value !== "object") return 0;
+  const stamp = (value as { updatedAt?: unknown }).updatedAt;
+  if (typeof stamp !== "string") return 0;
+  const ms = Date.parse(stamp);
+  return Number.isFinite(ms) ? ms : 0;
+}
+
 /**
- * Read order for live CMS: Blob → /tmp → repo data file.
- * After an Admin save on Vercel, Blob is the source of truth.
+ * Read order for live CMS: freshest among Blob, /tmp, and repo data file.
+ * After an Admin save, Blob is usually newest — but CDN lag can briefly
+ * leave Blob behind local/tmp writes, so we compare `updatedAt`.
  */
 export async function readJsonWithFallback<T>(
   dataPath: string,
   tmpPath: string,
   githubPath: string,
 ): Promise<T | null> {
-  const fromBlob = await readJsonFromBlob<T>(githubPath);
-  if (fromBlob) return fromBlob;
+  const [fromBlob, fromTmp, fromDisk] = await Promise.all([
+    readJsonFromBlob<T>(githubPath),
+    readJsonFile<T>(tmpPath),
+    readJsonFile<T>(dataPath),
+  ]);
 
-  const fromTmp = await readJsonFile<T>(tmpPath);
-  if (fromTmp) return fromTmp;
+  const candidates: T[] = [];
+  if (fromBlob) candidates.push(fromBlob);
+  if (fromTmp) candidates.push(fromTmp);
+  if (fromDisk) candidates.push(fromDisk);
+  if (!candidates.length) return null;
 
-  return readJsonFile<T>(dataPath);
+  candidates.sort((a, b) => updatedAtMs(b) - updatedAtMs(a));
+  return candidates[0] ?? null;
 }
 
 export async function writeJsonWithFallback(
