@@ -68,7 +68,7 @@ export function Wochenkarte({
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {menu.days.map((day, index) => (
             <Reveal key={`${day.day}-${index}`} delay={(index % 3) as 0 | 1 | 2}>
-              <article className="h-full border-t border-[color:var(--gold-soft)] pt-5">
+              <article className="h-full border-t border-[color:var(--gold-soft)] px-4 pt-5 sm:px-0">
                 <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
                   {day.day}
                 </p>
