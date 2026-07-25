@@ -778,7 +778,7 @@ export function AdminClient() {
       >
         ×
       </button>
-      <p className="admin-kicker !text-[color:var(--gold-soft)]">Web-App</p>
+      <p className="admin-kicker !text-[color:var(--admin-gold-soft)]">Web-App</p>
       <h2 className="font-display mt-2 text-2xl text-white md:text-[1.7rem]">
         App jetzt herunterladen
       </h2>
@@ -790,7 +790,7 @@ export function AdminClient() {
         {installEvent ? (
           <button
             type="button"
-            className="btn-primary !bg-white !text-[color:var(--red)] hover:!bg-[color:var(--bg)]"
+            className="btn-primary !bg-white !text-[color:var(--admin-burgundy)] hover:!bg-[color:var(--admin-bg)]"
             onClick={() => void onInstall()}
           >
             App installieren
@@ -811,7 +811,7 @@ export function AdminClient() {
   ) : null;
 
   return (
-    <div className="admin-shell min-h-[100svh] text-[color:var(--ink)]">
+    <div className="admin-shell min-h-[100svh] text-[color:var(--admin-ink)]">
       <header className="admin-topbar">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3.5">
           <div className="admin-brand-mark">
@@ -820,15 +820,15 @@ export function AdminClient() {
               alt="Wassana"
               width={40}
               height={40}
-              className="h-9 w-9 rounded-full object-contain bg-[color:var(--paper)] p-0.5"
+              className="h-9 w-9 rounded-full object-contain bg-[color:var(--admin-raised)] p-0.5"
               priority
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-lg text-[color:var(--red)]">
+            <p className="truncate font-display text-lg text-[color:var(--admin-burgundy)]">
               Wassana Verwaltung
             </p>
-            <p className="truncate text-xs text-[color:var(--muted)]">
+            <p className="truncate text-xs text-[color:var(--admin-muted)]">
               Laden-App · Banner, Menü, Anfragen
             </p>
           </div>
@@ -850,7 +850,7 @@ export function AdminClient() {
         {checking ? (
           <div className="admin-login-card">
             <p className="admin-kicker">Laden</p>
-            <p className="mt-2 font-display text-2xl text-[color:var(--red)]">
+            <p className="mt-2 font-display text-2xl text-[color:var(--admin-burgundy)]">
               Verwaltung startet …
             </p>
           </div>
@@ -859,15 +859,15 @@ export function AdminClient() {
             {installBlock}
             <form onSubmit={onLogin} className="admin-login-card space-y-4">
               <p className="admin-kicker">Zugang</p>
-              <h1 className="font-display text-3xl text-[color:var(--red)]">
+              <h1 className="font-display text-3xl text-[color:var(--admin-burgundy)]">
                 Anmelden
               </h1>
-              <p className="text-[color:var(--muted)] leading-relaxed">
+              <p className="text-[color:var(--admin-muted)] leading-relaxed">
                 Danach steuerst du Kochkurs, Anfragen, Banner, Texte und die
                 Wochenkarte — direkt als App.
               </p>
               <label className="block">
-                <span className="text-sm text-[color:var(--muted)]">
+                <span className="text-sm text-[color:var(--admin-muted)]">
                   Passwort
                 </span>
                 <input
@@ -880,7 +880,7 @@ export function AdminClient() {
                 />
               </label>
               {loginError ? (
-                <p className="text-sm text-[color:var(--red)]">{loginError}</p>
+                <p className="text-sm text-[color:var(--admin-burgundy)]">{loginError}</p>
               ) : null}
               <button type="submit" className="btn-primary" disabled={saving}>
                 {saving ? "Prüfen …" : "In die Verwaltung"}
@@ -896,7 +896,7 @@ export function AdminClient() {
                 <div className="flex items-end justify-between gap-3">
                   <div>
                     <p className="admin-kicker">Dashboard</p>
-                    <h1 className="font-display mt-1 text-3xl text-[color:var(--red)]">
+                    <h1 className="font-display mt-1 text-3xl text-[color:var(--admin-burgundy)]">
                       Übersicht
                     </h1>
                   </div>
@@ -912,7 +912,7 @@ export function AdminClient() {
 
                 {notifPermission === "default" || notifPermission === "unknown" ? (
                   <Section title="Mitteilungen">
-                    <p className="text-sm text-[color:var(--muted)]">
+                    <p className="text-sm text-[color:var(--admin-muted)]">
                       App-Benachrichtigungen für Kochkurse und News aktivieren —
                       erscheint wie bei einer echten Handy-App.
                     </p>
@@ -1033,7 +1033,7 @@ export function AdminClient() {
                         ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-[color:var(--muted)]">
+                    <p className="text-sm text-[color:var(--admin-muted)]">
                       In den letzten 7 Tagen keine Anfragen.
                     </p>
                   )}
@@ -1060,13 +1060,13 @@ export function AdminClient() {
                         <span className="admin-card-icon">
                           <Icon className="admin-icon" />
                         </span>
-                        <p className="mt-3 text-sm text-[color:var(--gold)]">
+                        <p className="mt-3 text-sm text-[color:var(--admin-gold-deep)]">
                           {kicker}
                         </p>
-                        <p className="mt-1 font-display text-xl text-[color:var(--red)]">
+                        <p className="mt-1 font-display text-xl text-[color:var(--admin-burgundy)]">
                           {title}
                         </p>
-                        <p className="mt-1 text-sm text-[color:var(--muted)]">
+                        <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
                           {meta}
                         </p>
                       </button>
@@ -1203,7 +1203,7 @@ export function AdminClient() {
                 </Section>
 
                 <Section title="Bild für Unterseite">
-                  <p className="mb-2 text-sm text-[color:var(--muted)]">
+                  <p className="mb-2 text-sm text-[color:var(--admin-muted)]">
                     Schmückt den Hero auf /kochkurs.
                   </p>
                   <div className="admin-image-grid">
@@ -1302,10 +1302,10 @@ export function AdminClient() {
                               {item.subject}
                               {!item.read ? " · Neu" : ""}
                             </p>
-                            <p className="mt-1 font-display text-lg text-[color:var(--red)]">
+                            <p className="mt-1 font-display text-lg text-[color:var(--admin-burgundy)]">
                               {item.name}
                             </p>
-                            <p className="mt-1 text-sm text-[color:var(--muted)]">
+                            <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
                               {formatWhen(item.createdAt)} · {item.source}
                             </p>
                           </div>
@@ -1313,7 +1313,7 @@ export function AdminClient() {
                             <span className="admin-chip is-live">Neu</span>
                           ) : null}
                         </div>
-                        <p className="mt-3 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-[color:var(--ink)]">
+                        <p className="mt-3 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-[color:var(--admin-ink)]">
                           {item.message}
                         </p>
                         <div className="admin-inbox-actions">
@@ -1465,7 +1465,7 @@ export function AdminClient() {
                     ] as const
                   ).map(([key, label]) => (
                     <label key={key} className="admin-color-pick">
-                      <span className="text-sm text-[color:var(--muted)]">
+                      <span className="text-sm text-[color:var(--admin-muted)]">
                         {label}
                       </span>
                       <input
@@ -1656,7 +1656,7 @@ export function AdminClient() {
                 </Section>
 
                 <Section title="Mittag-Popup">
-                  <p className="mb-2 text-sm text-[color:var(--muted)]">
+                  <p className="mb-2 text-sm text-[color:var(--admin-muted)]">
                     Inhalt für Banner „Mehr“ und den Button auf der Startseite.
                     Auf dem Handy als Sheet von unten.
                   </p>
@@ -2048,7 +2048,7 @@ export function AdminClient() {
                 </Section>
 
                 <Section title="App-Benachrichtigungen">
-                  <p className="text-sm text-[color:var(--muted)]">
+                  <p className="text-sm text-[color:var(--admin-muted)]">
                     Wie bei einer echten App: Nachrichten zu Kochkursen und News
                     auf dem Homescreen. Am besten in der installierten App
                     erlauben.

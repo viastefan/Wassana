@@ -121,11 +121,25 @@ select:-webkit-autofill:focus {
 }
 
 .admin-app {
+  /* Atelier-Büro: gleiche Marken-DNA, ruhigeres Backoffice */
+  --admin-bg: #e8e2d6;
+  --admin-bg-deep: #ddd5c6;
+  --admin-surface: #faf6ee;
+  --admin-raised: #fffdf8;
+  --admin-ink: #1e2129;
+  --admin-muted: #5a5560;
+  --admin-line: #cfc4b2;
+  --admin-burgundy: #6e0f22;
+  --admin-burgundy-soft: #8a1a30;
+  --admin-gold: #b59551;
+  --admin-gold-soft: #d4c09a;
+  --admin-gold-deep: #8f7340;
   min-height: 100svh;
+  color: var(--admin-ink);
   background:
-    radial-gradient(1200px 600px at 10% -10%, color-mix(in srgb, var(--red) 14%, transparent), transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 50%),
-    linear-gradient(180deg, #f7f3ea 0%, var(--bg) 40%, #ebe4d8 100%);
+    radial-gradient(900px 480px at 0% -5%, color-mix(in srgb, var(--admin-burgundy) 10%, transparent), transparent 58%),
+    radial-gradient(780px 420px at 100% 8%, color-mix(in srgb, var(--admin-gold) 18%, transparent), transparent 55%),
+    linear-gradient(180deg, #f2ebe0 0%, var(--admin-bg) 42%, var(--admin-bg-deep) 100%);
 }
 
 .admin-shell {
@@ -139,22 +153,23 @@ select:-webkit-autofill:focus {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.22;
   background-image:
-    linear-gradient(color-mix(in srgb, var(--ink) 4%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--ink) 4%, transparent) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%);
+    linear-gradient(color-mix(in srgb, var(--admin-gold-deep) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--admin-gold-deep) 8%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 78%);
 }
 
 .admin-topbar {
   position: sticky;
   top: 0;
   z-index: 40;
-  border-bottom: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
-  background: color-mix(in srgb, var(--paper) 78%, transparent);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--admin-gold) 35%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-surface) 86%, transparent);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--admin-gold-soft) 40%, transparent);
 }
 
 .admin-brand-mark {
@@ -163,20 +178,22 @@ select:-webkit-autofill:focus {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 999px;
-  background: var(--paper);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 45%, transparent);
+  background: var(--admin-raised);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--admin-gold) 55%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--admin-gold-soft) 28%, transparent);
   overflow: hidden;
 }
 
 .admin-install-hero {
   position: relative;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line));
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 50%, transparent);
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--red) 92%, #1e2129), #5f091c 55%, #3d0714);
+    linear-gradient(145deg, #2a2430 0%, #1e2129 48%, #3a1520 100%);
   color: #f7f3ea;
   padding: 1.25rem 1.2rem 1.35rem;
-  box-shadow: 0 18px 40px color-mix(in srgb, var(--red) 22%, transparent);
+  box-shadow: 0 16px 36px rgba(30, 33, 41, 0.22);
 }
 
 .admin-install-close {
@@ -209,7 +226,7 @@ select:-webkit-autofill:focus {
   width: 12rem;
   height: 12rem;
   border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--gold) 45%, transparent), transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--admin-gold) 48%, transparent), transparent 70%);
   pointer-events: none;
 }
 
@@ -227,9 +244,9 @@ select:-webkit-autofill:focus {
 
 .admin-login-card,
 .admin-panel {
-  border: 1px solid color-mix(in srgb, var(--line) 90%, white);
-  background: color-mix(in srgb, var(--paper) 92%, white);
-  box-shadow: 0 10px 30px rgba(30, 33, 41, 0.06);
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 28%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-surface) 96%, white);
+  box-shadow: 0 12px 32px rgba(30, 33, 41, 0.06);
   padding: 1.25rem;
 }
 
@@ -238,17 +255,17 @@ select:-webkit-autofill:focus {
   font-size: 0.72rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--admin-gold-deep);
 }
 
 .admin-card {
   display: block;
   width: 100%;
-  border: 1px solid color-mix(in srgb, var(--line) 85%, white);
-  background: color-mix(in srgb, var(--paper) 88%, white);
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 22%, var(--admin-line));
+  background: var(--admin-raised);
   padding: 1.15rem 1.1rem;
   text-align: left;
-  box-shadow: 0 6px 18px rgba(30, 33, 41, 0.04);
+  box-shadow: 0 6px 18px rgba(30, 33, 41, 0.035);
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
@@ -257,10 +274,10 @@ select:-webkit-autofill:focus {
 }
 
 .admin-card:hover {
-  border-color: color-mix(in srgb, var(--gold) 65%, var(--line));
-  background: #fffdf8;
+  border-color: color-mix(in srgb, var(--admin-gold) 70%, var(--admin-line));
+  background: #fffaf2;
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgba(30, 33, 41, 0.08);
+  box-shadow: 0 14px 28px rgba(30, 33, 41, 0.07);
 }
 
 .admin-card-icon {
@@ -270,8 +287,8 @@ select:-webkit-autofill:focus {
   width: 2rem;
   height: 2rem;
   border-radius: 0.65rem;
-  background: color-mix(in srgb, var(--red) 10%, var(--paper));
-  color: var(--red);
+  background: color-mix(in srgb, var(--admin-gold) 16%, var(--admin-surface));
+  color: var(--admin-burgundy);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -286,21 +303,21 @@ select:-webkit-autofill:focus {
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--gold) 18%, var(--paper));
-  color: var(--ink);
+  background: color-mix(in srgb, var(--admin-gold) 22%, var(--admin-surface));
+  color: var(--admin-ink);
 }
 
 .admin-chip.is-live {
-  background: color-mix(in srgb, var(--red) 12%, var(--paper));
-  color: var(--red);
+  background: color-mix(in srgb, var(--admin-burgundy) 12%, var(--admin-surface));
+  color: var(--admin-burgundy);
 }
 
 .admin-tabbar {
-  border-top: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
-  background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: blur(16px) saturate(1.15);
-  -webkit-backdrop-filter: blur(16px) saturate(1.15);
-  box-shadow: 0 -8px 24px rgba(30, 33, 41, 0.06);
+  border-top: 1px solid color-mix(in srgb, var(--admin-gold) 32%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-surface) 90%, transparent);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  box-shadow: 0 -10px 28px rgba(30, 33, 41, 0.06);
 }
 
 .admin-tabbar button {
@@ -317,15 +334,17 @@ select:-webkit-autofill:focus {
   width: 100%;
   border-radius: 0.85rem;
   padding: 0.45rem 0.15rem;
-  color: var(--muted);
-  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  color: var(--admin-muted);
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .admin-tab.is-active {
-  background: linear-gradient(180deg, var(--red), #5f091c);
-  color: #fff;
+  background: linear-gradient(180deg, #fffaf2, color-mix(in srgb, var(--admin-gold-soft) 35%, var(--admin-surface)));
+  color: var(--admin-burgundy);
   transform: translateY(-1px);
-  box-shadow: 0 8px 16px color-mix(in srgb, var(--red) 25%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--admin-gold) 55%, transparent),
+    0 6px 14px color-mix(in srgb, var(--admin-gold) 18%, transparent);
 }
 
 .admin-tab-glyph {
@@ -358,8 +377,8 @@ select:-webkit-autofill:focus {
 }
 
 .admin-status-item {
-  border: 1px solid color-mix(in srgb, var(--line) 88%, white);
-  background: #fffdf8;
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 24%, var(--admin-line));
+  background: var(--admin-raised);
   padding: 0.75rem 0.8rem;
 }
 
@@ -368,21 +387,21 @@ select:-webkit-autofill:focus {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--admin-gold-deep);
 }
 
 .admin-status-value {
   margin: 0.35rem 0 0;
   font-family: var(--font-typewriter), "Courier New", Courier, monospace;
   font-size: 1.15rem;
-  color: var(--red);
+  color: var(--admin-burgundy);
 }
 
 .admin-status-meta {
   margin: 0.2rem 0 0;
   font-size: 0.75rem;
   line-height: 1.35;
-  color: var(--muted);
+  color: var(--admin-muted);
 }
 
 .admin-source-list {
@@ -398,14 +417,14 @@ select:-webkit-autofill:focus {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--admin-line);
   padding-top: 0.4rem;
   font-size: 0.88rem;
-  color: var(--ink);
+  color: var(--admin-ink);
 }
 
 .admin-source-list strong {
-  color: var(--red);
+  color: var(--admin-burgundy);
   font-weight: 600;
 }
 
@@ -418,11 +437,11 @@ select:-webkit-autofill:focus {
 .admin-image-option {
   display: grid;
   gap: 0.35rem;
-  border: 1px solid color-mix(in srgb, var(--line) 88%, white);
-  background: #fffdf8;
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 22%, var(--admin-line));
+  background: var(--admin-raised);
   padding: 0.4rem;
   text-align: left;
-  color: var(--ink);
+  color: var(--admin-ink);
   font-size: 0.78rem;
   cursor: pointer;
   transition:
@@ -439,38 +458,38 @@ select:-webkit-autofill:focus {
 }
 
 .admin-image-option.is-selected {
-  border-color: var(--red);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 18%, transparent);
+  border-color: var(--admin-burgundy);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-burgundy) 16%, transparent);
   transform: translateY(-1px);
 }
 
 .admin-toast {
   margin-top: 1rem;
   padding: 0.75rem 0.9rem;
-  border: 1px solid var(--line);
-  background: var(--paper);
+  border: 1px solid var(--admin-line);
+  background: var(--admin-surface);
   font-size: 0.88rem;
 }
 
 .admin-toast.is-error {
-  border-color: color-mix(in srgb, var(--red) 35%, var(--line));
-  color: var(--red);
+  border-color: color-mix(in srgb, var(--admin-burgundy) 35%, var(--admin-line));
+  color: var(--admin-burgundy);
 }
 
 .admin-field {
   margin-top: 0.45rem;
   width: 100%;
-  border: 1px solid var(--line);
-  background: #fffdf8;
+  border: 1px solid var(--admin-line);
+  background: var(--admin-raised);
   padding: 0.85rem 1rem;
-  color: var(--ink);
+  color: var(--admin-ink);
   outline: none;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .admin-field:focus {
-  border-color: var(--red);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 14%, transparent);
+  border-color: var(--admin-gold-deep);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-gold) 22%, transparent);
 }
 
 .admin-screen-header {
@@ -486,7 +505,7 @@ select:-webkit-autofill:focus {
   font-family: var(--font-typewriter), "Courier New", Courier, monospace;
   font-size: clamp(1.7rem, 6vw, 2.1rem);
   line-height: 1.1;
-  color: var(--red);
+  color: var(--admin-burgundy);
 }
 
 .admin-screen-desc {
@@ -494,7 +513,7 @@ select:-webkit-autofill:focus {
   max-width: 34rem;
   font-size: 0.92rem;
   line-height: 1.5;
-  color: var(--muted);
+  color: var(--admin-muted);
 }
 
 .admin-screen-action {
@@ -504,9 +523,10 @@ select:-webkit-autofill:focus {
 
 .admin-section {
   margin-top: 0.85rem;
-  border: 1px solid color-mix(in srgb, var(--line) 88%, white);
-  background: color-mix(in srgb, var(--paper) 94%, white);
-  box-shadow: 0 8px 22px rgba(30, 33, 41, 0.04);
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 24%, var(--admin-line));
+  border-left: 3px solid color-mix(in srgb, var(--admin-gold) 75%, var(--admin-burgundy));
+  background: color-mix(in srgb, var(--admin-surface) 97%, white);
+  box-shadow: 0 8px 22px rgba(30, 33, 41, 0.035);
   padding: 1rem 1rem 1.1rem;
 }
 
@@ -515,7 +535,7 @@ select:-webkit-autofill:focus {
   font-size: 0.72rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--admin-gold-deep);
 }
 
 .admin-section-body {
@@ -530,14 +550,14 @@ select:-webkit-autofill:focus {
 .admin-field-label {
   display: block;
   font-size: 0.84rem;
-  color: var(--muted);
+  color: var(--admin-muted);
 }
 
 .admin-field-hint {
   display: block;
   margin-top: 0.35rem;
   font-size: 0.75rem;
-  color: var(--muted);
+  color: var(--admin-muted);
 }
 
 .admin-switch {
@@ -547,8 +567,8 @@ select:-webkit-autofill:focus {
   justify-content: space-between;
   gap: 1rem;
   min-height: 3.35rem;
-  border: 1px solid color-mix(in srgb, var(--line) 88%, white);
-  background: #fffdf8;
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 20%, var(--admin-line));
+  background: var(--admin-raised);
   padding: 0.75rem 0.9rem;
   text-align: left;
   cursor: pointer;
@@ -556,8 +576,8 @@ select:-webkit-autofill:focus {
 }
 
 .admin-switch.is-on {
-  border-color: color-mix(in srgb, var(--red) 35%, var(--line));
-  background: color-mix(in srgb, var(--red) 6%, #fffdf8);
+  border-color: color-mix(in srgb, var(--admin-burgundy) 32%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-burgundy) 5%, var(--admin-raised));
 }
 
 .admin-switch-copy {
@@ -569,12 +589,12 @@ select:-webkit-autofill:focus {
 
 .admin-switch-label {
   font-size: 0.95rem;
-  color: var(--ink);
+  color: var(--admin-ink);
 }
 
 .admin-switch-hint {
   font-size: 0.75rem;
-  color: var(--muted);
+  color: var(--admin-muted);
 }
 
 .admin-switch-track {
@@ -583,12 +603,12 @@ select:-webkit-autofill:focus {
   height: 1.55rem;
   flex-shrink: 0;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--ink) 16%, white);
+  background: color-mix(in srgb, var(--admin-ink) 14%, white);
   transition: background 0.18s ease;
 }
 
 .admin-switch.is-on .admin-switch-track {
-  background: var(--red);
+  background: var(--admin-burgundy);
 }
 
 .admin-switch-thumb {
@@ -618,7 +638,7 @@ select:-webkit-autofill:focus {
 .admin-sticky-save-btn {
   width: 100%;
   min-height: 3.1rem;
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--red) 28%, transparent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--admin-burgundy) 24%, transparent);
 }
 
 .admin-inbox-list {
@@ -627,15 +647,15 @@ select:-webkit-autofill:focus {
 }
 
 .admin-inbox-card {
-  border: 1px solid color-mix(in srgb, var(--line) 88%, white);
-  background: color-mix(in srgb, var(--paper) 94%, white);
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 22%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-surface) 97%, white);
   padding: 1rem;
-  box-shadow: 0 8px 20px rgba(30, 33, 41, 0.04);
+  box-shadow: 0 8px 20px rgba(30, 33, 41, 0.035);
 }
 
 .admin-inbox-card.is-unread {
-  border-color: color-mix(in srgb, var(--red) 28%, var(--line));
-  background: color-mix(in srgb, var(--red) 5%, #fffdf8);
+  border-color: color-mix(in srgb, var(--admin-burgundy) 28%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-burgundy) 4%, var(--admin-raised));
 }
 
 .admin-inbox-top {
@@ -701,8 +721,8 @@ select:-webkit-autofill:focus {
   justify-content: space-between;
   gap: 0.75rem;
   min-height: 3rem;
-  border: 1px solid var(--line);
-  background: #fffdf8;
+  border: 1px solid var(--admin-line);
+  background: var(--admin-raised);
   padding: 0.45rem 0.7rem;
 }
 
@@ -717,8 +737,8 @@ select:-webkit-autofill:focus {
 
 .admin-preview {
   overflow: hidden;
-  border: 1px solid var(--line);
-  background: var(--paper);
+  border: 1px solid var(--admin-line);
+  background: var(--admin-surface);
 }
 
 .admin-preview-label {
@@ -726,8 +746,8 @@ select:-webkit-autofill:focus {
   font-size: 0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold);
-  border-bottom: 1px solid var(--line);
+  color: var(--admin-gold-deep);
+  border-bottom: 1px solid var(--admin-line);
 }
 
 .admin-form {
@@ -735,11 +755,11 @@ select:-webkit-autofill:focus {
 }
 
 .admin-empty {
-  border: 1px dashed color-mix(in srgb, var(--line) 90%, var(--gold));
-  background: color-mix(in srgb, var(--paper) 90%, white);
+  border: 1px dashed color-mix(in srgb, var(--admin-line) 85%, var(--admin-gold));
+  background: color-mix(in srgb, var(--admin-surface) 92%, white);
   padding: 1.4rem 1rem;
   text-align: center;
-  color: var(--muted);
+  color: var(--admin-muted);
   font-size: 0.92rem;
 }
 
