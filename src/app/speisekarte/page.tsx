@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JsonLdBreadcrumbs, JsonLdMenu } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
+import { MenuPdfDownload } from "@/components/MenuPdfDownload";
 import { SpeisekarteFull } from "@/components/Speisekarte";
 import { StudentLunch } from "@/components/StudentLunch";
 import { getResolvedBusiness } from "@/lib/business-profile";
@@ -51,6 +52,20 @@ export default async function SpeisekartePage() {
         height="short"
       />
       <StudentLunch compact offer={content.studentLunch} />
+      <div className="menu-pdf-band">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 md:flex-row md:items-center md:justify-between md:px-8">
+          <div>
+            <p className="text-sm tracking-[0.18em] text-[color:var(--gold)] uppercase">
+              Zum Mitnehmen & Teilen
+            </p>
+            <p className="mt-1 text-[color:var(--ink)]">
+              Die komplette Speisekarte als klares PDF — Wochenkarte und alle
+              Gerichte.
+            </p>
+          </div>
+          <MenuPdfDownload label="Speisekarte als PDF" />
+        </div>
+      </div>
       <SpeisekarteFull menu={weekly} sections={sections} />
     </main>
   );

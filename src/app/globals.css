@@ -1699,6 +1699,29 @@ a.btn-ghost:hover {
   -webkit-backdrop-filter: blur(12px) saturate(1.1);
 }
 
+.menu-pdf-band {
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(
+      105deg,
+      color-mix(in srgb, var(--paper) 88%, var(--gold)) 0%,
+      var(--paper) 42%,
+      color-mix(in srgb, var(--bg) 92%, var(--red)) 100%
+    );
+}
+
+.menu-pdf-download {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.menu-pdf-error {
+  font-size: 0.8rem;
+  color: var(--red);
+}
+
 /* Schließt die Naht zum Header — kein Durchscheinen beim Scrollen */
 .menu-sticky::before {
   content: "";

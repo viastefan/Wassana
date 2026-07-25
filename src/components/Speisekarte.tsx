@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AllergenLegend, AllergenMarks } from "@/components/AllergenLegend";
+import { MenuPdfDownload } from "@/components/MenuPdfDownload";
 import { allergens, type MenuSection } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
@@ -128,16 +129,19 @@ export function SpeisekarteFull({
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
         <div className="menu-sticky sticky z-20 -mx-5 mb-10 border-b border-[color:var(--line)] bg-[color:var(--bg)] px-5 py-3 md:-mx-8 md:px-8">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            <a href="#wochenkarte" className="chip">
-              Wochenkarte
-            </a>
-            {sections.map((section) => (
-              <a key={section.id} href={`#${section.id}`} className="chip">
-                {section.title}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1">
+              <a href="#wochenkarte" className="chip">
+                Wochenkarte
               </a>
-            ))}
-            <AllergenLegend variant="chip" />
+              {sections.map((section) => (
+                <a key={section.id} href={`#${section.id}`} className="chip">
+                  {section.title}
+                </a>
+              ))}
+              <AllergenLegend variant="chip" />
+            </div>
+            <MenuPdfDownload className="btn-gold !px-3 !py-2 text-sm shrink-0" />
           </div>
         </div>
 
@@ -190,7 +194,13 @@ export function SpeisekarteFull({
                   mit * inkl. 0,15 € Pfand.
                 </p>
               </div>
-              <AllergenLegend variant="button" />
+              <div className="flex flex-wrap items-center gap-3">
+                <AllergenLegend variant="button" />
+                <MenuPdfDownload
+                  className="btn-primary"
+                  label="Als PDF speichern"
+                />
+              </div>
             </div>
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               {allergens.map((item) => (
