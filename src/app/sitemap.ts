@@ -1,78 +1,10 @@
 import type { MetadataRoute } from "next";
+import { buildAutoSitemap } from "@/lib/public-routes";
 import { getSiteUrl } from "@/lib/site";
 
+/** Regenerates on each request so new public pages appear automatically. */
 export const dynamic = "force-dynamic";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const base = getSiteUrl();
-  const lastModified = new Date();
-
-  return [
-    {
-      url: `${base}/`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${base}/speisekarte`,
-      lastModified,
-      changeFrequency: "daily",
-      priority: 0.95,
-    },
-    {
-      url: `${base}/mitnehmen`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${base}/schueler-mittagessen`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${base}/kontakt`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
-    {
-      url: `${base}/anfahrt`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.88,
-    },
-    {
-      url: `${base}/catering`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.85,
-    },
-    {
-      url: `${base}/kochkurs`,
-      lastModified,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-    {
-      url: `${base}/ueber-uns`,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${base}/impressum`,
-      lastModified,
-      changeFrequency: "yearly",
-      priority: 0.2,
-    },
-    {
-      url: `${base}/datenschutz`,
-      lastModified,
-      changeFrequency: "yearly",
-      priority: 0.2,
-    },
-  ];
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  return buildAutoSitemap(getSiteUrl());
 }
