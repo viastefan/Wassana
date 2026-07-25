@@ -3,6 +3,8 @@ export const site = {
   fullName: "Wassanas Thai Imbiss und Feinkost",
   shortName: "Wassana Thai Imbiss Landshut",
   tagline: "Thai Imbiss",
+  meaning:
+    "Das Wort Wassana bedeutet Glück und gutes Schicksal. Außerdem verbindet man mit diesem Wort auch Frische, Neubeginn und Wohlstand.",
   owner: "Pramot Yotkhrongmueang",
   address: {
     street: "Regierungsplatz 542",
@@ -18,12 +20,13 @@ export const site = {
   phone: "0871/9745862",
   phoneHref: "tel:+498719745862",
   phoneE164: "+498719745862",
-  email: "Wassana.Huber@t-online.de",
-  emailHref: "mailto:Wassana.Huber@t-online.de",
-  cookingEmail: "Albert-Ewen@GMX.de",
-  cookingEmailHref: "mailto:Albert-Ewen@GMX.de?subject=Kochkurs%20Anfrage",
+  email: "wassanathaiimbiss@icloud.de",
+  emailHref: "mailto:wassanathaiimbiss@icloud.de",
+  cookingEmail: "wassanathaiimbiss@icloud.de",
+  cookingEmailHref:
+    "mailto:wassanathaiimbiss@icloud.de?subject=Kochkurs%20Anfrage",
   cateringEmailHref:
-    "mailto:Wassana.Huber@t-online.de?subject=Catering%20Anfrage",
+    "mailto:wassanathaiimbiss@icloud.de?subject=Catering%20Anfrage",
   hours: {
     weekdays: "Mo–Fr 11:00–18:00",
     weekdaysLong: "Montag bis Freitag von 11:00–18:00 Uhr",
@@ -45,9 +48,12 @@ export const site = {
   social: {
     facebook:
       "https://www.facebook.com/pages/Wassanas-Thai-Imbiss-Feinkost/156423611044359",
+    instagram: "https://www.instagram.com/wassanathaiimbiss/",
+    instagramHandle: "@wassanathaiimbiss",
   },
   maps: {
-    query: "Wassanas Thai Imbiss und Feinkost, Regierungsplatz 542, 84028 Landshut",
+    query:
+      "Wassanas Thai Imbiss und Feinkost, Regierungsplatz 542, 84028 Landshut",
     embed: `https://www.google.com/maps?q=${encodeURIComponent(
       "Wassanas Thai Imbiss und Feinkost, Regierungsplatz 542, 84028 Landshut"
     )}&hl=de&z=16&output=embed`,

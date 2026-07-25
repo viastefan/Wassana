@@ -4,18 +4,19 @@ import Link from "next/link";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: {
     absolute: "Wassana Thai Imbiss Landshut | Curry, Wok & Mitnehmen",
   },
   description:
-    "Thai Imbiss Wassana in Landshut: authentische Curries, Wok-Gerichte und Suppen am Regierungsplatz. Mo–Fr 11–18 Uhr — frisch und zum Mitnehmen.",
+    "Thai Imbiss Wassana in Landshut: Massaman, Panaeng, Pad kra pao und mehr am Regierungsplatz. Mo–Fr 11–18 Uhr — frisch und zum Mitnehmen.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "Wassana Thai Imbiss Landshut",
     description:
-      "Authentische Thai-Küche in Landshut — Speisekarte, Catering und Kochkurs.",
+      "Glück und gutes Schicksal — authentische Thai-Küche in Landshut.",
     url: "/",
   },
 };
@@ -44,20 +45,45 @@ export default function HomePage() {
           <p className="hero-copy-delay mt-3 text-sm tracking-[0.24em] text-[color:var(--gold-soft)] uppercase">
             Thai Imbiss · Landshut
           </p>
-          <h1 className="hero-copy-delay mt-6 max-w-lg text-[clamp(1.15rem,2.4vw,1.45rem)] font-light leading-relaxed text-white/92">
-            Sawasdee — willkommen im Gewerbehaus am Regierungsplatz.
+          <h1 className="hero-copy-delay mt-6 max-w-xl text-[clamp(1.15rem,2.4vw,1.45rem)] font-light leading-relaxed text-white/92">
+            Sawasdee und herzlich willkommen im Wassana Thai Imbiss im
+            Gewerbehaus am Regierungsplatz.
           </h1>
           <p className="hero-copy-delay-2 mt-4 max-w-md text-[0.98rem] leading-relaxed text-white/72">
-            Curries, Wok und Suppen. Frisch. Authentisch. Auch zum Mitnehmen.
+            {site.meaning}
           </p>
           <div className="hero-copy-delay-2 mt-9 flex flex-wrap gap-3">
             <Link href="/speisekarte" className="btn-primary">
               Speisekarte
             </Link>
-            <a href="#standort" className="inline-flex items-center justify-center rounded-full border border-white/40 px-[1.35rem] py-3 text-[0.9rem] font-medium text-white transition hover:bg-white/10">
+            <a
+              href="#standort"
+              className="inline-flex items-center justify-center rounded-full border border-white/40 px-[1.35rem] py-3 text-[0.9rem] font-medium text-white transition hover:bg-white/10"
+            >
               Standort
             </a>
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
+        <div className="mx-auto max-w-3xl px-5 py-14 text-center md:px-8 md:py-16">
+          <Reveal>
+            <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+              Unsere Küche
+            </p>
+            <p className="mt-5 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl">
+              Authentische Gerichte wie Massaman oder Panaeng Curries,
+              verschiedene Wok-Gerichte und das berühmte Pad kra pao finden Sie
+              bei uns auf der Karte. Das Zusammenspiel aus salzig, süß, sauer und
+              scharf macht unsere Küche aus.
+            </p>
+            <p className="mt-5 text-[color:var(--muted)] leading-relaxed">
+              An bestimmten Tagen bieten wir auch besondere thailändische
+              Gerichte an, die man sonst selten findet. Alle Speisen können
+              gerne mitgenommen werden.
+            </p>
+          </Reveal>
         </div>
       </section>
 
@@ -76,7 +102,7 @@ export default function HomePage() {
             },
             {
               title: "Kochkurs",
-              text: "Drei Stunden Thai kochen.",
+              text: "Schritt für Schritt Thai kochen.",
               href: "/kochkurs",
             },
           ].map((item, index) => (

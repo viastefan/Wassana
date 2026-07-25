@@ -1,15 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  /* Auftraggeber: warmer Beige-Hintergrund */
-  --bg: #e8e2d6;
-  --bg-soft: #efe9de;
-  --paper: #f3eee4;
-  /* Auftraggeber: Text schwarz mit Blauton */
+  /* Konzept: cremeweiß, gold, dunkelrot, Schrift schwarzblau */
+  --bg: #f3eee4;
+  --bg-soft: #ebe4d8;
+  --paper: #f7f3ea;
   --ink: #1e2129;
   --muted: #4a505c;
-  --line: #d2cbbd;
-  /* Konzept: Gold + Dunkelrot */
+  --line: #d5cdbf;
   --red: #7a0c24;
   --red-hover: #5f091c;
   --gold: #b59551;

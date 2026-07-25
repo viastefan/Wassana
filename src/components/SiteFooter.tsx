@@ -48,17 +48,17 @@ export function SiteFooter() {
             <a href={site.emailHref} className="hover:text-[color:var(--red)]">
               {site.email}
             </a>
-            <Link href="/kontakt" className="hover:text-[color:var(--red)]">
-              Kontaktformular
-            </Link>
             <a
-              href={site.social.facebook}
+              href={site.social.instagram}
               target="_blank"
               rel="noreferrer"
               className="hover:text-[color:var(--red)]"
             >
-              Facebook
+              Instagram {site.social.instagramHandle}
             </a>
+            <Link href="/kontakt" className="hover:text-[color:var(--red)]">
+              Kontaktformular
+            </Link>
           </div>
         </div>
       </div>

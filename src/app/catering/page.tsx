@@ -7,11 +7,11 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Thai Catering Landshut",
   description:
-    "Thai Catering in Landshut von Wassana: Menü nach Wunsch inkl. Geschirr für Events, Firmenfeiern und private Feiern.",
+    "Thai Catering in Landshut von Wassana: individueller Menüplan inkl. Geschirr für Geburtstage, Firmenfeiern und Hochzeiten.",
   alternates: { canonical: "/catering" },
   openGraph: {
     title: "Thai Catering Landshut | Wassana",
-    description: "Catering-Service für Events in und um Landshut.",
+    description: "Catering-Service mit Thai-Atmosphäre für Ihr Event.",
     url: "/catering",
   },
 };
@@ -25,11 +25,13 @@ export default function CateringPage() {
             Catering Landshut
           </p>
           <h1 className="font-display mt-3 max-w-3xl text-4xl leading-tight text-[color:var(--red)] md:text-5xl">
-            Thai Catering für Events und Feierlichkeiten
+            Für Feierlichkeiten mit Thai-Atmosphäre
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[color:var(--muted)]">
-            Wir erstellen nach Ihren Wünschen ein Menü und stellen das Geschirr
-            zur Verfügung — in Landshut und Umgebung.
+            Für Geburtstage, Firmenfeiern oder Hochzeiten bieten wir unseren
+            Catering-Service an. Zusammen mit Ihnen erstellen wir einen
+            individuellen Menüplan und stellen das passende Geschirr zur
+            Verfügung.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={site.cateringEmailHref} className="btn-primary">
@@ -50,9 +52,9 @@ export default function CateringPage() {
             </h2>
             <ul className="mt-6 space-y-3 text-[color:var(--muted)]">
               {[
-                "Individuelles Menü",
-                "Geschirr auf Wunsch",
-                "Firmenfeiern & private Events",
+                "Individueller Menüplan",
+                "Passendes Geschirr",
+                "Geburtstage, Firmenfeiern & Hochzeiten",
               ].map((item) => (
                 <li key={item} className="flex gap-3">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--gold)]" />

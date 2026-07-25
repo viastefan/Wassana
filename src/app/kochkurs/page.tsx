@@ -7,11 +7,11 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Thai Kochkurs Landshut",
   description:
-    "Thai Kochkurs in Landshut bei Wassana: In 3 Stunden Pad Thai, Tom Yam und mehr gemeinsam kochen. Termine auf Anfrage.",
+    "Thai Kochkurs in Landshut bei Wassana: Schritt für Schritt Pad Thai oder Tom Yam zubereiten — inkl. Tipps zu Zutaten.",
   alternates: { canonical: "/kochkurs" },
   openGraph: {
     title: "Thai Kochkurs Landshut | Wassana",
-    description: "3-stündiger Kochkurs mit klassischen Thai-Gerichten.",
+    description: "Gemeinsam berühmte Thai-Gerichte kochen lernen.",
     url: "/kochkurs",
   },
 };
@@ -25,11 +25,12 @@ export default function KochkursPage() {
             Kochkurs Landshut
           </p>
           <h1 className="font-display mt-3 max-w-3xl text-4xl leading-tight text-[color:var(--red)] md:text-5xl">
-            Thai kochen lernen in Landshut
+            Die thailändische Küche näher kennenlernen
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[color:var(--muted)]">
-            An ausgewählten Tagen: In drei Stunden bereiten wir gemeinsam
-            beliebte Gerichte wie Pad Thai oder Tom Yam zu.
+            An bestimmten Tagen zeigen wir Ihnen Schritt für Schritt, wie
+            berühmte Gerichte wie Pad Thai oder Tom Yam zubereitet werden — und
+            wo Sie die Zutaten dafür herbekommen können.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={site.cookingEmailHref} className="btn-primary">
@@ -47,11 +48,11 @@ export default function KochkursPage() {
           <Reveal>
             <div className="space-y-6">
               {[
-                { label: "Dauer", value: "ca. 3 Stunden" },
+                { label: "Ablauf", value: "Schritt für Schritt gemeinsam kochen" },
                 { label: "Gerichte", value: "z. B. Pad Thai oder Tom Yam" },
                 {
-                  label: "Termine",
-                  value: "an bestimmten Tagen — einfach anfragen",
+                  label: "Extra",
+                  value: "Tipps, wo Sie die Zutaten finden",
                 },
               ].map((item) => (
                 <div

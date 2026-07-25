@@ -78,8 +78,8 @@ export const menuSections: MenuSection[] = [
     title: "Vorspeisen",
     items: [
       {
-        nr: "6",
-        name: "Kleine Frühlingsrollen",
+        nr: "2",
+        name: "Hausgemachte vegetarische Frühlingsrollen",
         price: "3,20 €",
       },
       {

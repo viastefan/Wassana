@@ -69,14 +69,24 @@ export default function ImpressumPage() {
               <h2 className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
                 Social Media
               </h2>
-              <a
-                href={site.social.facebook}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-block hover:text-[color:var(--red)]"
-              >
-                Facebook
-              </a>
+              <div className="mt-3 flex flex-col gap-2">
+                <a
+                  href={site.social.instagram}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[color:var(--red)]"
+                >
+                  Instagram {site.social.instagramHandle}
+                </a>
+                <a
+                  href={site.social.facebook}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-[color:var(--red)]"
+                >
+                  Facebook
+                </a>
+              </div>
             </div>
           </div>
         </Reveal>

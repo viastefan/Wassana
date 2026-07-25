@@ -36,11 +36,11 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 md:px-8">
         <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
           <Image
-            src="/images/logo.jpg"
+            src="/images/logo.png"
             alt="Wassana Thai Imbiss"
             width={48}
             height={48}
-            className="h-11 w-11 rounded-full object-cover"
+            className="h-11 w-11 rounded-full object-cover bg-[color:var(--paper)]"
             priority
           />
           <span
