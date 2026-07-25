@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AllergenLegend, AllergenMarks } from "@/components/AllergenLegend";
 import { DishInfoButton } from "@/components/DishInfoButton";
 import { MenuPdfDownload } from "@/components/MenuPdfDownload";
+import { MenuStickyNav } from "@/components/MenuStickyNav";
 import { allergens, type MenuSection } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
@@ -144,32 +145,14 @@ export function SpeisekarteFull({
   return (
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
-        <div className="menu-sticky sticky z-20 -mx-5 mb-8 border-b border-[color:var(--line)] px-5 py-3 md:-mx-8 md:mb-10 md:px-8">
-          <div className="menu-sticky-row">
-            <div className="menu-sticky-chips">
-              <a href="#wochenkarte" className="chip">
-                Beliebte Gerichte
-              </a>
-              {sections.map((section) => (
-                <a key={section.id} href={`#${section.id}`} className="chip">
-                  {section.title}
-                </a>
-              ))}
-              <AllergenLegend variant="chip" />
-            </div>
-            <MenuPdfDownload
-              className="btn-gold menu-sticky-pdf"
-              label="Als PDF"
-            />
-          </div>
-        </div>
+        <MenuStickyNav sections={sections} />
 
         <Wochenkarte menu={menu} />
 
         <div className="mt-8 space-y-16">
           {sections.map((section) => (
             <Reveal key={section.id}>
-              <div id={section.id}>
+              <div id={section.id} className="menu-section-anchor">
                 <h3 className="font-display text-3xl text-[color:var(--ink)]">
                   {section.title}
                 </h3>
