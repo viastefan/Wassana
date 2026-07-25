@@ -2794,7 +2794,7 @@ a.btn-ghost:hover {
 
 .offer-popup-close:hover {
   color: var(--ink);
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
 }
 
 .offer-popup-body {
