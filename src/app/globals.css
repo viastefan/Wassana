@@ -1871,9 +1871,17 @@ a.btn-ghost:hover {
 .menu-sticky {
   top: calc(var(--header-h) + var(--banner-h));
   position: sticky;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(12px) saturate(1.1);
-  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 72%, transparent),
+      color-mix(in srgb, var(--bg) 58%, transparent)
+    );
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--gold) 18%, transparent);
 }
 
 .menu-sticky-row {
@@ -1941,15 +1949,19 @@ a.btn-ghost:hover {
   color: var(--red);
 }
 
-/* Schließt die Naht zum Header — kein Durchscheinen beim Scrollen */
+/* Weiche Naht zum Header — ebenfalls glassy */
 .menu-sticky::before {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  top: -3px;
-  height: 4px;
-  background: var(--bg);
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 55%, transparent),
+      color-mix(in srgb, var(--bg) 35%, transparent)
+    );
 }
 
 /* Dezent: Karte in Markenfarben einbinden, ohne laut zu wirken */
