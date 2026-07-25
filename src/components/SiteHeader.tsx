@@ -114,7 +114,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
             alt="Wassana Thai Imbiss"
             width={56}
             height={56}
-            className="h-12 w-12 rounded-full object-contain bg-[color:var(--paper)] p-0.5 md:h-[3.25rem] md:w-[3.25rem]"
+            className="h-12 w-12 rounded-full object-contain bg-[color:var(--paper)] p-0.5 ring-1 ring-[color:var(--gold-soft)]/50 md:h-[3.25rem] md:w-[3.25rem]"
             priority
           />
           <span

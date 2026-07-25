@@ -12,7 +12,7 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
     return (
       <aside
         aria-label={offer.eyebrow}
-        className="border-y border-[color:var(--line)] bg-[color:var(--paper)]"
+        className="feature-band border-y border-[color:var(--line)]"
       >
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-6 md:flex-row md:items-baseline md:justify-between md:gap-8 md:px-8">
           <p className="text-sm tracking-[0.18em] text-[color:var(--gold)] uppercase">
@@ -35,7 +35,7 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
   return (
     <section
       aria-labelledby="schueler-mittag-heading"
-      className="border-y border-[color:var(--line)] bg-[color:var(--paper)]"
+      className="feature-band border-y border-[color:var(--line)]"
     >
       <div className="mx-auto max-w-3xl px-5 py-14 text-center md:px-8 md:py-16">
         <Reveal>

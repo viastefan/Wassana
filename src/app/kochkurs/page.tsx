@@ -62,8 +62,8 @@ export default async function KochkursPage() {
         </div>
       ) : null}
 
-      <section className="bg-[color:var(--bg-soft)]">
-        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-14 md:grid-cols-2 md:px-8 md:py-20">
+      <section className="offer-strip">
+        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-[var(--section-y)] md:grid-cols-2 md:px-8">
           <Reveal>
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
               So läuft es

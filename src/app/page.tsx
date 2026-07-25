@@ -108,18 +108,20 @@ export default async function HomePage() {
         aria-labelledby="wassana-heading"
         className="border-b border-[color:var(--line)] bg-[color:var(--paper)]"
       >
-        <div className="mx-auto max-w-3xl px-5 py-16 text-center md:px-8 md:py-20">
+        <div className="mx-auto max-w-3xl px-5 py-[var(--section-y)] text-center md:px-8">
           <Reveal>
-            <Image
-              src="/images/logo.png"
-              alt="Wassana Thai Imbiss Logo"
-              width={160}
-              height={160}
-              className="mx-auto h-28 w-28 rounded-full object-contain md:h-32 md:w-32"
-            />
+            <div className="brand-mark mx-auto">
+              <Image
+                src="/images/logo.png"
+                alt="Wassana Thai Imbiss Logo"
+                width={160}
+                height={160}
+                className="mx-auto h-28 w-28 rounded-full object-contain md:h-32 md:w-32"
+              />
+            </div>
             <h2
               id="wassana-heading"
-              className="font-display mt-7 text-[clamp(2.4rem,7vw,3.75rem)] leading-none text-[color:var(--red)] md:mt-8"
+              className="font-display mt-8 text-[clamp(2.4rem,7vw,3.75rem)] leading-none text-[color:var(--red)] md:mt-9"
             >
               Wassana
             </h2>
@@ -164,7 +166,7 @@ export default async function HomePage() {
 
       <StudentLunch offer={content.studentLunch} />
 
-      <section className="bg-[color:var(--bg-soft)]" aria-label="Angebot">
+      <section className="offer-strip border-y border-[color:var(--line)]" aria-label="Angebot">
         <div className="mx-auto grid max-w-6xl gap-0 px-5 md:grid-cols-3 md:px-8">
           {[
             {
@@ -186,13 +188,20 @@ export default async function HomePage() {
             <Reveal key={item.title} delay={(index % 3) as 0 | 1 | 2}>
               <Link
                 href={item.href}
-                className="group block border-t border-[color:var(--line)] py-10 transition md:border-t-0 md:border-l md:px-8 md:first:border-l-0 md:first:pl-0"
+                className="offer-link group block border-t border-[color:var(--line)] py-11 transition duration-300 md:border-t-0 md:border-l md:px-8 md:py-14 md:first:border-l-0 md:first:pl-0"
               >
-                <p className="text-sm text-[color:var(--gold)]">0{index + 1}</p>
-                <h2 className="font-display mt-3 text-2xl text-[color:var(--red)] transition group-hover:opacity-75">
+                <p className="text-sm tracking-[0.14em] text-[color:var(--gold)]">
+                  0{index + 1}
+                </p>
+                <h2 className="font-display mt-3 text-2xl text-[color:var(--red)] transition group-hover:translate-x-0.5 md:text-[1.7rem]">
                   {item.title}
                 </h2>
-                <p className="mt-2 text-[color:var(--muted)]">{item.text}</p>
+                <p className="mt-2 max-w-xs text-[color:var(--muted)] leading-relaxed">
+                  {item.text}
+                </p>
+                <span className="mt-5 inline-block text-sm tracking-wide text-[color:var(--red)] opacity-0 transition group-hover:opacity-100">
+                  Entdecken →
+                </span>
               </Link>
             </Reveal>
           ))}
@@ -201,12 +210,12 @@ export default async function HomePage() {
 
       <LocationSection location={content.location} hours={content.hours} />
 
-      <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
+      <section className="mx-auto max-w-6xl px-5 py-[var(--section-y)] md:px-8">
         <Wochenkarte compact menu={weekly} />
       </section>
 
-      <section className="border-t border-[color:var(--line)] bg-[color:var(--paper)]">
-        <div className="mx-auto max-w-2xl px-5 py-14 text-center md:px-8 md:py-16">
+      <section className="closing-band border-t border-[color:var(--line)]">
+        <div className="mx-auto max-w-2xl px-5 py-[var(--section-y)] text-center md:px-8">
           <Reveal>
             <p className="font-display text-3xl text-[color:var(--red)] md:text-4xl">
               {content.closing.title}

@@ -15,7 +15,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
   const weekend = hours?.weekend || site.hours.weekend;
 
   return (
-    <footer className="border-t border-[color:var(--line)] bg-[color:var(--bg-soft)]">
+    <footer className="site-footer border-t border-[color:var(--line)]">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.3fr_1fr_1fr] md:px-8">
         <div>
           <Link href="/" className="inline-flex items-center gap-3">

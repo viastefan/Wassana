@@ -32,7 +32,7 @@ export default async function KontaktPage() {
           { name: "Kontakt", path: "/kontakt" },
         ]}
       />
-      <section className="mx-auto grid max-w-6xl gap-14 px-5 py-12 md:grid-cols-2 md:gap-20 md:px-8 md:py-20">
+      <section className="mx-auto grid max-w-6xl gap-14 px-5 py-[var(--section-y)] md:grid-cols-2 md:gap-20 md:px-8">
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
             Kontakt Landshut
