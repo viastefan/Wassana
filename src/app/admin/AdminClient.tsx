@@ -1529,7 +1529,7 @@ export function AdminClient() {
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-lg font-semibold tracking-tight text-[color:var(--admin-ink)]">
+            <p className="truncate font-display text-lg text-[color:var(--admin-burgundy)]">
               Wassana Verwaltung
             </p>
             <p className="truncate text-xs text-[color:var(--admin-muted)]">
@@ -1707,6 +1707,7 @@ export function AdminClient() {
                       {cmsHealth.summary}
                     </p>
                   ) : null}
+                  {lastPersist ? <PersistChips persist={lastPersist} /> : null}
                 </div>
 
                 {notifPermission === "default" || notifPermission === "unknown" ? (
@@ -1889,7 +1890,9 @@ export function AdminClient() {
                       </p>
                     </div>
                   </div>
-                  {lastPersist ? <PersistChips persist={lastPersist} /> : null}
+                  {lastPersist ? (
+                    <PersistChips persist={lastPersist} compact />
+                  ) : null}
                 </Section>
 
                 <Section title="Anfragen">
