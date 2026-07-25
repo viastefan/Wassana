@@ -4,10 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { navLinks, site } from "@/lib/site";
+import { site } from "@/lib/site";
 
-const mobileLinks = [
-  ...navLinks,
+const navItems = [
+  { href: "/", label: "Start" },
+  { href: "/speisekarte", label: "Speisekarte" },
+  { href: "/catering", label: "Catering" },
+  { href: "/kochkurs", label: "Kochkurs" },
   { href: "/kontakt", label: "Kontakt" },
 ] as const;
 
@@ -77,27 +80,31 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-7 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`nav-link text-sm tracking-wide transition-opacity hover:opacity-70 ${
-                solid ? "text-[color:var(--ink)]" : ""
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Link
-            href="/kontakt"
-            className={
-              solid
-                ? "btn-primary px-4 py-2 text-sm"
-                : "btn-ghost px-4 py-2 text-sm"
-            }
-          >
-            Kontakt
-          </Link>
+          {navItems.map((link) =>
+            link.href === "/kontakt" ? (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={
+                  solid
+                    ? "btn-primary px-4 py-2 text-sm"
+                    : "btn-ghost px-4 py-2 text-sm"
+                }
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`nav-link text-sm tracking-wide transition-opacity hover:opacity-70 ${
+                  solid ? "text-[color:var(--ink)]" : ""
+                }`}
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
         </nav>
 
         <button
@@ -133,10 +140,12 @@ export function SiteHeader() {
           <nav className="mobile-nav-panel" aria-label="Mobilnavigation">
             <div className="gold-rule mb-8" />
             <ul className="mobile-nav-list">
-              {mobileLinks.map((link, index) => (
+              {navItems.map((link, index) => (
                 <li
                   key={link.href}
-                  style={{ transitionDelay: open ? `${80 + index * 45}ms` : "0ms" }}
+                  style={{
+                    transitionDelay: open ? `${80 + index * 45}ms` : "0ms",
+                  }}
                 >
                   <Link
                     href={link.href}
