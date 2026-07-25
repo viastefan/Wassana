@@ -671,16 +671,13 @@ export function AdminClient() {
         };
       }
       if (data) {
-        setCourse({
-          active: data.active,
-          date: data.date,
-          title: data.title,
-          teaser: data.teaser,
-          image: data.image,
-          pageTitle: data.pageTitle,
-          pageText: data.pageText,
-          updatedAt: data.updatedAt,
-        });
+        const {
+          error: _error,
+          warning: _warning,
+          persist: _persist,
+          ...courseData
+        } = data;
+        setCourse(createBlankCourse(courseData));
         if (data.active) {
           const title = "Neuer Kochkurs";
           const body = `${data.title || "Thai Kochkurs"} am ${formatCourseDate(data.date)}`;
@@ -982,16 +979,8 @@ export function AdminClient() {
         return;
       }
       if (data) {
-        setCourse({
-          active: data.active,
-          date: data.date,
-          title: data.title,
-          teaser: data.teaser,
-          image: data.image,
-          pageTitle: data.pageTitle,
-          pageText: data.pageText,
-          updatedAt: data.updatedAt,
-        });
+        const { error: _error, warning: _warning, ...courseData } = data;
+        setCourse(createBlankCourse(courseData));
       }
       setStatus(
         data?.warning ||
@@ -1791,6 +1780,137 @@ export function AdminClient() {
                   </Field>
                 </Section>
 
+                <Section title="Termin-Details">
+                  <p className="mb-2 text-sm text-[color:var(--admin-muted)]">
+                    Erscheinen auf /kochkurs als Fakten und Infos für Gäste.
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Field label="Preis" hint='z. B. „65 € p. P.“ oder „auf Anfrage“'>
+                      <input
+                        type="text"
+                        value={course.price}
+                        onChange={(e) =>
+                          setCourse((c) => ({ ...c, price: e.target.value }))
+                        }
+                        className={fieldClass}
+                        placeholder="65 € p. P."
+                      />
+                    </Field>
+                    <Field label="Dauer" hint='z. B. „ca. 2,5 Stunden“'>
+                      <input
+                        type="text"
+                        value={course.duration}
+                        onChange={(e) =>
+                          setCourse((c) => ({ ...c, duration: e.target.value }))
+                        }
+                        className={fieldClass}
+                        placeholder="ca. 2,5 Stunden"
+                      />
+                    </Field>
+                    <Field label="Beginn" hint="Uhrzeit">
+                      <input
+                        type="time"
+                        value={course.startTime}
+                        onChange={(e) =>
+                          setCourse((c) => ({
+                            ...c,
+                            startTime: e.target.value,
+                          }))
+                        }
+                        className={fieldClass}
+                      />
+                    </Field>
+                    <Field label="Max. Teilnehmer">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={course.maxParticipants}
+                        onChange={(e) =>
+                          setCourse((c) => ({
+                            ...c,
+                            maxParticipants: e.target.value,
+                          }))
+                        }
+                        className={fieldClass}
+                        placeholder="8"
+                      />
+                    </Field>
+                    <Field label="Niveau / für wen">
+                      <input
+                        type="text"
+                        value={course.level}
+                        onChange={(e) =>
+                          setCourse((c) => ({ ...c, level: e.target.value }))
+                        }
+                        className={fieldClass}
+                        placeholder="Keine Vorkenntnisse nötig"
+                      />
+                    </Field>
+                    <Field label="Gericht des Abends">
+                      <input
+                        type="text"
+                        value={course.dishFocus}
+                        onChange={(e) =>
+                          setCourse((c) => ({
+                            ...c,
+                            dishFocus: e.target.value,
+                          }))
+                        }
+                        className={fieldClass}
+                        placeholder="Pad Thai oder Tom Yam"
+                      />
+                    </Field>
+                  </div>
+                  <Field
+                    label="Treffpunkt / Ort"
+                    hint="Kurzer Hinweis zum Treffpunkt."
+                  >
+                    <input
+                      type="text"
+                      value={course.locationNote}
+                      onChange={(e) =>
+                        setCourse((c) => ({
+                          ...c,
+                          locationNote: e.target.value,
+                        }))
+                      }
+                      className={fieldClass}
+                      placeholder="In der Küche bei Wassana am Regierungsplatz"
+                    />
+                  </Field>
+                  <Field
+                    label="Inklusive"
+                    hint="Eine Zeile pro Punkt — oder mit Komma trennen."
+                  >
+                    <textarea
+                      value={course.includes}
+                      onChange={(e) =>
+                        setCourse((c) => ({ ...c, includes: e.target.value }))
+                      }
+                      className={fieldClass}
+                      rows={4}
+                      placeholder={"Zutaten\nAnleitung\nRezept-Tipps\nVerkostung"}
+                    />
+                  </Field>
+                  <Field
+                    label="Bitte mitbringen"
+                    hint="Eine Zeile pro Punkt."
+                  >
+                    <textarea
+                      value={course.whatToBring}
+                      onChange={(e) =>
+                        setCourse((c) => ({
+                          ...c,
+                          whatToBring: e.target.value,
+                        }))
+                      }
+                      className={fieldClass}
+                      rows={3}
+                      placeholder={"Geschlossene Schuhe\nSchürze falls vorhanden"}
+                    />
+                  </Field>
+                </Section>
+
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
@@ -1878,6 +1998,21 @@ export function AdminClient() {
                                     {entry.teaser}
                                   </p>
                                 ) : null}
+                                {(entry.price ||
+                                  entry.startTime ||
+                                  entry.dishFocus) && (
+                                  <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
+                                    {[
+                                      entry.price,
+                                      entry.startTime
+                                        ? `ab ${entry.startTime} Uhr`
+                                        : "",
+                                      entry.dishFocus,
+                                    ]
+                                      .filter(Boolean)
+                                      .join(" · ")}
+                                  </p>
+                                )}
                               </div>
                               <button
                                 type="button"

@@ -14,11 +14,14 @@ function JsonScript({ data }: { data: Record<string, unknown> | object }) {
 }
 
 function parseEuroPrice(price: string): string | null {
-  const match = String(price)
-    .replace(/\s/g, "")
-    .match(/(\d+)[,.](\d{2})/);
-  if (!match) return null;
-  return `${match[1]}.${match[2]}`;
+  const cleaned = String(price).replace(/\s/g, "");
+  const withDec = cleaned.match(/(\d+)[,.](\d{1,2})/);
+  if (withDec) {
+    return `${withDec[1]}.${withDec[2].padEnd(2, "0")}`;
+  }
+  const whole = cleaned.match(/(\d+)(?:€|EUR|,-)?/i);
+  if (!whole) return null;
+  return `${whole[1]}.00`;
 }
 
 const MAIN_NAV = [
@@ -320,6 +323,13 @@ export function JsonLdCookingCourseEvent({
 
   const url = getSiteUrl();
   const title = course.title?.trim() || "Thai Kochkurs Landshut";
+  const startTime = course.startTime?.trim();
+  const startDate =
+    startTime && /^\d{1,2}:\d{2}$/.test(startTime)
+      ? `${course.date}T${startTime.padStart(5, "0")}`
+      : course.date;
+  const priceAmount = course.price ? parseEuroPrice(course.price) : null;
+  const maxSeats = Number.parseInt(String(course.maxParticipants || ""), 10);
 
   const data = {
     "@context": "https://schema.org",
@@ -330,13 +340,16 @@ export function JsonLdCookingCourseEvent({
       course.teaser?.trim() ||
       course.pageText?.trim() ||
       "Thai Kochkurs bei Wassana in Landshut — Schritt für Schritt kochen lernen.",
-    startDate: course.date,
+    startDate,
     endDate: course.date,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
     image: [`${url}${course.image || "/images/ingredients.jpg"}`],
     url: `${url}/kochkurs`,
     inLanguage: "de-DE",
+    ...(Number.isFinite(maxSeats) && maxSeats > 0
+      ? { maximumAttendeeCapacity: maxSeats }
+      : {}),
     location: {
       "@type": "Place",
       name: business.fullName,
@@ -353,6 +366,9 @@ export function JsonLdCookingCourseEvent({
         latitude: site.geo.latitude,
         longitude: site.geo.longitude,
       },
+      ...(course.locationNote?.trim()
+        ? { description: course.locationNote.trim() }
+        : {}),
     },
     organizer: {
       "@type": "Organization",
@@ -369,6 +385,11 @@ export function JsonLdCookingCourseEvent({
       url: `${url}/kochkurs`,
       availability: "https://schema.org/InStock",
       validFrom: new Date().toISOString().slice(0, 10),
+      ...(priceAmount
+        ? { price: priceAmount, priceCurrency: "EUR" }
+        : course.price?.trim()
+          ? { description: course.price.trim() }
+          : {}),
     },
   };
 

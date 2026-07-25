@@ -10,6 +10,8 @@ type Course = {
   date: string;
   title: string;
   teaser: string;
+  price?: string;
+  startTime?: string;
 };
 
 export function CookingCoursePromo() {
@@ -88,9 +90,15 @@ export function CookingCoursePromo() {
       <div className="course-promo-card">
         <p className="course-promo-eyebrow">Nächster Termin</p>
         <p className="course-promo-title">{course.title || "Kochkurs"}</p>
-        <p className="course-promo-date">am {dateLabel}</p>
+        <p className="course-promo-date">
+          am {dateLabel}
+          {course.startTime?.trim() ? ` · ${course.startTime.trim()} Uhr` : ""}
+        </p>
         {course.teaser ? (
           <p className="course-promo-teaser">{course.teaser}</p>
+        ) : null}
+        {course.price?.trim() ? (
+          <p className="course-promo-teaser">{course.price.trim()}</p>
         ) : null}
         <Link href="/kochkurs" className="btn-primary course-promo-btn">
           Mehr erfahren

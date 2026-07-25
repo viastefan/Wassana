@@ -17,6 +17,24 @@ export type CookingCourseData = {
   image: string;
   pageTitle: string;
   pageText: string;
+  /** e.g. "65 € p. P." */
+  price: string;
+  /** e.g. "ca. 2,5 Stunden" */
+  duration: string;
+  /** e.g. "18:00" */
+  startTime: string;
+  /** e.g. "8" */
+  maxParticipants: string;
+  /** Treffpunkt / Hinweis */
+  locationNote: string;
+  /** Inklusive — Zeilen oder Fließtext */
+  includes: string;
+  /** Bitte mitbringen */
+  whatToBring: string;
+  /** Für wen / Niveau */
+  level: string;
+  /** Gericht des Abends */
+  dishFocus: string;
   updatedAt?: string;
 };
 
@@ -29,6 +47,15 @@ export type CookingCourseArchiveEntry = {
   image: string;
   pageTitle: string;
   pageText: string;
+  price: string;
+  duration: string;
+  startTime: string;
+  maxParticipants: string;
+  locationNote: string;
+  includes: string;
+  whatToBring: string;
+  level: string;
+  dishFocus: string;
   /** Was Gäste wollten / wie der Kurs lief */
   fazit: string;
   /** Nur für dich im Admin */
@@ -56,6 +83,40 @@ export function defaultCoursePageText() {
   return "Schritt für Schritt Pad Thai oder Tom Yam — inkl. Tipps, wo Sie die Zutaten finden.";
 }
 
+export function defaultCourseDetails(): Pick<
+  CookingCourseData,
+  | "price"
+  | "duration"
+  | "startTime"
+  | "maxParticipants"
+  | "locationNote"
+  | "includes"
+  | "whatToBring"
+  | "level"
+  | "dishFocus"
+> {
+  return {
+    price: "auf Anfrage",
+    duration: "ca. 2,5 Stunden",
+    startTime: "18:00",
+    maxParticipants: "8",
+    locationNote: "In der Küche bei Wassana am Regierungsplatz, Landshut.",
+    includes:
+      "Zutaten\nAnleitung Schritt für Schritt\nRezept-Tipps\nVerkostung",
+    whatToBring: "Geschlossene Schuhe\nSchürze falls vorhanden\nGute Laune",
+    level: "Keine Vorkenntnisse nötig",
+    dishFocus: "Pad Thai oder Tom Yam",
+  };
+}
+
+/** Split admin multiline text into clean bullet lines. */
+export function splitCourseLines(value: string | undefined | null): string[] {
+  return String(value || "")
+    .split(/\r?\n|,|;/)
+    .map((line) => line.replace(/^[-•*]\s*/, "").trim())
+    .filter(Boolean);
+}
+
 /** Build YYYY-MM-DD for the next Saturday at least `minDays` ahead. */
 export function suggestNewCourseDate(minDays = 10): string {
   const date = new Date();
@@ -81,6 +142,7 @@ export function createBlankCourse(
     image: DEFAULT_COURSE_IMAGE,
     pageTitle: defaultCoursePageTitle(),
     pageText: defaultCoursePageText(),
+    ...defaultCourseDetails(),
     ...overrides,
   };
 }

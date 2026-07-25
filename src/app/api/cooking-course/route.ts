@@ -38,7 +38,16 @@ export async function PUT(request: Request) {
     image?: string;
     pageTitle?: string;
     pageText?: string;
-  }>(request, 12_000);
+    price?: string;
+    duration?: string;
+    startTime?: string;
+    maxParticipants?: string;
+    locationNote?: string;
+    includes?: string;
+    whatToBring?: string;
+    level?: string;
+    dishFocus?: string;
+  }>(request, 40_000);
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
@@ -60,6 +69,15 @@ export async function PUT(request: Request) {
       image: sanitizeCourseImage(body.image),
       pageTitle: body.pageTitle || "",
       pageText: body.pageText || "",
+      price: body.price || "",
+      duration: body.duration || "",
+      startTime: body.startTime || "",
+      maxParticipants: body.maxParticipants || "",
+      locationNote: body.locationNote || "",
+      includes: body.includes || "",
+      whatToBring: body.whatToBring || "",
+      level: body.level || "",
+      dishFocus: body.dishFocus || "",
     });
 
     return persistWarningOrFail({ ...course }, persist);

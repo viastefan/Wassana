@@ -4,6 +4,7 @@ import { formatCourseDate } from "@/lib/cooking-course-format";
 import {
   createBlankCourse,
   createCourseId,
+  defaultCourseDetails,
   defaultCoursePageText,
   defaultCoursePageTitle,
   sanitizeCourseImage,
@@ -31,7 +32,9 @@ export {
   COURSE_IMAGE_OPTIONS,
   createBlankCourse,
   createCourseId,
+  defaultCourseDetails,
   sanitizeCourseImage,
+  splitCourseLines,
   suggestNewCourseDate,
   type CookingCourseArchiveEntry,
   type CookingCourseStoreData,
@@ -91,6 +94,7 @@ export function isCourseUpcoming(isoDate: string): boolean {
 
 function normalizeCourse(raw: Partial<CookingCourseData> | null): CookingCourse {
   const base = createBlankCourse({ active: false });
+  const details = defaultCourseDetails();
   return {
     active: typeof raw?.active === "boolean" ? raw.active : base.active,
     date: String(raw?.date || base.date),
@@ -102,8 +106,26 @@ function normalizeCourse(raw: Partial<CookingCourseData> | null): CookingCourse 
       sanitizeText(String(raw?.pageTitle || defaultCoursePageTitle()), 160) ||
       defaultCoursePageTitle(),
     pageText:
-      sanitizeText(String(raw?.pageText || defaultCoursePageText()), 400) ||
+      sanitizeText(String(raw?.pageText || defaultCoursePageText()), 800) ||
       defaultCoursePageText(),
+    price: sanitizeText(String(raw?.price ?? details.price), 80),
+    duration: sanitizeText(String(raw?.duration ?? details.duration), 80),
+    startTime: sanitizeText(String(raw?.startTime ?? details.startTime), 40),
+    maxParticipants: sanitizeText(
+      String(raw?.maxParticipants ?? details.maxParticipants),
+      20,
+    ),
+    locationNote: sanitizeText(
+      String(raw?.locationNote ?? details.locationNote),
+      240,
+    ),
+    includes: sanitizeText(String(raw?.includes ?? details.includes), 1200),
+    whatToBring: sanitizeText(
+      String(raw?.whatToBring ?? details.whatToBring),
+      800,
+    ),
+    level: sanitizeText(String(raw?.level ?? details.level), 160),
+    dishFocus: sanitizeText(String(raw?.dishFocus ?? details.dishFocus), 160),
     updatedAt: String(raw?.updatedAt || new Date().toISOString()),
   };
 }
@@ -115,6 +137,7 @@ function normalizeArchiveEntry(
   const id =
     sanitizeText(String(raw.id || ""), 80) ||
     createCourseId(String(raw.date), String(raw.title));
+  const details = defaultCourseDetails();
   return {
     id,
     date: String(raw.date),
@@ -122,7 +145,22 @@ function normalizeArchiveEntry(
     teaser: sanitizeText(String(raw.teaser || ""), 200),
     image: sanitizeCourseImage(raw.image),
     pageTitle: sanitizeText(String(raw.pageTitle || ""), 160),
-    pageText: sanitizeText(String(raw.pageText || ""), 400),
+    pageText: sanitizeText(String(raw.pageText || ""), 800),
+    price: sanitizeText(String(raw.price ?? details.price), 80),
+    duration: sanitizeText(String(raw.duration ?? details.duration), 80),
+    startTime: sanitizeText(String(raw.startTime ?? details.startTime), 40),
+    maxParticipants: sanitizeText(
+      String(raw.maxParticipants ?? details.maxParticipants),
+      20,
+    ),
+    locationNote: sanitizeText(
+      String(raw.locationNote ?? details.locationNote),
+      240,
+    ),
+    includes: sanitizeText(String(raw.includes ?? ""), 1200),
+    whatToBring: sanitizeText(String(raw.whatToBring ?? ""), 800),
+    level: sanitizeText(String(raw.level ?? ""), 160),
+    dishFocus: sanitizeText(String(raw.dishFocus ?? ""), 160),
     fazit: sanitizeText(String(raw.fazit || ""), 2000),
     notes: sanitizeText(String(raw.notes || ""), 2000),
     completedAt: String(raw.completedAt || new Date().toISOString()),
@@ -236,6 +274,15 @@ export async function completeCookingCourse(input: {
     image: current.image,
     pageTitle: current.pageTitle,
     pageText: current.pageText,
+    price: current.price,
+    duration: current.duration,
+    startTime: current.startTime,
+    maxParticipants: current.maxParticipants,
+    locationNote: current.locationNote,
+    includes: current.includes,
+    whatToBring: current.whatToBring,
+    level: current.level,
+    dishFocus: current.dishFocus,
     fazit: input.fazit || "",
     notes: input.notes || "",
     completedAt: new Date().toISOString(),

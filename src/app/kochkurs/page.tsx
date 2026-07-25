@@ -14,6 +14,7 @@ import {
   getCookingCourse,
   isPublicPromoVisible,
   sanitizeCourseImage,
+  splitCourseLines,
 } from "@/lib/cooking-course";
 
 export const metadata: Metadata = {
@@ -44,6 +45,39 @@ export default async function KochkursPage() {
     course.pageText?.trim() ||
     "Schritt für Schritt Pad Thai oder Tom Yam — inkl. Tipps, wo Sie die Zutaten finden.";
 
+  const facts = [
+    course.date
+      ? { label: "Termin", value: formatCourseDate(course.date) }
+      : null,
+    course.startTime?.trim()
+      ? { label: "Beginn", value: `${course.startTime.trim()} Uhr` }
+      : null,
+    course.duration?.trim()
+      ? { label: "Dauer", value: course.duration.trim() }
+      : null,
+    course.price?.trim()
+      ? { label: "Preis", value: course.price.trim() }
+      : null,
+    course.maxParticipants?.trim()
+      ? {
+          label: "Plätze",
+          value: `max. ${course.maxParticipants.trim()}`,
+        }
+      : null,
+    course.level?.trim()
+      ? { label: "Niveau", value: course.level.trim() }
+      : null,
+    course.dishFocus?.trim()
+      ? { label: "Gericht", value: course.dishFocus.trim() }
+      : null,
+  ].filter((item): item is { label: string; value: string } => Boolean(item));
+
+  const includes = splitCourseLines(course.includes);
+  const whatToBring = splitCourseLines(course.whatToBring);
+  const locationNote = course.locationNote?.trim() || "";
+  const hasDetails =
+    includes.length > 0 || whatToBring.length > 0 || Boolean(locationNote);
+
   return (
     <main>
       <JsonLdBreadcrumbs
@@ -73,11 +107,33 @@ export default async function KochkursPage() {
               <strong className="text-[color:var(--red)]">
                 {formatCourseDate(course.date)}
               </strong>
+              {course.startTime?.trim()
+                ? ` · ab ${course.startTime.trim()} Uhr`
+                : null}
               {course.title ? ` — ${course.title}` : null}
               {course.teaser ? ` · ${course.teaser}` : null}
+              {course.price?.trim() ? ` · ${course.price.trim()}` : null}
             </p>
           </div>
         </div>
+      ) : null}
+
+      {showNext && facts.length > 0 ? (
+        <section
+          className="course-facts-band"
+          aria-label="Kursdetails auf einen Blick"
+        >
+          <div className="mx-auto max-w-6xl px-5 py-8 md:px-8">
+            <dl className="course-facts-grid">
+              {facts.map((fact) => (
+                <div key={fact.label} className="course-fact">
+                  <dt>{fact.label}</dt>
+                  <dd>{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
       ) : null}
 
       <section className="border-b border-[color:var(--line)]">
@@ -107,6 +163,57 @@ export default async function KochkursPage() {
         </div>
       </section>
 
+      {showNext && hasDetails ? (
+        <section
+          className="course-details-band"
+          aria-labelledby="course-details-heading"
+        >
+          <div className="mx-auto max-w-6xl px-5 py-[var(--section-y)] md:px-8">
+            <Reveal>
+              <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+                Gut zu wissen
+              </p>
+              <h2
+                id="course-details-heading"
+                className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl"
+              >
+                Was dich erwartet
+              </h2>
+            </Reveal>
+            <div className="course-details-grid mt-10">
+              {includes.length > 0 ? (
+                <Reveal>
+                  <h3 className="course-details-title">Inklusive</h3>
+                  <ul className="course-details-list">
+                    {includes.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </Reveal>
+              ) : null}
+              {whatToBring.length > 0 ? (
+                <Reveal delay={1}>
+                  <h3 className="course-details-title">Bitte mitbringen</h3>
+                  <ul className="course-details-list">
+                    {whatToBring.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </Reveal>
+              ) : null}
+              {locationNote ? (
+                <Reveal
+                  delay={includes.length > 0 && whatToBring.length > 0 ? 2 : 1}
+                >
+                  <h3 className="course-details-title">Treffpunkt</h3>
+                  <p className="course-details-text">{locationNote}</p>
+                </Reveal>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="course-flow-band" aria-labelledby="course-flow-heading">
         <div className="mx-auto grid max-w-6xl gap-12 px-5 py-[var(--section-y)] md:grid-cols-2 md:gap-16 md:px-8">
           <Reveal>
@@ -133,8 +240,9 @@ export default async function KochkursPage() {
                 },
                 {
                   label: "Kochen",
-                  value:
-                    "Schritt für Schritt bereitet ihr Klassiker wie Pad Thai oder Tom Yam zu — mit Tipps zur Schärfe und Würzung.",
+                  value: course.dishFocus?.trim()
+                    ? `Schritt für Schritt bereitet ihr ${course.dishFocus.trim()} zu — mit Tipps zur Schärfe und Würzung.`
+                    : "Schritt für Schritt bereitet ihr Klassiker wie Pad Thai oder Tom Yam zu — mit Tipps zur Schärfe und Würzung.",
                 },
                 {
                   label: "Genießen & mitnehmen",
