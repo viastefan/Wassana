@@ -13,16 +13,17 @@ export function LocationSection() {
           <div className="flex h-full flex-col justify-between px-5 py-14 md:px-8 md:py-20">
             <div>
               <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-                Standort
+                Hier findest du uns
               </p>
               <h2
                 id="standort-heading"
                 className="font-display mt-3 text-3xl leading-tight text-[color:var(--red)] md:text-4xl"
               >
-                Gewerbehaus am Regierungsplatz
+                Regierungsplatz, Landshut
               </h2>
               <p className="mt-4 max-w-sm text-[color:var(--muted)] leading-relaxed">
-                Mitten in Landshut — frisch kochen, abholen, genießen.
+                Im Gewerbehaus am Regierungsplatz — frisch kochen, abholen,
+                genießen.
               </p>
 
               <address className="mt-10 not-italic">

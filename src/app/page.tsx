@@ -47,14 +47,44 @@ export default function HomePage() {
             Thai Imbiss und Feinkost · Landshut
           </p>
           <h1 className="hero-copy-delay mt-6 max-w-xl text-[clamp(1.15rem,2.4vw,1.45rem)] font-light leading-relaxed text-white/92">
-            Sawasdee — willkommen bei Wassana am Regierungsplatz.
+            Sawasdee — authentische Thai-Küche zum Mitnehmen.
           </h1>
+          <a
+            href={site.maps.directions}
+            target="_blank"
+            rel="noreferrer"
+            className="hero-copy-delay-2 group mt-7 inline-flex max-w-fit items-start gap-2.5 text-white/88 transition hover:text-white"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="mt-0.5 h-[1.15rem] w-[1.15rem] shrink-0 text-[color:var(--gold-soft)] transition group-hover:translate-y-[-1px]"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              aria-hidden
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"
+              />
+              <circle cx="12" cy="10" r="2.25" />
+            </svg>
+            <span className="text-left leading-snug">
+              <span className="block text-[0.95rem] tracking-wide md:text-base">
+                {site.address.street}
+              </span>
+              <span className="mt-0.5 block text-sm text-white/70">
+                {site.address.zip} {site.address.city} · Route öffnen
+              </span>
+            </span>
+          </a>
           <div className="hero-copy-delay-2 mt-9 flex flex-wrap gap-3">
             <Link href="/speisekarte" className="btn-primary">
               Speisekarte
             </Link>
             <a href="#standort" className="btn-ghost">
-              Standort
+              Auf der Karte
             </a>
           </div>
         </div>
@@ -153,6 +183,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <LocationSection />
+
       <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
         <Wochenkarte compact />
       </section>
@@ -164,6 +196,7 @@ export default function HomePage() {
               Bis bald bei Wassana
             </p>
             <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
+              {site.address.street}, {site.address.city} —{" "}
               {site.hours.weekdaysLong}. {site.hours.weekend}.
             </p>
             <a href={site.phoneHref} className="btn-primary mt-8 inline-flex">
@@ -172,8 +205,6 @@ export default function HomePage() {
           </Reveal>
         </div>
       </section>
-
-      <LocationSection />
     </main>
   );
 }
