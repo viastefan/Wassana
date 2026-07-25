@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { EditableText } from "@/components/EditableText";
 import { MapEmbed } from "@/components/MapEmbed";
 import { Reveal } from "@/components/Reveal";
 import { useBusiness } from "@/components/BusinessContext";
-import type { SiteContent } from "@/lib/site-content";
+import type { SiteContent } from "@/lib/site-content-shared";
 
 export function LocationSection({
   location,
@@ -24,18 +25,28 @@ export function LocationSection({
         <Reveal className="h-full">
           <div className="flex h-full flex-col justify-center px-5 py-14 md:px-8 md:py-16">
             <div>
-              <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+              <EditableText
+                path="location.eyebrow"
+                as="p"
+                className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase"
+              >
                 {location.eyebrow}
-              </p>
-              <h2
+              </EditableText>
+              <EditableText
+                path="location.title"
+                as="h2"
                 id="standort-heading"
                 className="font-display mt-3 text-3xl leading-tight text-[color:var(--red)] md:text-4xl"
               >
                 {location.title}
-              </h2>
-              <p className="mt-4 max-w-sm text-[color:var(--muted)] leading-relaxed">
+              </EditableText>
+              <EditableText
+                path="location.text"
+                as="p"
+                className="mt-4 max-w-sm text-[color:var(--muted)] leading-relaxed"
+              >
                 {location.text}
-              </p>
+              </EditableText>
 
               <address className="mt-10 not-italic">
                 <p className="text-lg text-[color:var(--ink)]">
@@ -62,11 +73,17 @@ export function LocationSection({
                     Öffnungszeiten
                   </dt>
                   <dd className="mt-1 text-[color:var(--ink)]">
-                    {hours.weekdaysLong}
+                    <EditableText path="hours.weekdaysLong" as="span">
+                      {hours.weekdaysLong}
+                    </EditableText>
                     <br />
-                    <span className="text-[color:var(--muted)]">
+                    <EditableText
+                      path="hours.weekend"
+                      as="span"
+                      className="text-[color:var(--muted)]"
+                    >
                       {hours.weekend}
-                    </span>
+                    </EditableText>
                   </dd>
                 </div>
                 <div>

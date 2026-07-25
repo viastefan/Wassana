@@ -1,4 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { Manrope, Special_Elite } from "next/font/google";
+
+const adminSans = Manrope({
+  variable: "--font-admin-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const adminDisplay = Special_Elite({
+  variable: "--font-admin-display",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -10,7 +24,7 @@ export const metadata: Metadata = {
   applicationName: "Wassana Verwaltung",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Wassana",
   },
   other: {
@@ -26,7 +40,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#7a0c24",
+  themeColor: "#f3eee4",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -38,5 +52,11 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="admin-app">{children}</div>;
+  return (
+    <div
+      className={`admin-app ${adminSans.variable} ${adminDisplay.variable}`}
+    >
+      {children}
+    </div>
+  );
 }

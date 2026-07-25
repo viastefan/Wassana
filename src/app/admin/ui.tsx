@@ -100,8 +100,10 @@ export type PublishPhase = "idle" | "publishing" | "online" | "error";
 
 export function PersistChips({
   persist,
+  compact = false,
 }: {
   persist?: PersistSnapshot | null;
+  compact?: boolean;
 }) {
   if (!persist) return null;
   const items = [
@@ -110,23 +112,47 @@ export function PersistChips({
     { key: "durable", label: "Dauerhaft", ok: persist.durable },
   ] as const;
 
+  const allOk = items.every((item) => item.ok === true);
+  const anyBad = items.some((item) => item.ok === false);
+
   return (
-    <div className="admin-persist-chips" aria-label="Speicher-Status">
-      {items.map((item) => (
-        <span
-          key={item.key}
-          className={`admin-persist-chip ${
-            item.ok === true
-              ? "is-ok"
-              : item.ok === false
-                ? "is-bad"
-                : "is-unknown"
-          }`}
-        >
-          <span className="admin-persist-dot" aria-hidden />
-          {item.label}
-        </span>
-      ))}
+    <div
+      className={compact ? "admin-persist-chips" : "admin-persist-rail"}
+      aria-label="Speicher-Status"
+    >
+      {!compact ? (
+        <p className="admin-persist-rail-label">
+          {allOk
+            ? "Backend synchron — Website liest frische Daten"
+            : anyBad
+              ? "Speicher prüfen — Veröffentlichung kann fehlschlagen"
+              : "Speicher-Status"}
+        </p>
+      ) : null}
+      <div className="admin-persist-chips">
+        {items.map((item) => (
+          <span
+            key={item.key}
+            className={`admin-persist-chip ${
+              item.ok === true
+                ? "is-ok"
+                : item.ok === false
+                  ? "is-bad"
+                  : "is-unknown"
+            }`}
+            title={
+              item.ok === true
+                ? `${item.label}: OK`
+                : item.ok === false
+                  ? `${item.label}: fehlt / Fehler`
+                  : `${item.label}: unbekannt`
+            }
+          >
+            <span className="admin-persist-dot" aria-hidden />
+            {item.label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -144,7 +170,7 @@ export function StickySave({
   label,
   disabled,
   phase = "idle",
-  hint = "Speichert und geht sofort live auf der Website.",
+  hint = "Speichert dauerhaft und geht sofort live auf der Website.",
 }: {
   saving: boolean;
   label: string;
@@ -155,9 +181,9 @@ export function StickySave({
   const busy = saving || phase === "publishing";
   const text =
     phase === "publishing"
-      ? "Geht live …"
+      ? "Wird live geschaltet …"
       : phase === "online"
-        ? "Live — online"
+        ? "Live auf der Website"
         : phase === "error"
           ? "Nicht live — Fehler"
           : busy
@@ -168,6 +194,16 @@ export function StickySave({
     <div className="admin-sticky-save">
       {phase === "idle" && !busy ? (
         <p className="admin-sticky-hint">{hint}</p>
+      ) : null}
+      {phase === "online" ? (
+        <p className="admin-sticky-hint admin-sticky-hint-ok">
+          Gespeichert — Website zeigt die neue Version.
+        </p>
+      ) : null}
+      {phase === "error" ? (
+        <p className="admin-sticky-hint admin-sticky-hint-bad">
+          Nicht online. Details im Fehlerdialog prüfen.
+        </p>
       ) : null}
       <button
         type="submit"

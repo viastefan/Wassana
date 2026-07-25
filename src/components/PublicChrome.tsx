@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BusinessProvider } from "@/components/BusinessContext";
 import { CookieBanner } from "@/components/CookieBanner";
+import { AdminPreviewBridge } from "@/components/AdminPreviewBridge";
 import { CookingCoursePromo } from "@/components/CookingCoursePromo";
 import { OfferPopup } from "@/components/OfferPopup";
 import { OfferPopupProvider } from "@/components/OfferPopupContext";
@@ -86,6 +87,7 @@ export function PublicChrome({
           <CookingCoursePromo />
           <CookieBanner />
           <OfferPopup />
+          <AdminPreviewBridge />
         </div>
       </OfferPopupProvider>
     </BusinessProvider>

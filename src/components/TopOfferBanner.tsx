@@ -5,6 +5,7 @@ import {
   isStudentLunchPopupHref,
   type SiteContent,
 } from "@/lib/site-content-shared";
+import { EditableText } from "@/components/EditableText";
 import { useOfferPopupOptional } from "@/components/OfferPopupContext";
 
 type TopOfferBannerProps = {
@@ -22,6 +23,13 @@ function bannerStorageKey(banner: SiteContent["topBanner"]) {
   ].join("|")}`;
 }
 
+function isAdminPreview() {
+  if (typeof window === "undefined") return false;
+  return (
+    new URLSearchParams(window.location.search).get("adminPreview") === "1"
+  );
+}
+
 export function TopOfferBanner({
   banner,
   onVisibilityChange,
@@ -30,8 +38,15 @@ export function TopOfferBanner({
   const storageKey = useMemo(() => bannerStorageKey(banner), [banner]);
   const [dismissed, setDismissed] = useState(false);
   const [ready, setReady] = useState(false);
+  const [preview, setPreview] = useState(false);
 
   useEffect(() => {
+    setPreview(isAdminPreview());
+    if (isAdminPreview()) {
+      setDismissed(false);
+      setReady(true);
+      return;
+    }
     try {
       setDismissed(window.localStorage.getItem(storageKey) === "1");
     } catch {
@@ -41,18 +56,19 @@ export function TopOfferBanner({
   }, [storageKey]);
 
   const configured = banner.active && Boolean(banner.text.trim());
-  const visible = configured && !(ready && dismissed);
+  const visible = configured && (preview || !(ready && dismissed));
 
   useEffect(() => {
     onVisibilityChange?.(visible);
   }, [visible, onVisibilityChange]);
 
   if (!configured) return null;
-  if (ready && dismissed) return null;
+  if (!preview && ready && dismissed) return null;
 
   function dismiss(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
+    if (preview) return;
     try {
       window.localStorage.setItem(storageKey, "1");
     } catch {
@@ -75,31 +91,41 @@ export function TopOfferBanner({
   const copy = (
     <>
       <span className="min-w-0">
-        <span>{banner.text}</span>
+        <EditableText path="topBanner.text" as="span">
+          {banner.text}
+        </EditableText>
         {banner.highlight.trim() ? (
           <>
             {" "}
-            <span
+            <EditableText
+              path="topBanner.highlight"
+              as="span"
               className="font-semibold"
               style={{ color: banner.highlightColor }}
             >
               {banner.highlight}
-            </span>
+            </EditableText>
           </>
         ) : null}
       </span>
       {hasAction ? (
-        <span
+        <EditableText
+          path="topBanner.linkLabel"
+          as="span"
           className="shrink-0 underline underline-offset-2 opacity-95"
           style={{ color: banner.highlightColor }}
         >
           {banner.linkLabel}
-        </span>
+        </EditableText>
       ) : null}
       {suffix ? (
-        <span className="top-offer-banner-suffix min-w-0 opacity-95">
+        <EditableText
+          path="topBanner.suffix"
+          as="span"
+          className="top-offer-banner-suffix min-w-0 opacity-95"
+        >
           {suffix}
-        </span>
+        </EditableText>
       ) : null}
     </>
   );
@@ -111,6 +137,7 @@ export function TopOfferBanner({
           type="button"
           className="top-offer-banner-copy block w-full transition hover:opacity-95"
           aria-label={`${banner.text}${suffix ? ` ${suffix}` : ""}`}
+          data-admin-open-offer=""
           onClick={() => offerPopup?.openOffer()}
         >
           <div className="top-offer-banner-inner">{copy}</div>
@@ -129,14 +156,16 @@ export function TopOfferBanner({
         </div>
       )}
 
-      <button
-        type="button"
-        className="top-offer-banner-close"
-        aria-label="Angebot ausblenden"
-        onClick={dismiss}
-      >
-        <span aria-hidden>×</span>
-      </button>
+      {preview ? null : (
+        <button
+          type="button"
+          className="top-offer-banner-close"
+          aria-label="Angebot ausblenden"
+          onClick={dismiss}
+        >
+          <span aria-hidden>×</span>
+        </button>
+      )}
     </div>
   );
 }

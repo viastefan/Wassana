@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { EditableText } from "@/components/EditableText";
 import { useOfferPopup } from "@/components/OfferPopupContext";
 
 function bulletList(raw: string) {
@@ -146,27 +147,72 @@ export function OfferPopup() {
         </div>
 
         <div className="offer-popup-body">
-          <p className="offer-popup-eyebrow">{offer.eyebrow}</p>
-          <h2 id={titleId} className="offer-popup-title">
+          <EditableText
+            path="studentLunch.eyebrow"
+            as="p"
+            className="offer-popup-eyebrow"
+          >
+            {offer.eyebrow}
+          </EditableText>
+          <EditableText
+            path="studentLunch.popupTitle"
+            as="h2"
+            id={titleId}
+            className="offer-popup-title"
+          >
             {title}
-          </h2>
-          {lead ? <p className="offer-popup-lead">{lead}</p> : null}
+          </EditableText>
+          {lead ? (
+            <EditableText
+              path="studentLunch.popupLead"
+              as="p"
+              className="offer-popup-lead"
+            >
+              {lead}
+            </EditableText>
+          ) : null}
           <div className="gold-rule mt-5 max-w-[12rem]" />
 
           {offer.popupBody.trim() ? (
-            <p className="offer-popup-copy">{offer.popupBody}</p>
+            <EditableText
+              path="studentLunch.popupBody"
+              as="p"
+              className="offer-popup-copy"
+            >
+              {offer.popupBody}
+            </EditableText>
           ) : null}
 
           {bullets.length ? (
-            <ul className="offer-popup-list">
+            <EditableText
+              path="studentLunch.popupBullets"
+              as="ul"
+              className="offer-popup-list"
+            >
               {bullets.map((item) => (
                 <li key={item}>{item}</li>
               ))}
-            </ul>
+            </EditableText>
           ) : null}
 
-          {price ? <p className="offer-popup-price">{price}</p> : null}
-          {note ? <p className="offer-popup-note">{note}</p> : null}
+          {price ? (
+            <EditableText
+              path="studentLunch.popupPrice"
+              as="p"
+              className="offer-popup-price"
+            >
+              {price}
+            </EditableText>
+          ) : null}
+          {note ? (
+            <EditableText
+              path="studentLunch.popupNote"
+              as="p"
+              className="offer-popup-note"
+            >
+              {note}
+            </EditableText>
+          ) : null}
 
           <div className="offer-popup-actions">
             <Link
@@ -174,7 +220,9 @@ export function OfferPopup() {
               className="btn-primary offer-popup-cta"
               onClick={requestClose}
             >
-              {ctaLabel}
+              <EditableText path="studentLunch.popupCtaLabel" as="span">
+                {ctaLabel}
+              </EditableText>
             </Link>
             <button
               type="button"
