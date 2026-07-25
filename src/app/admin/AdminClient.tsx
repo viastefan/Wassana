@@ -456,11 +456,12 @@ export function AdminClient() {
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3.5">
           <div className="admin-brand-mark">
             <Image
-              src="/admin/icon-192.png"
-              alt=""
+              src="/images/logo.png"
+              alt="Wassana"
               width={40}
               height={40}
-              className="h-9 w-9 object-contain"
+              className="h-9 w-9 rounded-full object-contain bg-[color:var(--paper)] p-0.5"
+              priority
             />
           </div>
           <div className="min-w-0 flex-1">

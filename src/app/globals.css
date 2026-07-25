@@ -162,9 +162,9 @@ select:-webkit-autofill:focus {
   place-items: center;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 0.9rem;
-  background: linear-gradient(145deg, var(--red), #5f091c);
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--red) 28%, transparent);
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 45%, transparent);
   overflow: hidden;
 }
 
