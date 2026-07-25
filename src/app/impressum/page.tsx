@@ -87,6 +87,21 @@ export default async function ImpressumPage() {
           <Reveal>
             <section>
               <h2 className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
+                Verantwortlich für den Inhalt
+              </h2>
+              <p className="mt-3 text-[color:var(--muted)]">
+                Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV:
+                <br />
+                <span className="text-[color:var(--ink)]">{business.owner}</span>
+                <br />
+                {business.street}, {business.zip} {business.city}
+              </p>
+            </section>
+          </Reveal>
+
+          <Reveal>
+            <section>
+              <h2 className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
                 Öffnungszeiten
               </h2>
               <p className="mt-3 text-[color:var(--muted)]">

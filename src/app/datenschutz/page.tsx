@@ -235,11 +235,19 @@ export default async function DatenschutzPage() {
                 </li>
                 <li>
                   <strong className="text-[color:var(--ink)]">
+                    Top-Hinweis ausblenden
+                  </strong>{" "}
+                  (localStorage, Schlüssel je nach Hinweistext) — merkt sich,
+                  wenn Sie die obere Angebotsleiste schließen. Rein lokal, kein
+                  Tracking (Art. 6 Abs. 1 lit. f DSGVO, § 25 Abs. 2 TTDSG).
+                </li>
+                <li>
+                  <strong className="text-[color:var(--ink)]">
                     Kochkurs-Hinweis
                   </strong>{" "}
-                  (sessionStorage) — merkt sich in der aktuellen Sitzung, wenn
-                  Sie den Hinweis schließen (unbedingt erforderliche /
-                  komfortbezogene Speicherung, Art. 6 Abs. 1 lit. f DSGVO).
+                  (sessionStorage „wassana-course-dismissed“) — merkt sich in der
+                  aktuellen Sitzung, wenn Sie den Hinweis schließen (Art. 6 Abs. 1
+                  lit. f DSGVO, § 25 Abs. 2 TTDSG).
                 </li>
                 <li>
                   <strong className="text-[color:var(--ink)]">
@@ -424,7 +432,7 @@ export default async function DatenschutzPage() {
           <Reveal>
             <section>
               <h2 className="font-display text-2xl text-[color:var(--ink)]">
-                13. Admin-Bereich / Progressive Web App
+                13. Admin-Bereich / Progressive Web App / Push
               </h2>
               <p className="mt-3">
                 Für den Betreiber existiert ein passwortgeschützter
@@ -434,6 +442,33 @@ export default async function DatenschutzPage() {
                 der Verwaltungsbereich als App auf dem Gerät gespeichert werden
                 (PWA); dabei können technische Dateien lokal zwischengespeichert
                 werden.
+              </p>
+              <p className="mt-3">
+                Optional kann der Betreiber{" "}
+                <strong className="text-[color:var(--ink)]">
+                  Push-Benachrichtigungen
+                </strong>{" "}
+                für diesen Verwaltungsbereich aktivieren (z. B. Hinweise zu
+                Kochkursen). Dafür werden — nach ausdrücklicher Freigabe im
+                Browser — eine Push-Subscription und technische Endpunkt-Daten
+                gespeichert und über den Browser-Push-Dienst (z. B. von Google /
+                Apple / Mozilla je nach Gerät) zugestellt. Rechtsgrundlage:
+                Art. 6 Abs. 1 lit. f DSGVO (Betrieb der eigenen Verwaltung) bzw.
+                Einwilligung des jeweiligen Gerätenutzers in die
+                Browser-Benachrichtigung. Website-Besucher erhalten keine
+                Push-Nachrichten.
+              </p>
+              <p className="mt-3">
+                Website-Inhalte aus dem Admin (z. B. Texte, Wochenkarte,
+                Kochkurs-Termine —{" "}
+                <strong className="text-[color:var(--ink)]">
+                  keine Kontaktanfragen / keine privaten Nachrichten
+                </strong>
+                ) können zur dauerhaften Speicherung in einem privaten
+                Git-Repository bei GitHub, Inc. (USA) abgelegt werden, sofern
+                der Betreiber dies technisch konfiguriert hat. Kontaktanfragen
+                werden nicht in dieses Repository geschrieben; der bevorzugte
+                dauerhafte Kanal dafür ist die E-Mail an den Betreiber.
               </p>
             </section>
           </Reveal>
@@ -450,11 +485,16 @@ export default async function DatenschutzPage() {
                 Auftragsverarbeiter sind insbesondere:
               </p>
               <ul className="mt-3 list-disc space-y-2 pl-5">
-                <li>Hosting-Anbieter (Vercel)</li>
+                <li>Hosting-Anbieter (Vercel Inc., USA)</li>
                 <li>E-Mail-/SMTP-Dienstleister (Zustellung von Anfragen)</li>
                 <li>
+                  GitHub, Inc. (USA) — nur für nicht-personenbezogene
+                  Website-Inhalte aus dem CMS, soweit konfiguriert
+                </li>
+                <li>
                   Google Ireland Limited / Google LLC — nur bei Einwilligung in
-                  Google Maps
+                  Google Maps; außerdem ggf. Browser-Push-Infrastruktur bei
+                  Chromium-Geräten (nur Admin-Push)
                 </li>
               </ul>
               <p className="mt-3">

@@ -64,9 +64,9 @@ export function CookieBanner() {
             id="cookie-banner-text"
             className="mt-2 text-sm leading-relaxed text-[color:var(--ink)]"
           >
-            Wir verwenden keine Tracking-Cookies. Notwendige Einstellungen
-            speichern wir lokal; Google Maps laden wir nur mit Ihrer Zustimmung
-            (DSGVO / TTDSG). Details in der{" "}
+            Keine Tracking- oder Werbe-Cookies. Lokal speichern wir nur Ihre
+            Auswahl und wenige Komfort-Einstellungen. Google Maps laden wir erst
+            nach Zustimmung. Später ändern unter „Cookies“ im Footer. Mehr in der{" "}
             <Link
               href="/datenschutz"
               className="text-[color:var(--red)] underline-offset-2 hover:underline"
