@@ -6,21 +6,9 @@
       "dish": "Gelbes Curry",
       "description": "mit Kartoffeln, Karotten, Zwiebeln",
       "items": [
-        {
-          "nr": "55",
-          "name": "Huhn, Schwein",
-          "price": "8,90 €"
-        },
-        {
-          "nr": "56",
-          "name": "Rind",
-          "price": "9,90 €"
-        },
-        {
-          "nr": "57",
-          "name": "vegetarisch",
-          "price": "7,90 €"
-        }
+        { "nr": "55", "name": "Huhn, Schwein", "price": "8,90 €" },
+        { "nr": "56", "name": "Rind", "price": "9,90 €" },
+        { "nr": "57", "name": "vegetarisch", "price": "7,90 €" }
       ]
     },
     {
@@ -29,21 +17,9 @@
       "description": "Kokoscurry, Kartoffeln, Palmzucker, Tamarind & gemahlene Erdnüsse",
       "allergens": "E",
       "items": [
-        {
-          "nr": "66",
-          "name": "Huhn, Schwein",
-          "price": "8,90 €"
-        },
-        {
-          "nr": "67",
-          "name": "Rind",
-          "price": "9,90 €"
-        },
-        {
-          "nr": "68",
-          "name": "vegetarisch",
-          "price": "7,90 €"
-        }
+        { "nr": "66", "name": "Huhn, Schwein", "price": "8,90 €" },
+        { "nr": "67", "name": "Rind", "price": "9,90 €" },
+        { "nr": "68", "name": "vegetarisch", "price": "7,90 €" }
       ]
     },
     {
@@ -51,17 +27,8 @@
       "dish": "Fischcurry",
       "description": "",
       "items": [
-        {
-          "nr": "90",
-          "name": "Sojasauce",
-          "price": "9,50 €",
-          "allergens": "A,B,C"
-        },
-        {
-          "nr": "91",
-          "name": "Kokoscurry",
-          "price": "9,50 €"
-        }
+        { "nr": "90", "name": "Sojasauce", "price": "9,50 €", "allergens": "A,B,C" },
+        { "nr": "91", "name": "Kokoscurry", "price": "9,50 €" }
       ]
     },
     {
@@ -70,21 +37,9 @@
       "description": "verschiedene Gemüse, Knoblauch, „heiliger Basilikum“",
       "allergens": "A,B,C",
       "items": [
-        {
-          "nr": "77",
-          "name": "Huhn, Schwein",
-          "price": "8,90 €"
-        },
-        {
-          "nr": "78",
-          "name": "Rind",
-          "price": "9,90 €"
-        },
-        {
-          "nr": "79",
-          "name": "vegetarisch",
-          "price": "7,90 €"
-        }
+        { "nr": "77", "name": "Huhn, Schwein", "price": "8,90 €" },
+        { "nr": "78", "name": "Rind", "price": "9,90 €" },
+        { "nr": "79", "name": "vegetarisch", "price": "7,90 €" }
       ]
     },
     {
@@ -92,29 +47,12 @@
       "dish": "Tilapia (Buntbarsch)",
       "description": "weich & fein im Geschmack",
       "items": [
-        {
-          "nr": "90",
-          "name": "Sojasauce",
-          "price": "9,50 €",
-          "allergens": "A,B,C"
-        },
-        {
-          "nr": "91",
-          "name": "Kokoscurry",
-          "price": "9,50 €"
-        },
-        {
-          "nr": "92",
-          "name": "Fischsuppe – Tilapia",
-          "price": "9,50 €"
-        },
-        {
-          "nr": "93",
-          "name": "Fischsuppe – Wildlachs",
-          "price": "9,90 €"
-        }
+        { "nr": "90", "name": "Sojasauce", "price": "9,50 €", "allergens": "A,B,C" },
+        { "nr": "91", "name": "Kokoscurry", "price": "9,50 €" },
+        { "nr": "92", "name": "Fischsuppe – Tilapia", "price": "9,50 €" },
+        { "nr": "93", "name": "Fischsuppe – Wildlachs", "price": "9,90 €" }
       ]
     }
   ],
-  "updatedAt": "2026-07-25T13:17:12.017Z"
+  "updatedAt": "2026-07-25T00:00:00.000Z"
 }
