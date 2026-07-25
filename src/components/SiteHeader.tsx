@@ -135,17 +135,24 @@ export function SiteHeader({
         </Link>
 
         <nav className="hidden items-center gap-7 md:flex">
-          {navItems.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`nav-link text-sm tracking-wide transition-opacity hover:opacity-70 ${
-                solid ? "text-[color:var(--ink)]" : ""
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navItems.map((link) => {
+            const current =
+              link.href === "/"
+                ? pathname === "/"
+                : pathname === link.href || pathname.startsWith(`${link.href}/`);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={current ? "page" : undefined}
+                className={`nav-link text-sm tracking-wide transition-opacity hover:opacity-70 ${
+                  solid ? "text-[color:var(--ink)]" : ""
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
 
           <div className="contact-menu" ref={contactRef}>
             <button

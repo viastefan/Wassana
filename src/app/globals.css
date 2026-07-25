@@ -943,6 +943,45 @@ a.btn-ghost:hover {
   transform: translateY(-1px);
 }
 
+/* Desktop-Nav: kein roter Fokus-Kasten nach Klick */
+.nav-link {
+  position: relative;
+  padding: 0.2rem 0;
+  text-decoration: none;
+  outline: none;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.2rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0;
+  transform: scaleX(0.35);
+  transform-origin: left center;
+  transition:
+    opacity 0.2s var(--ease-out),
+    transform 0.2s var(--ease-out);
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after,
+.nav-link[aria-current="page"]::after {
+  opacity: 0.75;
+  transform: scaleX(1);
+}
+
+.nav-link:focus-visible {
+  outline: none;
+}
+
+.nav-link[aria-current="page"] {
+  opacity: 1;
+}
+
 /* Transparenter Header über dem Hero: Menü immer weiß */
 .site-header-hero .nav-brand,
 .site-header-hero .nav-link,
