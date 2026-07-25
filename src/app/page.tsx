@@ -214,6 +214,39 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="takeaway-band" aria-labelledby="takeaway-heading">
+        <Image
+          src="/images/soup.jpg"
+          alt="Frisch zubereitetes Thai-Gericht zum Mitnehmen bei Wassana"
+          fill
+          className="takeaway-band-image object-cover"
+          sizes="100vw"
+        />
+        <div className="takeaway-band-veil" aria-hidden />
+        <div className="takeaway-band-copy">
+          <Reveal>
+            <p className="takeaway-band-eyebrow">Mo–Fr · Regierungsplatz</p>
+            <h2 id="takeaway-heading" className="takeaway-band-title">
+              Frisch kochen.
+              <br />
+              Abholen. Mitnehmen.
+            </h2>
+            <p className="takeaway-band-text">
+              Bei Wassana kommt alles frisch aus der Küche — ideal für die
+              Mittagspause in Landshut oder zum Mitnehmen nach Hause.
+            </p>
+            <div className="takeaway-band-actions">
+              <Link href="/speisekarte" className="btn-primary">
+                Speisekarte ansehen
+              </Link>
+              <a href={business.phoneHref} className="btn-ghost">
+                {business.phone}
+              </a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       <LocationSection location={content.location} hours={content.hours} />
 
       <section className="mx-auto max-w-6xl px-5 py-[var(--section-y)] md:px-8">

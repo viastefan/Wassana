@@ -1589,6 +1589,104 @@ a.btn-ghost:hover {
   }
 }
 
+.takeaway-band {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(28rem, 68vw, 36rem);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.takeaway-band-image {
+  z-index: 0;
+  transform: scale(1.04);
+  transition: transform 1.2s var(--ease-out);
+}
+
+.takeaway-band:hover .takeaway-band-image {
+  transform: scale(1.08);
+}
+
+.takeaway-band-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      115deg,
+      rgba(30, 33, 41, 0.82) 0%,
+      rgba(30, 33, 41, 0.55) 48%,
+      rgba(122, 12, 36, 0.28) 100%
+    );
+  pointer-events: none;
+}
+
+.takeaway-band-copy {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 7vw, 4.5rem) 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .takeaway-band-copy {
+    padding-inline: 2rem;
+  }
+}
+
+.takeaway-band-eyebrow {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+
+.takeaway-band-title {
+  margin: 0.85rem 0 0;
+  max-width: 14ch;
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: clamp(2.4rem, 7vw, 4rem);
+  line-height: 0.98;
+  color: #fff;
+}
+
+.takeaway-band-text {
+  margin: 1.1rem 0 0;
+  max-width: 28rem;
+  font-size: clamp(1.02rem, 2vw, 1.15rem);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.takeaway-band-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.takeaway-band .btn-ghost {
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+.takeaway-band .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .takeaway-band-image,
+  .takeaway-band:hover .takeaway-band-image {
+    transform: none;
+    transition: none;
+  }
+}
+
 .feature-band {
   position: relative;
   overflow: hidden;
