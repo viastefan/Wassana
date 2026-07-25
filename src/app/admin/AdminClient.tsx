@@ -346,6 +346,7 @@ export function AdminClient() {
     let cancelled = false;
 
     async function boot() {
+      const started = Date.now();
       try {
         if ("serviceWorker" in navigator) {
           void navigator.serviceWorker.register("/admin-sw.js").catch(() => null);
@@ -359,6 +360,8 @@ export function AdminClient() {
           await loadAll();
         }
       } finally {
+        const wait = Math.max(0, 2000 - (Date.now() - started));
+        if (wait) await sleep(wait);
         if (!cancelled) setChecking(false);
       }
     }
@@ -1483,6 +1486,28 @@ export function AdminClient() {
 
   return (
     <div className="admin-shell min-h-[100svh] text-[color:var(--admin-ink)]">
+      {checking ? (
+        <div className="admin-splash" role="status" aria-live="polite">
+          <div className="admin-splash-inner">
+            <div className="admin-splash-logo-wrap">
+              <Image
+                src="/images/logo.png"
+                alt="Wassana"
+                width={132}
+                height={132}
+                className="admin-splash-logo"
+                priority
+              />
+            </div>
+            <p className="admin-splash-title">Wassana</p>
+            <p className="admin-splash-sub">Verwaltung startet …</p>
+            <div className="admin-splash-bar" aria-hidden>
+              <span className="admin-splash-bar-fill" />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {failReport ? (
         <PublishFailDialog
           report={failReport}
@@ -1492,6 +1517,7 @@ export function AdminClient() {
           }}
         />
       ) : null}
+      {!checking ? (
       <header className="admin-topbar">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3.5">
           <div className="admin-brand-mark">
@@ -1527,16 +1553,11 @@ export function AdminClient() {
           )}
         </div>
       </header>
+      ) : null}
 
+      {!checking ? (
       <main className="admin-main mx-auto max-w-3xl px-4 pt-5">
-        {checking ? (
-          <div className="admin-login-card">
-            <p className="admin-kicker">Laden</p>
-            <p className="mt-2 font-display text-2xl text-[color:var(--admin-burgundy)]">
-              Verwaltung startet …
-            </p>
-          </div>
-        ) : !authed ? (
+        {!authed ? (
           <div className="space-y-5">
             {installBlock}
             <form
@@ -3807,8 +3828,9 @@ export function AdminClient() {
           </>
         )}
       </main>
+      ) : null}
 
-      {authed ? (
+      {authed && !checking ? (
         <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-40">
           <div className="mx-auto grid max-w-3xl grid-cols-7 gap-0.5 px-1.5 py-2 pb-[max(0.55rem,env(safe-area-inset-bottom))]">
             {nav.map((item) => (

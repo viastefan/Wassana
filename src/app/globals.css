@@ -293,6 +293,119 @@ button.admin-install-cta:hover {
   padding: 1.25rem;
 }
 
+.admin-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(720px 420px at 50% 20%, color-mix(in srgb, var(--admin-gold) 18%, transparent), transparent 62%),
+    radial-gradient(640px 380px at 50% 100%, color-mix(in srgb, var(--admin-burgundy) 10%, transparent), transparent 58%),
+    linear-gradient(180deg, #f4ede3 0%, var(--admin-bg) 55%, var(--admin-bg-deep) 100%);
+}
+
+.admin-splash-inner {
+  display: flex;
+  width: min(100%, 18rem);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.admin-splash-logo-wrap {
+  display: grid;
+  place-items: center;
+  width: 8.5rem;
+  height: 8.5rem;
+  border-radius: 999px;
+  background: var(--admin-raised);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--admin-gold) 45%, transparent),
+    0 0 0 8px color-mix(in srgb, var(--admin-gold-soft) 22%, transparent),
+    0 18px 40px rgba(30, 33, 41, 0.1);
+  animation: admin-splash-pulse 1.6s ease-in-out infinite;
+}
+
+.admin-splash-logo {
+  width: 6.6rem;
+  height: 6.6rem;
+  border-radius: 999px;
+  object-fit: contain;
+  background: var(--admin-raised);
+}
+
+.admin-splash-title {
+  margin: 1.25rem 0 0;
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--admin-burgundy);
+}
+
+.admin-splash-sub {
+  margin: 0.45rem 0 0;
+  font-size: 0.88rem;
+  color: var(--admin-muted);
+}
+
+.admin-splash-bar {
+  width: 100%;
+  height: 0.35rem;
+  margin-top: 1.35rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-ink) 8%, white);
+}
+
+.admin-splash-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--admin-burgundy), var(--admin-gold));
+  animation: admin-splash-bar 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes admin-splash-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--admin-gold) 45%, transparent),
+      0 0 0 8px color-mix(in srgb, var(--admin-gold-soft) 22%, transparent),
+      0 18px 40px rgba(30, 33, 41, 0.1);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--admin-gold) 55%, transparent),
+      0 0 0 12px color-mix(in srgb, var(--admin-gold-soft) 28%, transparent),
+      0 22px 44px rgba(30, 33, 41, 0.12);
+  }
+}
+
+@keyframes admin-splash-bar {
+  from {
+    width: 8%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-splash-logo-wrap,
+  .admin-splash-bar-fill {
+    animation: none;
+  }
+
+  .admin-splash-bar-fill {
+    width: 100%;
+  }
+}
+
 .admin-kicker {
   margin: 0;
   font-size: 0.7rem;
