@@ -8,6 +8,7 @@ import {
 import { PublicChrome } from "@/components/PublicChrome";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
+import { getSitePages } from "@/lib/site-pages";
 import { CANONICAL_SITE_URL, site } from "@/lib/site";
 import "./globals.css";
 
@@ -130,8 +131,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [content, business] = await Promise.all([
+  const [content, pages, business] = await Promise.all([
     getSiteContent(),
+    getSitePages(),
     getResolvedBusiness(),
   ]);
 
@@ -141,7 +143,7 @@ export default async function RootLayout({
         <JsonLdLocalBusiness business={business} />
         <JsonLdWebSite business={business} />
         <JsonLdSiteNavigation />
-        <PublicChrome content={content} business={business}>
+        <PublicChrome content={content} pages={pages} business={business}>
           {children}
         </PublicChrome>
       </body>

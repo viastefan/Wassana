@@ -7,6 +7,7 @@ import {
   type ConsentState,
 } from "@/lib/consent";
 import { useBusiness } from "@/components/BusinessContext";
+import { useSitePages } from "@/components/SitePagesContext";
 
 type MapEmbedProps = {
   title: string;
@@ -15,6 +16,8 @@ type MapEmbedProps = {
 
 export function MapEmbed({ title, src }: MapEmbedProps) {
   const business = useBusiness();
+  const pages = useSitePages();
+  const map = pages.chrome.map;
   const mapSrc = src || business.maps.embed;
   const [mapsAllowed, setMapsAllowed] = useState(false);
 
@@ -51,14 +54,14 @@ export function MapEmbed({ title, src }: MapEmbedProps) {
     return (
       <div className="map-consent absolute inset-0 flex flex-col items-start justify-end bg-[color:var(--bg-soft)] p-6 md:p-8">
         <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-          Karte
+          {map.kicker}
         </p>
         <p className="mt-3 max-w-sm text-[color:var(--ink)] leading-relaxed">
-          Google Maps wird erst nach Zustimmung geladen (Datenschutz).
+          {map.consentText}
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <button type="button" className="btn-primary" onClick={acceptMaps}>
-            Karte laden
+            {map.load}
           </button>
           <a
             href={business.maps.place}
@@ -66,7 +69,7 @@ export function MapEmbed({ title, src }: MapEmbedProps) {
             rel="noreferrer"
             className="btn-gold"
           >
-            In Google Maps öffnen
+            {map.openExternal}
           </a>
         </div>
       </div>

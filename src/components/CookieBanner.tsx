@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { useSitePages } from "@/components/SitePagesContext";
 import {
   CONSENT_STORAGE_KEY,
   createConsent,
@@ -15,7 +16,42 @@ function emitConsent(state: ConsentState) {
   );
 }
 
+function renderCookieLead(
+  lead: string,
+  privacyLabel: string,
+  imprintLabel: string,
+): ReactNode[] {
+  const parts = lead.split(/\{(privacy|imprint)\}/g);
+  return parts.map((part, index) => {
+    if (part === "privacy") {
+      return (
+        <Link
+          key={`privacy-${index}`}
+          href="/datenschutz"
+          className="text-[color:var(--red)] underline-offset-2 hover:underline"
+        >
+          {privacyLabel}
+        </Link>
+      );
+    }
+    if (part === "imprint") {
+      return (
+        <Link
+          key={`imprint-${index}`}
+          href="/impressum"
+          className="text-[color:var(--red)] underline-offset-2 hover:underline"
+        >
+          {imprintLabel}
+        </Link>
+      );
+    }
+    return <Fragment key={`text-${index}`}>{part}</Fragment>;
+  });
+}
+
 export function CookieBanner() {
+  const pages = useSitePages();
+  const cookie = pages.chrome.cookie;
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -58,29 +94,17 @@ export function CookieBanner() {
             id="cookie-banner-title"
             className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase"
           >
-            Cookies & Datenschutz
+            {cookie.title}
           </p>
           <p
             id="cookie-banner-text"
             className="mt-2 text-sm leading-relaxed text-[color:var(--ink)]"
           >
-            Keine Tracking- oder Werbe-Cookies. Lokal speichern wir nur Ihre
-            Auswahl und wenige Komfort-Einstellungen. Google Maps laden wir erst
-            nach Zustimmung. Später ändern unter „Cookies“ im Footer. Mehr in der{" "}
-            <Link
-              href="/datenschutz"
-              className="text-[color:var(--red)] underline-offset-2 hover:underline"
-            >
-              Datenschutzerklärung
-            </Link>{" "}
-            und im{" "}
-            <Link
-              href="/impressum"
-              className="text-[color:var(--red)] underline-offset-2 hover:underline"
-            >
-              Impressum
-            </Link>
-            .
+            {renderCookieLead(
+              cookie.lead,
+              cookie.privacyLabel,
+              cookie.imprintLabel,
+            )}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -89,14 +113,14 @@ export function CookieBanner() {
             className="btn-gold !px-4 !py-2.5 text-sm"
             onClick={() => save(false)}
           >
-            Nur notwendige
+            {cookie.btnNecessary}
           </button>
           <button
             type="button"
             className="btn-primary !px-4 !py-2.5 text-sm"
             onClick={() => save(true)}
           >
-            Alle akzeptieren
+            {cookie.btnAcceptAll}
           </button>
         </div>
       </div>

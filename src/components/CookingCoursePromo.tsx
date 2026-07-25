@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSitePages } from "@/components/SitePagesContext";
 import { formatCourseDate } from "@/lib/cooking-course-format";
 
 type Course = {
@@ -16,6 +17,8 @@ type Course = {
 
 export function CookingCoursePromo() {
   const pathname = usePathname();
+  const pages = useSitePages();
+  const promo = pages.chrome.coursePromo;
   const [course, setCourse] = useState<Course | null>(null);
   const [hidden, setHidden] = useState(true);
 
@@ -66,12 +69,12 @@ export function CookingCoursePromo() {
   return (
     <aside
       className="course-promo"
-      aria-label={`Nächster Kochkurs am ${dateLabel}`}
+      aria-label={`${promo.nextLabel} am ${dateLabel}`}
     >
       <button
         type="button"
         className="course-promo-close"
-        aria-label="Hinweis schließen"
+        aria-label={promo.close}
         onClick={dismiss}
       >
         ×
@@ -79,7 +82,7 @@ export function CookingCoursePromo() {
 
       {/* Compact bar — especially for mobile */}
       <Link href="/kochkurs" className="course-promo-compact">
-        <span className="course-promo-compact-label">Kochkurs</span>
+        <span className="course-promo-compact-label">{promo.kicker}</span>
         <span className="course-promo-compact-date">{dateLabel}</span>
         <span className="course-promo-compact-go" aria-hidden>
           →
@@ -88,11 +91,13 @@ export function CookingCoursePromo() {
 
       {/* Fuller card — desktop */}
       <div className="course-promo-card">
-        <p className="course-promo-eyebrow">Nächster Termin</p>
-        <p className="course-promo-title">{course.title || "Kochkurs"}</p>
+        <p className="course-promo-eyebrow">{promo.nextLabel}</p>
+        <p className="course-promo-title">{course.title || promo.kicker}</p>
         <p className="course-promo-date">
           am {dateLabel}
-          {course.startTime?.trim() ? ` · ${course.startTime.trim()} Uhr` : ""}
+          {course.startTime?.trim()
+            ? ` · ${course.startTime.trim()} ${promo.atTime}`
+            : ""}
         </p>
         {course.teaser ? (
           <p className="course-promo-teaser">{course.teaser}</p>
@@ -101,7 +106,7 @@ export function CookingCoursePromo() {
           <p className="course-promo-teaser">{course.price.trim()}</p>
         ) : null}
         <Link href="/kochkurs" className="btn-primary course-promo-btn">
-          Mehr erfahren
+          {promo.more}
         </Link>
       </div>
     </aside>

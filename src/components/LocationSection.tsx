@@ -4,6 +4,7 @@ import Link from "next/link";
 import { MapEmbed } from "@/components/MapEmbed";
 import { Reveal } from "@/components/Reveal";
 import { useBusiness } from "@/components/BusinessContext";
+import { useSitePages } from "@/components/SitePagesContext";
 import type { SiteContent } from "@/lib/site-content";
 
 export function LocationSection({
@@ -14,6 +15,8 @@ export function LocationSection({
   hours: SiteContent["hours"];
 }) {
   const business = useBusiness();
+  const pages = useSitePages();
+  const labels = pages.chrome.locationLabels;
   return (
     <section
       id="standort"
@@ -59,7 +62,7 @@ export function LocationSection({
               <dl className="mt-8 space-y-4">
                 <div>
                   <dt className="text-sm tracking-[0.14em] text-[color:var(--gold)] uppercase">
-                    Öffnungszeiten
+                    {labels.hours}
                   </dt>
                   <dd className="mt-1 text-[color:var(--ink)]">
                     {hours.weekdaysLong}
@@ -71,7 +74,7 @@ export function LocationSection({
                 </div>
                 <div>
                   <dt className="text-sm tracking-[0.14em] text-[color:var(--gold)] uppercase">
-                    Telefon
+                    {labels.phone}
                   </dt>
                   <dd className="mt-1">
                     <a
@@ -92,7 +95,7 @@ export function LocationSection({
                 rel="noreferrer"
                 className="btn-primary"
               >
-                Route planen
+                {labels.routeCta}
               </a>
               <a
                 href={business.maps.place}
@@ -100,7 +103,7 @@ export function LocationSection({
                 rel="noreferrer"
                 className="btn-gold"
               >
-                In Google Maps
+                {labels.mapsCta}
               </a>
             </div>
           </div>

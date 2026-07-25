@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useBusiness } from "@/components/BusinessContext";
+import { useSitePages } from "@/components/SitePagesContext";
 
 type ContactFormProps = {
   to?: string;
@@ -12,12 +13,17 @@ type ContactFormProps = {
 };
 
 export function ContactForm({
-  subject = "Anfrage über die Website",
-  title = "Nachricht senden",
-  intro = "Schreib uns kurz dein Anliegen — wir melden uns zurück.",
+  subject,
+  title,
+  intro,
   source = "website",
 }: ContactFormProps) {
   const business = useBusiness();
+  const pages = useSitePages();
+  const form = pages.contactForm;
+  const resolvedTitle = title ?? form.defaultTitle;
+  const resolvedIntro = intro ?? form.defaultIntro;
+  const resolvedSubject = subject ?? pages.kontakt.formSubject;
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
@@ -30,8 +36,8 @@ export function ContactForm({
     setError("");
     setWarning("");
 
-    const form = event.currentTarget;
-    const data = new FormData(form);
+    const formEl = event.currentTarget;
+    const data = new FormData(formEl);
 
     try {
       const res = await fetch("/api/contact", {
@@ -42,7 +48,7 @@ export function ContactForm({
           email: String(data.get("email") || "").trim(),
           phone: String(data.get("phone") || "").trim(),
           message: String(data.get("message") || "").trim(),
-          subject,
+          subject: resolvedSubject,
           source,
           website: String(data.get("website") || ""),
         }),
@@ -57,11 +63,11 @@ export function ContactForm({
 
       if (!res.ok) {
         setStatus("error");
-        setError(payload?.error || "Senden fehlgeschlagen. Bitte später erneut versuchen.");
+        setError(payload?.error || form.errorSend);
         return;
       }
 
-      form.reset();
+      formEl.reset();
       if (payload?.warning) {
         setWarning(payload.warning);
       } else if (payload?.mailGuestSent === false) {
@@ -74,17 +80,17 @@ export function ContactForm({
       setStatus("sent");
     } catch {
       setStatus("error");
-      setError("Netzwerkfehler. Bitte später erneut versuchen oder anrufen.");
+      setError(form.errorNetwork);
     }
   }
 
   return (
     <div>
       <h2 className="font-display text-2xl text-[color:var(--red)] md:text-3xl">
-        {title}
+        {resolvedTitle}
       </h2>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-[color:var(--muted)] md:mt-3 md:text-base">
-        {intro}
+        {resolvedIntro}
       </p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4 md:mt-8 md:space-y-5">
@@ -100,7 +106,9 @@ export function ContactForm({
         </label>
 
         <label className="block">
-          <span className="mb-2 block text-sm text-[color:var(--muted)]">Name</span>
+          <span className="mb-2 block text-sm text-[color:var(--muted)]">
+            {form.nameLabel}
+          </span>
           <input
             name="name"
             required
@@ -110,7 +118,9 @@ export function ContactForm({
           />
         </label>
         <label className="block">
-          <span className="mb-2 block text-sm text-[color:var(--muted)]">E-Mail</span>
+          <span className="mb-2 block text-sm text-[color:var(--muted)]">
+            {form.emailLabel}
+          </span>
           <input
             type="email"
             name="email"
@@ -122,7 +132,7 @@ export function ContactForm({
         </label>
         <label className="block">
           <span className="mb-2 block text-sm text-[color:var(--muted)]">
-            Telefon <span className="text-[color:var(--gold)]">(optional)</span>
+            {form.phoneLabel}
           </span>
           <input
             type="tel"
@@ -133,7 +143,9 @@ export function ContactForm({
           />
         </label>
         <label className="block">
-          <span className="mb-2 block text-sm text-[color:var(--muted)]">Nachricht</span>
+          <span className="mb-2 block text-sm text-[color:var(--muted)]">
+            {form.messageLabel}
+          </span>
           <textarea
             name="message"
             required
@@ -147,13 +159,12 @@ export function ContactForm({
           className="btn-primary mt-2"
           disabled={status === "sending"}
         >
-          {status === "sending" ? "Wird gesendet …" : "Anfrage senden"}
+          {status === "sending" ? form.sending : form.submit}
         </button>
 
         {status === "sent" ? (
           <p className="text-sm leading-relaxed text-[color:var(--ink)]">
-            Danke — deine Anfrage ist angekommen. Wir melden uns so bald wie
-            möglich.
+            {form.sent}
             {warning ? (
               <span className="mt-2 block text-[color:var(--muted)]">
                 Hinweis: {warning}

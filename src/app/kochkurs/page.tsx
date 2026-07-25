@@ -17,6 +17,7 @@ import {
   splitCourseLines,
 } from "@/lib/cooking-course";
 import { alternateCourseImage } from "@/lib/cooking-course-shared";
+import { fillTemplate, getSitePages } from "@/lib/site-pages";
 
 export const metadata: Metadata = {
   title: "Thai Kochkurs Landshut",
@@ -34,10 +35,12 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function KochkursPage() {
-  const [course, business] = await Promise.all([
+  const [course, business, pages] = await Promise.all([
     getCookingCourse(),
     getResolvedBusiness(),
+    getSitePages(),
   ]);
+  const copy = pages.kochkurs;
   const showNext = isPublicPromoVisible(course);
   const image = sanitizeCourseImage(course.image);
   const midImage = alternateCourseImage(image);
@@ -49,28 +52,31 @@ export default async function KochkursPage() {
 
   const facts = [
     course.date
-      ? { label: "Termin", value: formatCourseDate(course.date) }
+      ? { label: copy.factTermin, value: formatCourseDate(course.date) }
       : null,
     course.startTime?.trim()
-      ? { label: "Beginn", value: `${course.startTime.trim()} Uhr` }
+      ? {
+          label: copy.factBeginn,
+          value: `${course.startTime.trim()} Uhr`,
+        }
       : null,
     course.duration?.trim()
-      ? { label: "Dauer", value: course.duration.trim() }
+      ? { label: copy.factDauer, value: course.duration.trim() }
       : null,
     course.price?.trim()
-      ? { label: "Preis", value: course.price.trim() }
+      ? { label: copy.factPreis, value: course.price.trim() }
       : null,
     course.maxParticipants?.trim()
       ? {
-          label: "Plätze",
+          label: copy.factPlaetze,
           value: `max. ${course.maxParticipants.trim()}`,
         }
       : null,
     course.level?.trim()
-      ? { label: "Niveau", value: course.level.trim() }
+      ? { label: copy.factNiveau, value: course.level.trim() }
       : null,
     course.dishFocus?.trim()
-      ? { label: "Gericht", value: course.dishFocus.trim() }
+      ? { label: copy.factGericht, value: course.dishFocus.trim() }
       : null,
   ].filter((item): item is { label: string; value: string } => Boolean(item));
 
@@ -79,6 +85,13 @@ export default async function KochkursPage() {
   const locationNote = course.locationNote?.trim() || "";
   const hasDetails =
     includes.length > 0 || whatToBring.length > 0 || Boolean(locationNote);
+
+  const dishLabel =
+    course.dishFocus?.trim() || "Klassiker wie Pad Thai oder Tom Yam";
+  const flowSteps = copy.flowSteps.map((step) => ({
+    label: step.label,
+    value: fillTemplate(step.value, { dish: dishLabel }),
+  }));
 
   return (
     <main>
@@ -94,7 +107,7 @@ export default async function KochkursPage() {
       <MediaBand
         src={image}
         alt={`${course.title || "Thai Kochkurs"} bei Wassana in Landshut`}
-        eyebrow="Kochkurs Landshut"
+        eyebrow={copy.heroEyebrow}
         title={pageTitle}
         text={pageText}
         priority
@@ -152,7 +165,7 @@ export default async function KochkursPage() {
           <div className="flex flex-col justify-center bg-[color:var(--paper)] px-5 py-12 md:px-10 md:py-16">
             <Reveal>
               <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-                Bei Wassana
+                {copy.midEyebrow}
               </p>
               <h2 className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl">
                 {course.title || "Thai Kochkurs"}
@@ -173,19 +186,19 @@ export default async function KochkursPage() {
           <div className="mx-auto max-w-6xl px-5 py-[var(--section-y)] md:px-8">
             <Reveal>
               <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-                Gut zu wissen
+                {copy.detailsEyebrow}
               </p>
               <h2
                 id="course-details-heading"
                 className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl"
               >
-                Was dich erwartet
+                {copy.detailsTitle}
               </h2>
             </Reveal>
             <div className="course-details-grid mt-10">
               {includes.length > 0 ? (
                 <Reveal>
-                  <h3 className="course-details-title">Inklusive</h3>
+                  <h3 className="course-details-title">{copy.includesTitle}</h3>
                   <ul className="course-details-list">
                     {includes.map((line) => (
                       <li key={line}>{line}</li>
@@ -195,7 +208,7 @@ export default async function KochkursPage() {
               ) : null}
               {whatToBring.length > 0 ? (
                 <Reveal delay={1}>
-                  <h3 className="course-details-title">Bitte mitbringen</h3>
+                  <h3 className="course-details-title">{copy.bringTitle}</h3>
                   <ul className="course-details-list">
                     {whatToBring.map((line) => (
                       <li key={line}>{line}</li>
@@ -207,7 +220,7 @@ export default async function KochkursPage() {
                 <Reveal
                   delay={includes.length > 0 && whatToBring.length > 0 ? 2 : 1}
                 >
-                  <h3 className="course-details-title">Treffpunkt</h3>
+                  <h3 className="course-details-title">{copy.meetupTitle}</h3>
                   <p className="course-details-text">{locationNote}</p>
                 </Reveal>
               ) : null}
@@ -220,38 +233,20 @@ export default async function KochkursPage() {
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-[var(--section-y)] md:grid-cols-2 md:items-start md:gap-16 md:px-8">
           <Reveal>
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-              So läuft es
+              {copy.flowEyebrow}
             </p>
             <h2
               id="course-flow-heading"
               className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl"
             >
-              Vom ersten Schnitt bis zum Teller
+              {copy.flowTitle}
             </h2>
             <p className="mt-4 max-w-md text-[color:var(--muted)] leading-relaxed">
-              Ein Abend bei Wassana in Landshut — gemeinsam kochen, lernen und
-              genießen. Zutaten und Anleitung sind dabei.
+              {copy.flowLead}
             </p>
 
             <ol className="course-flow-list">
-              {[
-                {
-                  label: "Ankommen",
-                  value:
-                    "Wir begrüßen euch in der Küche, stellen den Ablauf vor und gehen die Zutaten gemeinsam durch.",
-                },
-                {
-                  label: "Kochen",
-                  value: course.dishFocus?.trim()
-                    ? `Schritt für Schritt bereitet ihr ${course.dishFocus.trim()} zu — mit Tipps zur Schärfe und Würzung.`
-                    : "Schritt für Schritt bereitet ihr Klassiker wie Pad Thai oder Tom Yam zu — mit Tipps zur Schärfe und Würzung.",
-                },
-                {
-                  label: "Genießen & mitnehmen",
-                  value:
-                    "Am Ende probiert ihr euer Gericht und bekommt Tipps, wo ihr die Zutaten später selbst findet.",
-                },
-              ].map((item, index) => (
+              {flowSteps.map((item, index) => (
                 <li key={item.label} className="course-flow-item">
                   <span className="course-flow-index" aria-hidden>
                     0{index + 1}
@@ -266,28 +261,28 @@ export default async function KochkursPage() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               <a href={business.cookingEmailHref} className="btn-primary">
-                Per E-Mail anfragen
+                {copy.ctaEmail}
               </a>
               <a href={business.phoneHref} className="btn-gold">
-                Anrufen
+                {copy.ctaCall}
               </a>
             </div>
             <p className="mt-6 text-sm text-[color:var(--muted)]">
-              Auch über das{" "}
+              {copy.formAltBefore}
               <Link
                 href="/kontakt"
                 className="text-[color:var(--red)] underline-offset-2 hover:underline"
               >
-                Kontaktformular
-              </Link>{" "}
-              möglich.
+                {copy.formAltLink}
+              </Link>
+              {copy.formAltAfter}
             </p>
           </Reveal>
           <div className="side-form-sticky">
             <ContactForm
-              subject="Kochkurs Anfrage Landshut"
-              title="Kursplatz anfragen"
-              intro="Name, Personenanzahl und Wunschtermin reichen völlig."
+              subject={copy.formSubject}
+              title={copy.formTitle}
+              intro={copy.formIntro}
               source="kochkurs"
             />
           </div>

@@ -5,6 +5,7 @@ import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { getSitePages } from "@/lib/site-pages";
 
 export const dynamic = "force-dynamic";
 
@@ -22,35 +23,12 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const offerings = [
-  {
-    title: "Individueller Menüplan",
-    text: "Wir stellen Curries, Wok-Gerichte und Beilagen passend zu Anlass, Gästezahl und Vorlieben zusammen — auch vegetarisch möglich.",
-  },
-  {
-    title: "Frisch zubereitet",
-    text: "Die Gerichte kommen frisch aus unserer Küche am Regierungsplatz — authentisch gewürzt, zum Buffet oder zum Portionieren.",
-  },
-  {
-    title: "Passendes Geschirr",
-    text: "Auf Wunsch liefern wir Geschirr und Servierbedarf mit, damit bei dir vor Ort weniger Organisation nötig ist.",
-  },
-  {
-    title: "Geburtstage & private Feiern",
-    text: "Vom kleinen Familienessen bis zur größeren Feier — wir stimmen Menge und Menü vorher klar mit dir ab.",
-  },
-  {
-    title: "Firmenfeiern & Meetings",
-    text: "Für Teams und Kundentermine in Landshut: zuverlässig, zeitlich planbar und mit klarer Absprache zu Lieferung oder Abholung.",
-  },
-  {
-    title: "Hochzeiten & besondere Anlässe",
-    text: "Thai-Küche als besonderer Akzent — wir planen Vorlauf, Mengen und Ablauf gemeinsam mit euch.",
-  },
-] as const;
-
 export default async function CateringPage() {
-  const business = await getResolvedBusiness();
+  const [business, pages] = await Promise.all([
+    getResolvedBusiness(),
+    getSitePages(),
+  ]);
+  const copy = pages.catering;
 
   return (
     <main>
@@ -63,9 +41,9 @@ export default async function CateringPage() {
       <MediaBand
         src="/images/soup.jpg"
         alt="Thai-Gerichte fürs Catering von Wassana"
-        eyebrow="Catering Landshut"
-        title="Feierlichkeiten mit Thai-Atmosphäre"
-        text="Geburtstage, Firmenfeiern oder Hochzeiten — individueller Menüplan und passendes Geschirr."
+        eyebrow={copy.heroEyebrow}
+        title={copy.heroTitle}
+        text={copy.heroText}
         priority
         height="short"
       />
@@ -74,19 +52,18 @@ export default async function CateringPage() {
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-[var(--section-y)] md:grid-cols-2 md:items-start md:gap-16 md:px-8">
           <Reveal>
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-              Unser Service
+              {copy.serviceEyebrow}
             </p>
             <h2 className="font-display mt-3 text-3xl text-[color:var(--ink)] md:text-4xl">
-              Was wir übernehmen
+              {copy.serviceTitle}
             </h2>
             <p className="mt-4 max-w-md text-[color:var(--muted)] leading-relaxed">
-              Du sagst uns Anlass, Personenzahl und Termin — wir kümmern uns um
-              Menü, Mengen und die praktische Umsetzung.
+              {copy.serviceLead}
             </p>
 
             <ul className="mt-9 space-y-6">
-              {offerings.map((item, index) => (
-                <li key={item.title} className="flex gap-4">
+              {copy.offerings.map((item, index) => (
+                <li key={`${item.title}-${index}`} className="flex gap-4">
                   <span
                     className="font-display mt-0.5 w-8 shrink-0 text-sm tracking-[0.12em] text-[color:var(--gold)]"
                     aria-hidden
@@ -107,28 +84,28 @@ export default async function CateringPage() {
 
             <div className="mt-10 flex flex-wrap gap-3">
               <a href={business.cateringEmailHref} className="btn-primary">
-                Per E-Mail anfragen
+                {copy.ctaEmail}
               </a>
               <a href={business.phoneHref} className="btn-gold">
-                Anrufen
+                {copy.ctaCall}
               </a>
             </div>
             <p className="mt-6 text-sm text-[color:var(--muted)]">
-              Oder nutze das Formular hier — oder unser{" "}
+              {copy.formHintBefore}
               <Link
                 href="/kontakt"
                 className="text-[color:var(--red)] underline-offset-2 hover:underline"
               >
-                Kontaktformular
+                {copy.formHintLink}
               </Link>
-              .
+              {copy.formHintAfter}
             </p>
           </Reveal>
           <div className="side-form-sticky">
             <ContactForm
-              subject="Catering Anfrage Landshut"
-              title="Catering anfragen"
-              intro="Kurz Anlass, Personenzahl und Wunschtermin — wir melden uns."
+              subject={copy.formSubject}
+              title={copy.formTitle}
+              intro={copy.formIntro}
               source="catering"
             />
           </div>

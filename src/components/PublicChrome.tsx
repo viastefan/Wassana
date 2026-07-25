@@ -9,17 +9,21 @@ import { OfferPopup } from "@/components/OfferPopup";
 import { OfferPopupProvider } from "@/components/OfferPopupContext";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SitePagesProvider } from "@/components/SitePagesContext";
 import { TopOfferBanner } from "@/components/TopOfferBanner";
 import type { ResolvedBusiness } from "@/lib/business-profile-shared";
 import type { SiteContent } from "@/lib/site-content-shared";
+import type { SitePages } from "@/lib/site-pages-shared";
 
 export function PublicChrome({
   children,
   content,
+  pages,
   business,
 }: {
   children: React.ReactNode;
   content: SiteContent;
+  pages: SitePages;
   business: ResolvedBusiness;
 }) {
   const pathname = usePathname();
@@ -58,36 +62,38 @@ export function PublicChrome({
 
   return (
     <BusinessProvider business={business}>
-      <OfferPopupProvider offer={content.studentLunch}>
-        <div
-          className={`site-shell${bannerVisible ? " has-top-banner" : ""}`}
-          style={
-            {
-              ["--banner-h" as string]: `${bannerH}px`,
-            } as React.CSSProperties
-          }
-        >
-          <a href="#main-content" className="skip-link">
-            Zum Inhalt springen
-          </a>
-          <div className="site-top-chrome">
-            {bannerConfigured ? (
-              <div ref={bannerRef}>
-                <TopOfferBanner
-                  banner={content.topBanner}
-                  onVisibilityChange={onBannerVisibilityChange}
-                />
-              </div>
-            ) : null}
-            <SiteHeader embedded hours={content.hours} />
+      <SitePagesProvider pages={pages}>
+        <OfferPopupProvider offer={content.studentLunch}>
+          <div
+            className={`site-shell${bannerVisible ? " has-top-banner" : ""}`}
+            style={
+              {
+                ["--banner-h" as string]: `${bannerH}px`,
+              } as React.CSSProperties
+            }
+          >
+            <a href="#main-content" className="skip-link">
+              {pages.chrome.skipLink}
+            </a>
+            <div className="site-top-chrome">
+              {bannerConfigured ? (
+                <div ref={bannerRef}>
+                  <TopOfferBanner
+                    banner={content.topBanner}
+                    onVisibilityChange={onBannerVisibilityChange}
+                  />
+                </div>
+              ) : null}
+              <SiteHeader embedded hours={content.hours} />
+            </div>
+            <div id="main-content">{children}</div>
+            <SiteFooter hours={content.hours} />
+            <CookingCoursePromo />
+            <CookieBanner />
+            <OfferPopup />
           </div>
-          <div id="main-content">{children}</div>
-          <SiteFooter hours={content.hours} />
-          <CookingCoursePromo />
-          <CookieBanner />
-          <OfferPopup />
-        </div>
-      </OfferPopupProvider>
+        </OfferPopupProvider>
+      </SitePagesProvider>
     </BusinessProvider>
   );
 }

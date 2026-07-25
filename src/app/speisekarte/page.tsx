@@ -7,6 +7,7 @@ import { StudentLunch } from "@/components/StudentLunch";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getPublicMenuSections } from "@/lib/menu-store";
 import { getSiteContent } from "@/lib/site-content";
+import { getSitePages } from "@/lib/site-pages";
 import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 
 export const dynamic = "force-dynamic";
@@ -26,12 +27,14 @@ export const metadata: Metadata = {
 };
 
 export default async function SpeisekartePage() {
-  const [weekly, sections, business, content] = await Promise.all([
+  const [weekly, sections, business, content, pages] = await Promise.all([
     getWeeklyMenuData(),
     getPublicMenuSections(),
     getResolvedBusiness(),
     getSiteContent(),
+    getSitePages(),
   ]);
+  const copy = pages.speisekarte;
 
   return (
     <main>
@@ -45,9 +48,9 @@ export default async function SpeisekartePage() {
       <MediaBand
         src="/images/curry.jpg"
         alt="Curry-Gerichte auf der Speisekarte bei Wassana Thai Imbiss in Landshut"
-        eyebrow="Speisekarte Landshut"
-        title="Unsere Gerichte"
-        text="Frisch zubereitet in Landshut — Currys, Wok, Suppen und mehr. Gerne auch zum Mitnehmen."
+        eyebrow={copy.heroEyebrow}
+        title={copy.heroTitle}
+        text={copy.heroText}
         priority
         height="short"
       />
@@ -56,17 +59,21 @@ export default async function SpeisekartePage() {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 md:flex-row md:items-center md:justify-between md:px-8">
           <div>
             <p className="text-sm tracking-[0.18em] text-[color:var(--gold)] uppercase">
-              Zum Mitnehmen & Teilen
+              {copy.pdfEyebrow}
             </p>
-            <p className="mt-1 text-[color:var(--ink)]">
-              Die komplette Speisekarte als klares PDF — beliebte Gerichte der
-              Woche und alle Klassiker.
-            </p>
+            <p className="mt-1 text-[color:var(--ink)]">{copy.pdfText}</p>
           </div>
-          <MenuPdfDownload label="Speisekarte als PDF" />
+          <MenuPdfDownload label={copy.pdfCta} />
         </div>
       </div>
-      <SpeisekarteFull menu={weekly} sections={sections} />
+      <SpeisekarteFull
+        menu={weekly}
+        sections={sections}
+        labels={pages.speisekarteUi}
+        chipWeekly={copy.chipWeekly}
+        chipPdf={copy.chipPdf}
+        pdfSaveLabel={copy.pdfCta}
+      />
     </main>
   );
 }
