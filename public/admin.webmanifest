@@ -6,10 +6,12 @@
   "start_url": "/admin",
   "scope": "/admin",
   "display": "standalone",
-  "orientation": "any",
+  "orientation": "portrait-primary",
   "background_color": "#f3eee4",
   "theme_color": "#7a0c24",
   "lang": "de",
+  "categories": ["business", "food", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/admin/icon-192.png",

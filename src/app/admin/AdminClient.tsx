@@ -12,6 +12,13 @@ import {
 import { formatCourseDate } from "@/lib/cooking-course-format";
 import type { SiteContent } from "@/lib/site-content";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
+import {
+  Field,
+  ScreenHeader,
+  Section,
+  StickySave,
+  Toggle,
+} from "./ui";
 
 type Course = {
   active: boolean;
@@ -478,7 +485,7 @@ export function AdminClient() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 pb-28 pt-5">
+      <main className="admin-main mx-auto max-w-3xl px-4 pt-5">
         {checking ? (
           <div className="admin-login-card">
             <p className="admin-kicker">Laden</p>
@@ -628,124 +635,117 @@ export function AdminClient() {
             ) : null}
 
             {tab === "course" ? (
-              <form onSubmit={saveCourse} className="space-y-5">
-                <h1 className="font-display text-3xl text-[color:var(--red)]">
-                  Thai Kochkurs
-                </h1>
-                <p className="text-sm text-[color:var(--muted)]">
-                  Termin und Texte für den Hinweis unten rechts auf der Website.
-                </p>
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
+              <form onSubmit={saveCourse} className="admin-form space-y-3">
+                <ScreenHeader
+                  kicker="Website-Widget"
+                  title="Thai Kochkurs"
+                  description="Termin und Texte für den Hinweis unten rechts auf der Website."
+                />
+                <Section title="Steuerung">
+                  <Toggle
                     checked={course.active}
-                    onChange={(e) =>
-                      setCourse((c) => ({ ...c, active: e.target.checked }))
+                    onChange={(active) =>
+                      setCourse((c) => ({ ...c, active }))
                     }
-                    className="h-4 w-4 accent-[color:var(--red)]"
+                    label="Auf der Website anzeigen"
+                    hint="Aus = Widget ausgeblendet"
                   />
-                  <span>Auf der Website anzeigen</span>
-                </label>
-                <label className="block">
-                  <span className="text-sm text-[color:var(--muted)]">Datum</span>
-                  <input
-                    type="date"
-                    value={course.date}
-                    onChange={(e) =>
-                      setCourse((c) => ({ ...c, date: e.target.value }))
-                    }
-                    className={fieldClass}
-                    required
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-sm text-[color:var(--muted)]">Titel</span>
-                  <input
-                    type="text"
-                    value={course.title}
-                    onChange={(e) =>
-                      setCourse((c) => ({ ...c, title: e.target.value }))
-                    }
-                    className={fieldClass}
-                    placeholder="Thai Kochkurs / Pad Thai Abend"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-sm text-[color:var(--muted)]">
-                    Kurztext
-                  </span>
-                  <input
-                    type="text"
-                    value={course.teaser}
-                    onChange={(e) =>
-                      setCourse((c) => ({ ...c, teaser: e.target.value }))
-                    }
-                    className={fieldClass}
-                    placeholder="Noch Plätze frei"
-                  />
-                </label>
-                <button type="submit" className="btn-primary" disabled={saving}>
-                  {saving ? "Speichern …" : "Kochkurs speichern"}
-                </button>
+                  <Field label="Datum">
+                    <input
+                      type="date"
+                      value={course.date}
+                      onChange={(e) =>
+                        setCourse((c) => ({ ...c, date: e.target.value }))
+                      }
+                      className={fieldClass}
+                      required
+                    />
+                  </Field>
+                  <Field label="Titel">
+                    <input
+                      type="text"
+                      value={course.title}
+                      onChange={(e) =>
+                        setCourse((c) => ({ ...c, title: e.target.value }))
+                      }
+                      className={fieldClass}
+                      placeholder="Thai Kochkurs / Pad Thai Abend"
+                    />
+                  </Field>
+                  <Field label="Kurztext">
+                    <input
+                      type="text"
+                      value={course.teaser}
+                      onChange={(e) =>
+                        setCourse((c) => ({ ...c, teaser: e.target.value }))
+                      }
+                      className={fieldClass}
+                      placeholder="Noch Plätze frei"
+                    />
+                  </Field>
+                </Section>
+                <StickySave saving={saving} label="Kochkurs speichern" />
               </form>
             ) : null}
 
             {tab === "inbox" ? (
-              <section className="space-y-5">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <h1 className="font-display text-3xl text-[color:var(--red)]">
-                      Anfragen
-                    </h1>
-                    <p className="mt-1 text-sm text-[color:var(--muted)]">
-                      Aus Kontakt, Catering und Kochkurs-Formulare.
-                    </p>
-                  </div>
-                  {unread > 0 ? (
-                    <button
-                      type="button"
-                      className="btn-gold"
-                      onClick={() => void markAllRead()}
-                    >
-                      Alle gelesen
-                    </button>
-                  ) : null}
-                </div>
+              <section className="space-y-3">
+                <ScreenHeader
+                  kicker="Posteingang"
+                  title="Anfragen"
+                  description="Aus Kontakt, Catering und Kochkurs."
+                  action={
+                    unread > 0 ? (
+                      <button
+                        type="button"
+                        className="btn-gold !px-3 !py-2 text-sm"
+                        onClick={() => void markAllRead()}
+                      >
+                        Alle gelesen
+                      </button>
+                    ) : null
+                  }
+                />
                 {inquiries.length === 0 ? (
-                  <p className="text-sm text-[color:var(--muted)]">
-                    Noch keine Anfragen.
-                  </p>
+                  <div className="admin-empty">Noch keine Anfragen.</div>
                 ) : (
-                  <ul className="space-y-4">
+                  <ul className="admin-inbox-list">
                     {inquiries.map((item) => (
                       <li
                         key={item.id}
-                        className={`border border-[color:var(--line)] px-4 py-4 ${
-                          item.read
-                            ? "bg-[color:var(--paper)]"
-                            : "bg-[color:var(--bg-soft)]"
+                        className={`admin-inbox-card ${
+                          item.read ? "" : "is-unread"
                         }`}
                       >
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm tracking-[0.14em] text-[color:var(--gold)] uppercase">
+                        <div className="admin-inbox-top">
+                          <div className="min-w-0">
+                            <p className="admin-kicker">
                               {item.subject}
                               {!item.read ? " · Neu" : ""}
                             </p>
-                            <p className="mt-1">
-                              {item.name} ·{" "}
-                              <a
-                                href={`mailto:${item.email}`}
-                                className="text-[color:var(--red)] underline-offset-2 hover:underline"
-                              >
-                                {item.email}
-                              </a>
-                              {item.phone ? ` · ${item.phone}` : ""}
+                            <p className="mt-1 font-display text-lg text-[color:var(--red)]">
+                              {item.name}
                             </p>
                             <p className="mt-1 text-sm text-[color:var(--muted)]">
                               {formatWhen(item.createdAt)} · {item.source}
                             </p>
                           </div>
+                          {!item.read ? (
+                            <span className="admin-chip is-live">Neu</span>
+                          ) : null}
+                        </div>
+                        <p className="mt-3 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-[color:var(--ink)]">
+                          {item.message}
+                        </p>
+                        <div className="admin-inbox-actions">
+                          <a href={`mailto:${item.email}`} className="btn-primary">
+                            Mail
+                          </a>
+                          {item.phone ? (
+                            <a href={`tel:${item.phone}`} className="btn-gold">
+                              Anrufen
+                            </a>
+                          ) : null}
                           {!item.read ? (
                             <button
                               type="button"
@@ -756,9 +756,6 @@ export function AdminClient() {
                             </button>
                           ) : null}
                         </div>
-                        <p className="mt-4 whitespace-pre-wrap leading-relaxed">
-                          {item.message}
-                        </p>
                       </li>
                     ))}
                   </ul>
@@ -767,75 +764,57 @@ export function AdminClient() {
             ) : null}
 
             {tab === "banner" && content ? (
-              <form onSubmit={saveContent} className="space-y-5">
-                <h1 className="font-display text-3xl text-[color:var(--red)]">
-                  Top-Banner
-                </h1>
-                <p className="text-sm text-[color:var(--muted)]">
-                  Erscheint über dem Menü auf allen öffentlichen Seiten — z. B.
-                  für das Schüler-Mittagsangebot.
-                </p>
-
-                <label className="flex items-center gap-3 border border-[color:var(--line)] px-4 py-3">
-                  <input
-                    type="checkbox"
+              <form onSubmit={saveContent} className="admin-form space-y-3">
+                <ScreenHeader
+                  kicker="Top-Leiste"
+                  title="Banner"
+                  description="Über dem Menü auf allen Seiten — Text, Link und Farben."
+                />
+                <Section title="Inhalt">
+                  <Toggle
                     checked={content.topBanner.active}
-                    onChange={(e) =>
+                    onChange={(active) =>
                       setContent({
                         ...content,
-                        topBanner: {
-                          ...content.topBanner,
-                          active: e.target.checked,
-                        },
+                        topBanner: { ...content.topBanner, active },
                       })
                     }
+                    label="Banner anzeigen"
+                    hint="Sofort auf der Website sichtbar"
                   />
-                  <span>Banner anzeigen</span>
-                </label>
-
-                <label className="block">
-                  <span className="text-sm text-[color:var(--muted)]">Text</span>
-                  <input
-                    value={content.topBanner.text}
-                    onChange={(e) =>
-                      setContent({
-                        ...content,
-                        topBanner: {
-                          ...content.topBanner,
-                          text: e.target.value,
-                        },
-                      })
-                    }
-                    className={fieldClass}
-                    placeholder="Schüler & Azubis mittags: Gericht inkl. Getränk"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="text-sm text-[color:var(--muted)]">
-                    Hervorhebung (z. B. Preis)
-                  </span>
-                  <input
-                    value={content.topBanner.highlight}
-                    onChange={(e) =>
-                      setContent({
-                        ...content,
-                        topBanner: {
-                          ...content.topBanner,
-                          highlight: e.target.value,
-                        },
-                      })
-                    }
-                    className={fieldClass}
-                    placeholder="ab 8,90 €"
-                  />
-                </label>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">
-                      Link-Ziel
-                    </span>
+                  <Field label="Text">
+                    <input
+                      value={content.topBanner.text}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          topBanner: {
+                            ...content.topBanner,
+                            text: e.target.value,
+                          },
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="Schüler & Azubis mittags: Gericht inkl. Getränk"
+                    />
+                  </Field>
+                  <Field label="Hervorhebung (z. B. Preis)">
+                    <input
+                      value={content.topBanner.highlight}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          topBanner: {
+                            ...content.topBanner,
+                            highlight: e.target.value,
+                          },
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="ab 8,90 €"
+                    />
+                  </Field>
+                  <Field label="Link-Ziel">
                     <input
                       value={content.topBanner.linkHref}
                       onChange={(e) =>
@@ -850,11 +829,8 @@ export function AdminClient() {
                       className={fieldClass}
                       placeholder="/speisekarte#wochenkarte"
                     />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">
-                      Link-Text
-                    </span>
+                  </Field>
+                  <Field label="Link-Text">
                     <input
                       value={content.topBanner.linkLabel}
                       onChange={(e) =>
@@ -869,19 +845,16 @@ export function AdminClient() {
                       className={fieldClass}
                       placeholder="Mehr"
                     />
-                  </label>
-                </div>
+                  </Field>
+                </Section>
 
-                <fieldset className="space-y-3 border border-[color:var(--line)] px-4 py-4">
-                  <legend className="px-1 text-sm text-[color:var(--gold)]">
-                    Farben
-                  </legend>
-                  <div className="flex flex-wrap gap-2">
+                <Section title="Farben">
+                  <div className="admin-color-row">
                     {BANNER_PRESETS.map((preset) => (
                       <button
                         key={preset.label}
                         type="button"
-                        className="rounded-md border border-[color:var(--line)] px-3 py-2 text-sm"
+                        className="admin-swatch"
                         style={{
                           backgroundColor: preset.backgroundColor,
                           color: preset.textColor,
@@ -909,10 +882,7 @@ export function AdminClient() {
                       ["highlightColor", "Hervorhebung"],
                     ] as const
                   ).map(([key, label]) => (
-                    <label
-                      key={key}
-                      className="flex items-center justify-between gap-3"
-                    >
+                    <label key={key} className="admin-color-pick">
                       <span className="text-sm text-[color:var(--muted)]">
                         {label}
                       </span>
@@ -928,21 +898,15 @@ export function AdminClient() {
                             },
                           })
                         }
-                        className="h-10 w-16 cursor-pointer border border-[color:var(--line)] bg-transparent"
                       />
                     </label>
                   ))}
-                </fieldset>
+                </Section>
 
-                <div
-                  className="overflow-hidden border border-[color:var(--line)]"
-                  aria-hidden
-                >
-                  <p className="px-3 py-2 text-xs tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                    Vorschau
-                  </p>
+                <div className="admin-preview" aria-hidden>
+                  <p className="admin-preview-label">Vorschau</p>
                   <div
-                    className="px-4 py-2 text-center text-sm"
+                    className="px-4 py-3 text-center text-sm"
                     style={{
                       backgroundColor: content.topBanner.backgroundColor,
                       color: content.topBanner.textColor,
@@ -970,7 +934,7 @@ export function AdminClient() {
 
                 <button
                   type="button"
-                  className="btn-gold"
+                  className="btn-gold w-full"
                   onClick={() =>
                     setContent({
                       ...content,
@@ -987,30 +951,19 @@ export function AdminClient() {
                 >
                   Aus Schüler-Mittag übernehmen
                 </button>
-
-                <button type="submit" className="btn-primary" disabled={saving}>
-                  {saving ? "Speichern …" : "Banner speichern"}
-                </button>
+                <StickySave saving={saving} label="Banner speichern" />
               </form>
             ) : null}
 
             {tab === "content" && content ? (
-              <form onSubmit={saveContent} className="space-y-5">
-                <h1 className="font-display text-3xl text-[color:var(--red)]">
-                  Website-Texte
-                </h1>
-                <p className="text-sm text-[color:var(--muted)]">
-                  Diese Texte erscheinen direkt auf der öffentlichen Seite.
-                </p>
-
-                <fieldset className="space-y-3 border border-[color:var(--line)] px-4 py-4">
-                  <legend className="px-1 text-sm text-[color:var(--gold)]">
-                    Hero Startseite
-                  </legend>
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">
-                      Begrüßung über Wassana (z. B. Willkommen bei)
-                    </span>
+              <form onSubmit={saveContent} className="admin-form space-y-3">
+                <ScreenHeader
+                  kicker="Website"
+                  title="Texte"
+                  description="Alles, was auf der öffentlichen Seite steht — tippen und speichern."
+                />
+                <Section title="Hero Startseite">
+                  <Field label="Begrüßung über Wassana">
                     <input
                       value={content.hero.eyebrow}
                       onChange={(e) =>
@@ -1021,11 +974,8 @@ export function AdminClient() {
                       }
                       className={fieldClass}
                     />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">
-                      Text unter Wassana
-                    </span>
+                  </Field>
+                  <Field label="Text unter Wassana">
                     <textarea
                       rows={2}
                       value={content.hero.lede}
@@ -1037,31 +987,24 @@ export function AdminClient() {
                       }
                       className={fieldClass}
                     />
-                  </label>
-                </fieldset>
+                  </Field>
+                </Section>
 
-                <label className="block">
-                  <span className="text-sm text-[color:var(--muted)]">
-                    Bedeutung „Wassana“
-                  </span>
-                  <textarea
-                    rows={3}
-                    value={content.meaning}
-                    onChange={(e) =>
-                      setContent({ ...content, meaning: e.target.value })
-                    }
-                    className={fieldClass}
-                  />
-                </label>
+                <Section title="Bedeutung">
+                  <Field label="Bedeutung „Wassana“">
+                    <textarea
+                      rows={3}
+                      value={content.meaning}
+                      onChange={(e) =>
+                        setContent({ ...content, meaning: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                </Section>
 
-                <fieldset className="space-y-3 border border-[color:var(--line)] px-4 py-4">
-                  <legend className="px-1 text-sm text-[color:var(--gold)]">
-                    Öffnungszeiten
-                  </legend>
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">
-                      Kurz (z. B. Mo–Fr …)
-                    </span>
+                <Section title="Öffnungszeiten">
+                  <Field label="Kurz (z. B. Mo–Fr …)">
                     <input
                       value={content.hours.weekdays}
                       onChange={(e) =>
@@ -1072,11 +1015,8 @@ export function AdminClient() {
                       }
                       className={fieldClass}
                     />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">
-                      Lang (Wochentage)
-                    </span>
+                  </Field>
+                  <Field label="Lang (Wochentage)">
                     <input
                       value={content.hours.weekdaysLong}
                       onChange={(e) =>
@@ -1090,11 +1030,8 @@ export function AdminClient() {
                       }
                       className={fieldClass}
                     />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">
-                      Wochenende / Feiertage
-                    </span>
+                  </Field>
+                  <Field label="Wochenende / Feiertage">
                     <input
                       value={content.hours.weekend}
                       onChange={(e) =>
@@ -1105,13 +1042,10 @@ export function AdminClient() {
                       }
                       className={fieldClass}
                     />
-                  </label>
-                </fieldset>
+                  </Field>
+                </Section>
 
-                <fieldset className="space-y-3 border border-[color:var(--line)] px-4 py-4">
-                  <legend className="px-1 text-sm text-[color:var(--gold)]">
-                    Schüler-Mittag
-                  </legend>
+                <Section title="Schüler-Mittag">
                   {(
                     [
                       ["eyebrow", "Überschrift klein"],
@@ -1121,10 +1055,7 @@ export function AdminClient() {
                       ["note", "Hinweis"],
                     ] as const
                   ).map(([key, label]) => (
-                    <label key={key} className="block">
-                      <span className="text-sm text-[color:var(--muted)]">
-                        {label}
-                      </span>
+                    <Field key={key} label={label}>
                       <input
                         value={content.studentLunch[key]}
                         onChange={(e) =>
@@ -1138,14 +1069,11 @@ export function AdminClient() {
                         }
                         className={fieldClass}
                       />
-                    </label>
+                    </Field>
                   ))}
-                </fieldset>
+                </Section>
 
-                <fieldset className="space-y-3 border border-[color:var(--line)] px-4 py-4">
-                  <legend className="px-1 text-sm text-[color:var(--gold)]">
-                    Standort-Texte
-                  </legend>
+                <Section title="Standort">
                   {(
                     [
                       ["eyebrow", "Kleine Zeile"],
@@ -1153,10 +1081,7 @@ export function AdminClient() {
                       ["text", "Beschreibung"],
                     ] as const
                   ).map(([key, label]) => (
-                    <label key={key} className="block">
-                      <span className="text-sm text-[color:var(--muted)]">
-                        {label}
-                      </span>
+                    <Field key={key} label={label}>
                       <input
                         value={content.location[key]}
                         onChange={(e) =>
@@ -1170,16 +1095,12 @@ export function AdminClient() {
                         }
                         className={fieldClass}
                       />
-                    </label>
+                    </Field>
                   ))}
-                </fieldset>
+                </Section>
 
-                <fieldset className="space-y-3 border border-[color:var(--line)] px-4 py-4">
-                  <legend className="px-1 text-sm text-[color:var(--gold)]">
-                    Abschluss
-                  </legend>
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">Titel</span>
+                <Section title="Abschluss">
+                  <Field label="Titel">
                     <input
                       value={content.closing.title}
                       onChange={(e) =>
@@ -1193,11 +1114,11 @@ export function AdminClient() {
                       }
                       className={fieldClass}
                     />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-[color:var(--muted)]">
-                      Text (leer = Adresse + Zeiten automatisch)
-                    </span>
+                  </Field>
+                  <Field
+                    label="Text"
+                    hint="Leer = Adresse + Zeiten automatisch"
+                  >
                     <textarea
                       rows={2}
                       value={content.closing.text}
@@ -1212,48 +1133,34 @@ export function AdminClient() {
                       }
                       className={fieldClass}
                     />
-                  </label>
-                </fieldset>
-
-                <button type="submit" className="btn-primary" disabled={saving}>
-                  {saving ? "Speichern …" : "Texte speichern"}
-                </button>
+                  </Field>
+                </Section>
+                <StickySave saving={saving} label="Texte speichern" />
               </form>
             ) : null}
 
             {tab === "menu" && weekly ? (
-              <form onSubmit={saveWeekly} className="space-y-5">
-                <h1 className="font-display text-3xl text-[color:var(--red)]">
-                  Wochenkarte
-                </h1>
-                <p className="text-sm text-[color:var(--muted)]">
-                  Jeden Tag Gericht und Preise für die Speisekarte aktualisieren.
-                </p>
-                <label className="block">
-                  <span className="text-sm text-[color:var(--muted)]">
-                    Hinweis unter dem Titel
-                  </span>
-                  <input
-                    value={weekly.note}
-                    onChange={(e) =>
-                      setWeekly({ ...weekly, note: e.target.value })
-                    }
-                    className={fieldClass}
-                  />
-                </label>
+              <form onSubmit={saveWeekly} className="admin-form space-y-3">
+                <ScreenHeader
+                  kicker="Speisekarte"
+                  title="Wochenkarte"
+                  description="Pro Tag Gericht und Preise — mobil untereinander, am Desktop in einer Zeile."
+                />
+                <Section title="Allgemein">
+                  <Field label="Hinweis unter dem Titel">
+                    <input
+                      value={weekly.note}
+                      onChange={(e) =>
+                        setWeekly({ ...weekly, note: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                </Section>
 
                 {weekly.days.map((day, dayIndex) => (
-                  <fieldset
-                    key={`${day.day}-${dayIndex}`}
-                    className="space-y-3 border border-[color:var(--line)] px-4 py-4"
-                  >
-                    <legend className="px-1 text-sm text-[color:var(--gold)]">
-                      {day.day}
-                    </legend>
-                    <label className="block">
-                      <span className="text-sm text-[color:var(--muted)]">
-                        Gericht
-                      </span>
+                  <Section key={`${day.day}-${dayIndex}`} title={day.day}>
+                    <Field label="Gericht">
                       <input
                         value={day.dish}
                         onChange={(e) => {
@@ -1263,11 +1170,8 @@ export function AdminClient() {
                         }}
                         className={fieldClass}
                       />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm text-[color:var(--muted)]">
-                        Beschreibung
-                      </span>
+                    </Field>
+                    <Field label="Beschreibung">
                       <input
                         value={day.description || ""}
                         onChange={(e) => {
@@ -1280,65 +1184,67 @@ export function AdminClient() {
                         }}
                         className={fieldClass}
                       />
-                    </label>
-                    {day.items.map((item, itemIndex) => (
-                      <div
-                        key={`${item.nr}-${itemIndex}`}
-                        className="grid grid-cols-[4rem_1fr_6rem] gap-2"
-                      >
-                        <input
-                          aria-label="Nr"
-                          value={item.nr}
-                          onChange={(e) => {
-                            const days = [...weekly.days];
-                            const items = [...day.items];
-                            items[itemIndex] = {
-                              ...item,
-                              nr: e.target.value,
-                            };
-                            days[dayIndex] = { ...day, items };
-                            setWeekly({ ...weekly, days });
-                          }}
-                          className={fieldClass}
-                        />
-                        <input
-                          aria-label="Name"
-                          value={item.name}
-                          onChange={(e) => {
-                            const days = [...weekly.days];
-                            const items = [...day.items];
-                            items[itemIndex] = {
-                              ...item,
-                              name: e.target.value,
-                            };
-                            days[dayIndex] = { ...day, items };
-                            setWeekly({ ...weekly, days });
-                          }}
-                          className={fieldClass}
-                        />
-                        <input
-                          aria-label="Preis"
-                          value={item.price}
-                          onChange={(e) => {
-                            const days = [...weekly.days];
-                            const items = [...day.items];
-                            items[itemIndex] = {
-                              ...item,
-                              price: e.target.value,
-                            };
-                            days[dayIndex] = { ...day, items };
-                            setWeekly({ ...weekly, days });
-                          }}
-                          className={fieldClass}
-                        />
-                      </div>
-                    ))}
-                  </fieldset>
+                    </Field>
+                    <div className="admin-day-grid">
+                      {day.items.map((item, itemIndex) => (
+                        <div
+                          key={`${item.nr}-${itemIndex}`}
+                          className="admin-day-row"
+                        >
+                          <input
+                            aria-label={`${day.day} Nr`}
+                            value={item.nr}
+                            onChange={(e) => {
+                              const days = [...weekly.days];
+                              const items = [...day.items];
+                              items[itemIndex] = {
+                                ...item,
+                                nr: e.target.value,
+                              };
+                              days[dayIndex] = { ...day, items };
+                              setWeekly({ ...weekly, days });
+                            }}
+                            className={fieldClass}
+                            placeholder="Nr"
+                          />
+                          <input
+                            aria-label={`${day.day} Name`}
+                            value={item.name}
+                            onChange={(e) => {
+                              const days = [...weekly.days];
+                              const items = [...day.items];
+                              items[itemIndex] = {
+                                ...item,
+                                name: e.target.value,
+                              };
+                              days[dayIndex] = { ...day, items };
+                              setWeekly({ ...weekly, days });
+                            }}
+                            className={fieldClass}
+                            placeholder="Name"
+                          />
+                          <input
+                            aria-label={`${day.day} Preis`}
+                            value={item.price}
+                            onChange={(e) => {
+                              const days = [...weekly.days];
+                              const items = [...day.items];
+                              items[itemIndex] = {
+                                ...item,
+                                price: e.target.value,
+                              };
+                              days[dayIndex] = { ...day, items };
+                              setWeekly({ ...weekly, days });
+                            }}
+                            className={fieldClass}
+                            placeholder="Preis"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </Section>
                 ))}
-
-                <button type="submit" className="btn-primary" disabled={saving}>
-                  {saving ? "Speichern …" : "Wochenkarte speichern"}
-                </button>
+                <StickySave saving={saving} label="Wochenkarte speichern" />
               </form>
             ) : null}
 
@@ -1361,6 +1267,7 @@ export function AdminClient() {
                   setTab(item.id);
                   setError("");
                   setStatus("");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
                   if (item.id === "inbox") void loadInbox();
                   if (item.id === "content" || item.id === "banner") {
                     void loadContent();
