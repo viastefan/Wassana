@@ -14,6 +14,9 @@ import type { BusinessProfile } from "@/lib/business-profile-shared";
 import type { SiteContent } from "@/lib/site-content";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store-shared";
 import type { FullMenuData } from "@/lib/menu-store-shared";
+import type { SitePages } from "@/lib/site-pages-shared";
+import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
+import { AdminSitePagesEditor } from "./AdminSitePagesEditor";
 import {
   COURSE_IMAGE_OPTIONS,
   createBlankCourse,
@@ -40,7 +43,6 @@ import {
   Toggle,
   type PublishPhase,
 } from "./ui";
-import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
 import { ADMIN_TAB_ICONS } from "./icons";
 import { PublishFailDialog } from "./PublishFailDialog";
 import {
@@ -98,7 +100,7 @@ const NAV_META: Record<Tab, { label: string; title: string }> = {
   course: { label: "Kurs", title: "Kochkurs" },
   inbox: { label: "Post", title: "Anfragen-DB" },
   banner: { label: "Banner", title: "Top-Banner" },
-  content: { label: "Texte", title: "Website-Texte" },
+  content: { label: "Texte", title: "Alle Website-Texte" },
   menu: { label: "Menü", title: "Speisekarte" },
   settings: { label: "Betrieb", title: "Einstellungen" },
 };
@@ -149,6 +151,8 @@ export function AdminClient() {
     "disk",
   );
   const [content, setContent] = useState<SiteContent | null>(null);
+  const [pages, setPages] = useState<SitePages | null>(null);
+  const [textPanel, setTextPanel] = useState<"core" | "pages">("pages");
   const [weekly, setWeekly] = useState<WeeklyMenuData | null>(null);
   const [fullMenu, setFullMenu] = useState<FullMenuData | null>(null);
   const [menuPanel, setMenuPanel] = useState<"weekly" | "full">("weekly");
@@ -207,6 +211,16 @@ export function AdminClient() {
     }
     if (!res.ok) return;
     setContent((await res.json()) as SiteContent);
+  }, []);
+
+  const loadPages = useCallback(async () => {
+    const res = await fetch("/api/admin/site-pages", { cache: "no-store" });
+    if (res.status === 401) {
+      setAuthed(false);
+      return;
+    }
+    if (!res.ok) return;
+    setPages((await res.json()) as SitePages);
   }, []);
 
   const loadBusiness = useCallback(async () => {
@@ -325,6 +339,7 @@ export function AdminClient() {
       loadCourseStore(),
       loadInbox(),
       loadContent(),
+      loadPages(),
       loadWeekly(),
       loadFullMenu(),
       loadBusiness(),
@@ -336,6 +351,7 @@ export function AdminClient() {
     loadBusiness,
     loadCmsHealth,
     loadContent,
+    loadPages,
     loadCourseStore,
     loadFullMenu,
     loadInbox,
@@ -912,6 +928,49 @@ export function AdminClient() {
         warning: data?.warning,
         persist: data?.persist,
         successMessage: "Online — Texte/Banner live auf .de",
+      };
+    });
+  }
+
+  async function savePages(event: FormEvent) {
+    event.preventDefault();
+    if (!pages) return;
+    await runPublish("Alle Seiten-Texte veröffentlichen", async () => {
+      const res = await fetch("/api/admin/site-pages", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pages),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | (SitePages & {
+            error?: string;
+            warning?: string;
+            persist?: {
+              disk?: boolean;
+              tmp?: boolean;
+              blob?: boolean;
+              github?: boolean;
+              durable?: boolean;
+            };
+          })
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        return {
+          ok: false,
+          error: data?.error || "Seiten-Texte speichern fehlgeschlagen.",
+          persist: data?.persist,
+        };
+      }
+      if (data) {
+        const { error: _e, warning: _w, persist: _p, ...rest } = data;
+        setPages(rest as SitePages);
+      }
+      return {
+        ok: true,
+        warning: data?.warning,
+        persist: data?.persist,
+        successMessage: "Online — alle Seiten-Texte live auf .de",
       };
     });
   }
@@ -1935,7 +1994,7 @@ export function AdminClient() {
                       ["course", "Kochkurs", course.title || "Termin", course.date ? formatCourseDate(course.date) : "Noch kein Datum"],
                       ["inbox", "Anfragen-DB", unread > 0 ? `${unread} neu` : "Datenbank", `${analytics.total} aktiv · ${analytics.archived} Archiv`],
                       ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus", "Mittagsangebot über dem Menü"],
-                      ["content", "Website", "Texte ändern", "Hero, Zeiten, Schüler-Mittag …"],
+                      ["content", "Website", "Alle Texte", "Jede Seite · Navigation · FAQ"],
                       ["menu", "Speisekarte", "Wochen-Favoriten & alle Gerichte", "Texte, Preise, Reihenfolge"],
                     ] as const
                   ).map(([id, kicker, title, meta]) => {
@@ -2957,12 +3016,59 @@ export function AdminClient() {
               </form>
             ) : null}
 
-            {tab === "content" && content ? (
+            {tab === "content" ? (
+              <div className="space-y-3">
+                <div
+                  className="admin-menu-switch"
+                  role="tablist"
+                  aria-label="Textbereich"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={textPanel === "pages"}
+                    className={`admin-menu-switch-btn ${
+                      textPanel === "pages" ? "is-active" : ""
+                    }`}
+                    onClick={() => {
+                      setTextPanel("pages");
+                      void loadPages();
+                    }}
+                  >
+                    Alle Seiten
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={textPanel === "core"}
+                    className={`admin-menu-switch-btn ${
+                      textPanel === "core" ? "is-active" : ""
+                    }`}
+                    onClick={() => {
+                      setTextPanel("core");
+                      void loadContent();
+                    }}
+                  >
+                    Kern & Angebote
+                  </button>
+                </div>
+
+                {textPanel === "pages" && pages ? (
+                  <AdminSitePagesEditor
+                    pages={pages}
+                    setPages={setPages}
+                    saving={saving}
+                    publishPhase={publishPhase}
+                    onSave={savePages}
+                  />
+                ) : null}
+
+                {textPanel === "core" && content ? (
               <form onSubmit={saveContent} className="admin-form space-y-3">
                 <ScreenHeader
                   kicker="Website"
-                  title="Texte"
-                  description="Öffentliche Texte ändern. Veröffentlichen geht sofort live (inkl. Banner-Daten)."
+                  title="Kern-Texte"
+                  description="Hero-Intro, Bedeutung, Zeiten, Schüler-Mittag, Standort und Abschluss. Veröffentlichen geht sofort live."
                 />
                 <Section title="Hero Startseite">
                   <Field label="Begrüßung über Wassana">
@@ -3211,9 +3317,11 @@ export function AdminClient() {
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
-                  label="Texte veröffentlichen"
+                  label="Kern-Texte veröffentlichen"
                 />
               </form>
+                ) : null}
+              </div>
             ) : null}
 
             {tab === "menu" ? (
@@ -3846,6 +3954,7 @@ export function AdminClient() {
                   if (item.id === "inbox") void loadInbox();
                   if (item.id === "content" || item.id === "banner") {
                     void loadContent();
+                    void loadPages();
                   }
                   if (item.id === "menu") {
                     void loadWeekly();

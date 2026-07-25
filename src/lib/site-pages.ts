@@ -34,6 +34,7 @@ export async function saveSitePages(
 ): Promise<{ pages: SitePages; persist: PersistResult }> {
   const next = normalizeSitePages({
     ...input,
+    updatedAt: new Date().toISOString(),
   });
   const payload = `${JSON.stringify(next, null, 2)}\n`;
   const persist = await writeJsonWithFallback(

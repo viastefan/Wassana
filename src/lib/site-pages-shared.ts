@@ -223,6 +223,7 @@ export type SitePages = {
     markingTitle: string;
     markingText: string;
   };
+  updatedAt?: string;
 };
 
 const SHORT = 80;
