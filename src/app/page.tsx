@@ -6,7 +6,7 @@ import {
   JsonLdBreadcrumbs,
   JsonLdFaqPage,
 } from "@/components/JsonLd";
-import { SplitMedia } from "@/components/Media";
+import { ImageStrip, SplitMedia } from "@/components/Media";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
@@ -262,6 +262,29 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      <ImageStrip
+        items={[
+          {
+            src: "/images/laden-fassade.jpg",
+            alt: "Fassade von Wassana Thai Imbiss am Regierungsplatz in Landshut",
+            label: "Am Regierungsplatz",
+            href: "/anfahrt",
+          },
+          {
+            src: "/images/laden-innen.jpg",
+            alt: "Gastraum bei Wassana Thai Imbiss in Landshut",
+            label: "Bei uns im Laden",
+            href: "/ueber-uns",
+          },
+          {
+            src: "/images/gericht-ente.jpg",
+            alt: "Knusprige Ente mit Curry und Reis bei Wassana",
+            label: "Frisch aus der Küche",
+            href: "/speisekarte",
+          },
+        ]}
+      />
 
       <LocationSection location={content.location} hours={content.hours} />
 
