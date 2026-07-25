@@ -83,10 +83,8 @@ export default function AdminResetPage() {
               Link aus der Support-Mail nutzen. Danach gilt sofort das neue
               Passwort für `/admin`.
             </p>
-            <label className="block">
-              <span className="text-sm text-[color:var(--admin-muted)]">
-                Neues Passwort
-              </span>
+            <label className="admin-field-wrap">
+              <span className="admin-field-label">Neues Passwort</span>
               <input
                 type="password"
                 name="new-password"
@@ -98,10 +96,8 @@ export default function AdminResetPage() {
                 minLength={8}
               />
             </label>
-            <label className="block">
-              <span className="text-sm text-[color:var(--admin-muted)]">
-                Wiederholen
-              </span>
+            <label className="admin-field-wrap">
+              <span className="admin-field-label">Wiederholen</span>
               <input
                 type="password"
                 name="confirm-password"
