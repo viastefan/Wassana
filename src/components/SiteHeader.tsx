@@ -107,7 +107,7 @@ export function SiteHeader({
         onHero ? "site-header-hero bg-transparent" : ""
       } ${
         solid
-          ? "border-b border-[color:var(--line)] bg-[color:var(--bg)]/95 backdrop-blur-md"
+          ? "border-b border-[color:var(--line)] bg-[color:var(--bg)]/98 backdrop-blur-[6px]"
           : ""
       }`}
     >
