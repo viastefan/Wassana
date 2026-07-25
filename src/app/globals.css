@@ -1786,7 +1786,7 @@ a.btn-ghost:hover {
 
 .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
 .reveal-delay-1 {
@@ -1795,6 +1795,18 @@ a.btn-ghost:hover {
 
 .reveal-delay-2 {
   transition-delay: 0.22s;
+}
+
+.catering-form-sticky {
+  align-self: start;
+}
+
+@media (min-width: 768px) {
+  .catering-form-sticky {
+    position: sticky;
+    top: calc(var(--header-h) + var(--banner-h) + 1rem);
+    z-index: 1;
+  }
 }
 
 .hero-copy {

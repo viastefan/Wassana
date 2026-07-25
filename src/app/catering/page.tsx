@@ -71,7 +71,7 @@ export default async function CateringPage() {
       />
 
       <section className="offer-strip">
-        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-[var(--section-y)] md:grid-cols-2 md:gap-16 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-[var(--section-y)] md:grid-cols-2 md:items-start md:gap-16 md:px-8">
           <Reveal>
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
               Unser Service
@@ -124,14 +124,14 @@ export default async function CateringPage() {
               .
             </p>
           </Reveal>
-          <Reveal delay={1}>
+          <div className="catering-form-sticky">
             <ContactForm
               subject="Catering Anfrage Landshut"
               title="Catering anfragen"
               intro="Kurz Anlass, Personenzahl und Wunschtermin — wir melden uns."
               source="catering"
             />
-          </Reveal>
+          </div>
         </div>
       </section>
     </main>
