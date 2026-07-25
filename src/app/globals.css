@@ -2117,11 +2117,6 @@ a.btn-ghost:hover {
   transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.site-header-bar {
-  position: relative;
-  z-index: 47;
-}
-
 .mobile-nav.is-open {
   grid-template-rows: 1fr;
 }
