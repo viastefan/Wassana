@@ -1541,13 +1541,22 @@ export function AdminClient() {
             </p>
           </div>
           {authed ? (
-            <button
-              type="button"
-              className="btn-gold !px-3 !py-2 text-sm"
-              onClick={onLogout}
-            >
-              Raus
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                href="/"
+                className="btn-primary !px-3 !py-2 text-sm"
+                title="Zur Startseite der Website"
+              >
+                Zur Website
+              </Link>
+              <button
+                type="button"
+                className="btn-gold !px-3 !py-2 text-sm"
+                onClick={onLogout}
+              >
+                Raus
+              </button>
+            </div>
           ) : (
             <span className="admin-chip is-live">App</span>
           )}
@@ -1988,8 +1997,8 @@ export function AdminClient() {
                   >
                     + Neuer Kochkurs
                   </button>
-                  <Link href="/" className="btn-gold inline-flex" target="_blank">
-                    Website öffnen
+                  <Link href="/" className="btn-gold inline-flex">
+                    Zur Website
                   </Link>
                   <button
                     type="button"
