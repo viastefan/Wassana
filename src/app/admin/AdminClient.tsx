@@ -19,6 +19,11 @@ import {
   type CookingCourseArchiveEntry,
   type CookingCourseData,
 } from "@/lib/cooking-course-shared";
+import type { ContactInquiry, InquiryStatus } from "@/lib/inquiries-shared";
+import {
+  inquirySourceLabel,
+  inquiryStatusLabel,
+} from "@/lib/inquiries-shared";
 import {
   Field,
   ScreenHeader,
@@ -36,19 +41,9 @@ import {
 
 type Course = CookingCourseData;
 
-type Inquiry = {
-  id: string;
-  createdAt: string;
-  name: string;
-  email: string;
-  phone: string;
-  subject: string;
-  message: string;
-  source: string;
-  read: boolean;
-  mailOwnerSent: boolean;
-  mailGuestSent: boolean;
-};
+type Inquiry = ContactInquiry;
+
+type InboxFilter = "active" | "new" | "open" | "done" | "archived";
 
 type Tab = "home" | "course" | "inbox" | "content" | "banner" | "menu" | "settings";
 
@@ -86,7 +81,7 @@ const fieldClass = "admin-field";
 const NAV_META: Record<Tab, { label: string; title: string }> = {
   home: { label: "Home", title: "Übersicht" },
   course: { label: "Kurs", title: "Kochkurs" },
-  inbox: { label: "Post", title: "Anfragen" },
+  inbox: { label: "Post", title: "Anfragen-DB" },
   banner: { label: "Banner", title: "Top-Banner" },
   content: { label: "Texte", title: "Website-Texte" },
   menu: { label: "Menü", title: "Wochenkarte" },
@@ -118,6 +113,14 @@ export function AdminClient() {
   >({});
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [unread, setUnread] = useState(0);
+  const [inboxFilter, setInboxFilter] = useState<InboxFilter>("active");
+  const [inboxQuery, setInboxQuery] = useState("");
+  const [inboxNotes, setInboxNotes] = useState<Record<string, string>>({});
+  const [inboxBusyId, setInboxBusyId] = useState<string | null>(null);
+  const [inboxDurable, setInboxDurable] = useState(false);
+  const [inboxStorage, setInboxStorage] = useState<"blob" | "tmp" | "disk">(
+    "disk",
+  );
   const [content, setContent] = useState<SiteContent | null>(null);
   const [weekly, setWeekly] = useState<WeeklyMenuData | null>(null);
   const [business, setBusiness] = useState<BusinessProfile | null>(null);
@@ -130,6 +133,25 @@ export function AdminClient() {
   const [newsTitle, setNewsTitle] = useState("Wassana News");
   const [newsBody, setNewsBody] = useState("");
 
+  const applyInboxPayload = useCallback(
+    (data: {
+      inquiries?: Inquiry[];
+      unread?: number;
+      durable?: boolean;
+      storage?: "blob" | "tmp" | "disk";
+    }) => {
+      const list = data.inquiries || [];
+      setInquiries(list);
+      setUnread(data.unread || 0);
+      setInboxNotes(
+        Object.fromEntries(list.map((item) => [item.id, item.notes || ""])),
+      );
+      if (typeof data.durable === "boolean") setInboxDurable(data.durable);
+      if (data.storage) setInboxStorage(data.storage);
+    },
+    [],
+  );
+
   const loadInbox = useCallback(async () => {
     const res = await fetch("/api/admin/inquiries", { cache: "no-store" });
     if (res.status === 401) {
@@ -137,13 +159,15 @@ export function AdminClient() {
       return;
     }
     if (!res.ok) return;
-    const data = (await res.json()) as {
-      inquiries: Inquiry[];
-      unread: number;
-    };
-    setInquiries(data.inquiries || []);
-    setUnread(data.unread || 0);
-  }, []);
+    applyInboxPayload(
+      (await res.json()) as {
+        inquiries: Inquiry[];
+        unread: number;
+        durable?: boolean;
+        storage?: "blob" | "tmp" | "disk";
+      },
+    );
+  }, [applyInboxPayload]);
 
   const loadContent = useCallback(async () => {
     const res = await fetch("/api/admin/content", { cache: "no-store" });
@@ -837,38 +861,107 @@ export function AdminClient() {
     }
   }
 
-  async function markRead(id: string) {
-    const res = await fetch("/api/admin/inquiries", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, read: true }),
-    });
-    if (res.status === 401) {
-      setAuthed(false);
-      return;
+  async function patchInquiry(
+    id: string,
+    body: {
+      read?: boolean;
+      status?: InquiryStatus;
+      notes?: string;
+      archived?: boolean;
+    },
+  ) {
+    setInboxBusyId(id);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/inquiries", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...body }),
+      });
+      if (res.status === 401) {
+        setAuthed(false);
+        return;
+      }
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        setError(data?.error || "Anfrage konnte nicht gespeichert werden.");
+        return;
+      }
+      applyInboxPayload(
+        (await res.json()) as {
+          inquiries: Inquiry[];
+          unread: number;
+          durable?: boolean;
+          storage?: "blob" | "tmp" | "disk";
+        },
+      );
+    } catch {
+      setError("Netzwerkfehler bei der Anfrage.");
+    } finally {
+      setInboxBusyId(null);
     }
-    if (!res.ok) return;
-    const data = (await res.json()) as {
-      inquiries: Inquiry[];
-      unread: number;
-    };
-    setInquiries(data.inquiries || []);
-    setUnread(data.unread || 0);
+  }
+
+  async function markRead(id: string) {
+    await patchInquiry(id, { read: true, status: "open" });
   }
 
   async function markAllRead() {
-    const res = await fetch("/api/admin/inquiries", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ all: true }),
-    });
-    if (!res.ok) return;
-    const data = (await res.json()) as {
-      inquiries: Inquiry[];
-      unread: number;
-    };
-    setInquiries(data.inquiries || []);
-    setUnread(data.unread || 0);
+    setInboxBusyId("all");
+    try {
+      const res = await fetch("/api/admin/inquiries", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+      if (!res.ok) return;
+      applyInboxPayload(
+        (await res.json()) as {
+          inquiries: Inquiry[];
+          unread: number;
+          durable?: boolean;
+          storage?: "blob" | "tmp" | "disk";
+        },
+      );
+    } finally {
+      setInboxBusyId(null);
+    }
+  }
+
+  async function deleteInquiryCard(id: string) {
+    if (!window.confirm("Diese Anfrage endgültig löschen?")) return;
+    setInboxBusyId(id);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/inquiries", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.status === 401) {
+        setAuthed(false);
+        return;
+      }
+      if (!res.ok) {
+        setError("Löschen fehlgeschlagen.");
+        return;
+      }
+      applyInboxPayload(
+        (await res.json()) as {
+          inquiries: Inquiry[];
+          unread: number;
+          durable?: boolean;
+          storage?: "blob" | "tmp" | "disk";
+        },
+      );
+      setStatus("Anfrage gelöscht.");
+    } catch {
+      setError("Netzwerkfehler beim Löschen.");
+    } finally {
+      setInboxBusyId(null);
+    }
   }
 
   const nav = useMemo(
@@ -886,10 +979,42 @@ export function AdminClient() {
     [unread],
   );
 
+  const filteredInquiries = useMemo(() => {
+    const q = inboxQuery.trim().toLowerCase();
+    return inquiries.filter((item) => {
+      if (inboxFilter === "archived") {
+        if (!item.archived) return false;
+      } else if (inboxFilter === "active") {
+        if (item.archived) return false;
+      } else if (inboxFilter === "new") {
+        if (item.archived || item.status !== "new") return false;
+      } else if (inboxFilter === "open") {
+        if (item.archived || item.status !== "open") return false;
+      } else if (inboxFilter === "done") {
+        if (item.archived || item.status !== "done") return false;
+      }
+
+      if (!q) return true;
+      const hay = [
+        item.name,
+        item.email,
+        item.phone,
+        item.subject,
+        item.message,
+        item.notes,
+        item.source,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [inboxFilter, inboxQuery, inquiries]);
+
   const analytics = useMemo(() => {
     const weekMs = 7 * 24 * 60 * 60 * 1000;
     const now = Date.now();
-    const week = inquiries.filter(
+    const active = inquiries.filter((item) => !item.archived);
+    const week = active.filter(
       (item) => now - new Date(item.createdAt).getTime() <= weekMs,
     );
     const bySource = week.reduce<Record<string, number>>((acc, item) => {
@@ -900,7 +1025,8 @@ export function AdminClient() {
     return {
       weekTotal: week.length,
       unread,
-      total: inquiries.length,
+      total: active.length,
+      archived: inquiries.length - active.length,
       bySource,
     };
   }, [inquiries, unread]);
@@ -1182,7 +1308,7 @@ export function AdminClient() {
                   {(
                     [
                       ["course", "Kochkurs", course.title || "Termin", course.date ? formatCourseDate(course.date) : "Noch kein Datum"],
-                      ["inbox", "Anfragen", unread > 0 ? `${unread} neu` : "Posteingang", `${inquiries.length} insgesamt`],
+                      ["inbox", "Anfragen-DB", unread > 0 ? `${unread} neu` : "Datenbank", `${analytics.total} aktiv · ${analytics.archived} Archiv`],
                       ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus", "Mittagsangebot über dem Menü"],
                       ["content", "Website", "Texte ändern", "Hero, Zeiten, Schüler-Mittag …"],
                       ["menu", "Speisekarte", "Wochenkarte pflegen", "Mo–Fr Gerichte & Preise"],
@@ -1549,14 +1675,15 @@ export function AdminClient() {
             {tab === "inbox" ? (
               <section className="space-y-3">
                 <ScreenHeader
-                  kicker="Posteingang"
-                  title="Anfragen"
-                  description="Aus Kontakt, Catering und Kochkurs."
+                  kicker="Datenbank"
+                  title="Kontaktanfragen"
+                  description="Eingehende Anfragen aus Kontakt, Catering und Kochkurs — speichern, bearbeiten, archivieren."
                   action={
                     unread > 0 ? (
                       <button
                         type="button"
                         className="btn-gold !px-3 !py-2 text-sm"
+                        disabled={inboxBusyId === "all"}
                         onClick={() => void markAllRead()}
                       >
                         Alle gelesen
@@ -1564,58 +1691,265 @@ export function AdminClient() {
                     ) : null
                   }
                 />
-                {inquiries.length === 0 ? (
-                  <div className="admin-empty">Noch keine Anfragen.</div>
+
+                <div
+                  className={`admin-inbox-storage ${
+                    inboxDurable ? "is-durable" : "is-temp"
+                  }`}
+                >
+                  {inboxDurable ? (
+                    <p>
+                      Dauerhaft gespeichert (verschlüsselter Blob) · max. 500
+                      Einträge · keine PII in GitHub.
+                    </p>
+                  ) : (
+                    <p>
+                      Speicherung aktiv
+                      {inboxStorage === "tmp"
+                        ? " (Server-/tmp — auf Vercel mit Blob dauerhaft machen)"
+                        : " (lokal)"}
+                      . Für Live-Dauerhaftigkeit:{" "}
+                      <code>BLOB_READ_WRITE_TOKEN</code> in Vercel setzen.
+                    </p>
+                  )}
+                </div>
+
+                <div className="admin-status-grid">
+                  <div className="admin-status-item">
+                    <p className="admin-status-label">Aktiv</p>
+                    <p className="admin-status-value">{analytics.total}</p>
+                    <p className="admin-status-meta">nicht archiviert</p>
+                  </div>
+                  <div className="admin-status-item">
+                    <p className="admin-status-label">Neu</p>
+                    <p className="admin-status-value">{unread}</p>
+                    <p className="admin-status-meta">ungelesen</p>
+                  </div>
+                  <div className="admin-status-item">
+                    <p className="admin-status-label">Archiv</p>
+                    <p className="admin-status-value">{analytics.archived}</p>
+                    <p className="admin-status-meta">abgelegt</p>
+                  </div>
+                </div>
+
+                <div className="admin-inbox-toolbar">
+                  <label className="admin-inbox-search">
+                    <span className="sr-only">Suchen</span>
+                    <input
+                      value={inboxQuery}
+                      onChange={(e) => setInboxQuery(e.target.value)}
+                      className={fieldClass}
+                      placeholder="Name, Mail, Telefon, Text …"
+                    />
+                  </label>
+                  <div className="admin-inbox-filters" role="tablist" aria-label="Filter">
+                    {(
+                      [
+                        ["active", "Aktiv"],
+                        ["new", "Neu"],
+                        ["open", "Offen"],
+                        ["done", "Erledigt"],
+                        ["archived", "Archiv"],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        role="tab"
+                        aria-selected={inboxFilter === id}
+                        className={`admin-filter-chip ${
+                          inboxFilter === id ? "is-active" : ""
+                        }`}
+                        onClick={() => setInboxFilter(id)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {filteredInquiries.length === 0 ? (
+                  <div className="admin-empty">
+                    {inquiries.length === 0
+                      ? "Noch keine Anfragen eingegangen."
+                      : "Keine Treffer für diesen Filter."}
+                  </div>
                 ) : (
                   <ul className="admin-inbox-list">
-                    {inquiries.map((item) => (
-                      <li
-                        key={item.id}
-                        className={`admin-inbox-card ${
-                          item.read ? "" : "is-unread"
-                        }`}
-                      >
-                        <div className="admin-inbox-top">
-                          <div className="min-w-0">
-                            <p className="admin-kicker">
-                              {item.subject}
-                              {!item.read ? " · Neu" : ""}
+                    {filteredInquiries.map((item) => {
+                      const busy = inboxBusyId === item.id;
+                      const notesDraft = inboxNotes[item.id] ?? item.notes;
+                      return (
+                        <li
+                          key={item.id}
+                          className={`admin-inbox-card ${
+                            item.status === "new" ? "is-unread" : ""
+                          } ${item.archived ? "is-archived" : ""}`}
+                        >
+                          <div className="admin-inbox-top">
+                            <div className="min-w-0">
+                              <p className="admin-kicker">
+                                {item.subject}
+                                {" · "}
+                                {inquirySourceLabel(item.source)}
+                              </p>
+                              <p className="mt-1 font-display text-lg text-[color:var(--admin-burgundy)]">
+                                {item.name}
+                              </p>
+                              <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
+                                {formatWhen(item.createdAt)}
+                                {item.email ? ` · ${item.email}` : ""}
+                                {item.phone ? ` · ${item.phone}` : ""}
+                              </p>
+                            </div>
+                            <span
+                              className={`admin-chip ${
+                                item.status === "new"
+                                  ? "is-live"
+                                  : item.status === "done"
+                                    ? "is-done"
+                                    : ""
+                              }`}
+                            >
+                              {item.archived
+                                ? "Archiv"
+                                : inquiryStatusLabel(item.status)}
+                            </span>
+                          </div>
+
+                          <p className="mt-3 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-[color:var(--admin-ink)]">
+                            {item.message}
+                          </p>
+
+                          <div className="mt-3 grid gap-1 text-xs text-[color:var(--admin-muted)] sm:grid-cols-2">
+                            <p>
+                              Mail Inhaber:{" "}
+                              {item.mailOwnerSent ? "gesendet" : "—"}
                             </p>
-                            <p className="mt-1 font-display text-lg text-[color:var(--admin-burgundy)]">
-                              {item.name}
-                            </p>
-                            <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
-                              {formatWhen(item.createdAt)} · {item.source}
+                            <p>
+                              Mail Gast:{" "}
+                              {item.mailGuestSent ? "gesendet" : "—"}
                             </p>
                           </div>
-                          {!item.read ? (
-                            <span className="admin-chip is-live">Neu</span>
-                          ) : null}
-                        </div>
-                        <p className="mt-3 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-[color:var(--admin-ink)]">
-                          {item.message}
-                        </p>
-                        <div className="admin-inbox-actions">
-                          <a href={`mailto:${item.email}`} className="btn-primary">
-                            Mail
-                          </a>
-                          {item.phone ? (
-                            <a href={`tel:${item.phone}`} className="btn-gold">
-                              Anrufen
+
+                          <Field label="Private Notiz">
+                            <textarea
+                              value={notesDraft}
+                              onChange={(e) =>
+                                setInboxNotes((prev) => ({
+                                  ...prev,
+                                  [item.id]: e.target.value,
+                                }))
+                              }
+                              className={fieldClass}
+                              rows={2}
+                              placeholder="Nur für dich im Admin …"
+                            />
+                          </Field>
+
+                          <div className="admin-inbox-actions">
+                            <a
+                              href={`mailto:${item.email}`}
+                              className="btn-primary"
+                            >
+                              Mail
                             </a>
-                          ) : null}
-                          {!item.read ? (
+                            {item.phone ? (
+                              <a href={`tel:${item.phone}`} className="btn-gold">
+                                Anrufen
+                              </a>
+                            ) : null}
+                            {item.status === "new" ? (
+                              <button
+                                type="button"
+                                className="btn-gold"
+                                disabled={busy}
+                                onClick={() => void markRead(item.id)}
+                              >
+                                Öffnen
+                              </button>
+                            ) : null}
+                            {item.status !== "done" && !item.archived ? (
+                              <button
+                                type="button"
+                                className="btn-gold"
+                                disabled={busy}
+                                onClick={() =>
+                                  void patchInquiry(item.id, {
+                                    status: "done",
+                                    read: true,
+                                  })
+                                }
+                              >
+                                Erledigt
+                              </button>
+                            ) : null}
+                            {item.status === "done" && !item.archived ? (
+                              <button
+                                type="button"
+                                className="btn-gold"
+                                disabled={busy}
+                                onClick={() =>
+                                  void patchInquiry(item.id, {
+                                    status: "open",
+                                  })
+                                }
+                              >
+                                Wieder öffnen
+                              </button>
+                            ) : null}
                             <button
                               type="button"
                               className="btn-gold"
-                              onClick={() => void markRead(item.id)}
+                              disabled={busy || notesDraft === (item.notes || "")}
+                              onClick={async () => {
+                                await patchInquiry(item.id, {
+                                  notes: notesDraft,
+                                });
+                                setStatus("Notiz gespeichert.");
+                              }}
                             >
-                              Gelesen
+                              Notiz speichern
                             </button>
-                          ) : null}
-                        </div>
-                      </li>
-                    ))}
+                            {!item.archived ? (
+                              <button
+                                type="button"
+                                className="btn-gold"
+                                disabled={busy}
+                                onClick={() =>
+                                  void patchInquiry(item.id, {
+                                    archived: true,
+                                  })
+                                }
+                              >
+                                Archiv
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="btn-gold"
+                                disabled={busy}
+                                onClick={() =>
+                                  void patchInquiry(item.id, {
+                                    archived: false,
+                                  })
+                                }
+                              >
+                                Zurückholen
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              className="btn-gold admin-danger-btn"
+                              disabled={busy}
+                              onClick={() => void deleteInquiryCard(item.id)}
+                            >
+                              Löschen
+                            </button>
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </section>

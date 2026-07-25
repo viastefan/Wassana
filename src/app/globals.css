@@ -658,6 +658,11 @@ select:-webkit-autofill:focus {
   background: color-mix(in srgb, var(--admin-burgundy) 4%, var(--admin-raised));
 }
 
+.admin-inbox-card.is-archived {
+  opacity: 0.88;
+  background: color-mix(in srgb, var(--admin-cream, #f3eee4) 70%, var(--admin-surface));
+}
+
 .admin-inbox-top {
   display: flex;
   align-items: flex-start;
@@ -677,6 +682,74 @@ select:-webkit-autofill:focus {
   min-height: 2.5rem;
   padding-inline: 0.85rem;
   font-size: 0.82rem;
+}
+
+.admin-inbox-storage {
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 24%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-gold) 8%, var(--admin-raised));
+  padding: 0.75rem 0.9rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--admin-ink);
+}
+
+.admin-inbox-storage.is-temp {
+  border-color: color-mix(in srgb, var(--admin-burgundy) 22%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-burgundy) 6%, var(--admin-raised));
+}
+
+.admin-inbox-storage code {
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+
+.admin-inbox-toolbar {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.admin-inbox-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.admin-filter-chip {
+  min-height: 2.2rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 28%, var(--admin-line));
+  background: var(--admin-raised);
+  color: var(--admin-ink);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.admin-filter-chip.is-active {
+  border-color: color-mix(in srgb, var(--admin-burgundy) 40%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-burgundy) 10%, var(--admin-raised));
+  color: var(--admin-burgundy);
+}
+
+.admin-chip.is-done {
+  background: color-mix(in srgb, var(--admin-gold) 22%, var(--admin-raised));
+  color: var(--admin-ink);
+}
+
+.admin-danger-btn {
+  border-color: color-mix(in srgb, var(--admin-burgundy) 35%, var(--admin-line)) !important;
+  color: var(--admin-burgundy) !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .admin-day-grid {

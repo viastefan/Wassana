@@ -11,7 +11,7 @@ Admin: https://www.wassana-thai-imbiss.de/admin
 3. In der App **Benachrichtigungen erlauben** (Home oder Betrieb) — dann kommen Hinweise zu Kochkursen und News wie bei einer echten App.
 4. Unten navigieren:
    - **Kochkurs** — Termin & Texte
-   - **Anfragen** — Nachrichten aus Formularen
+   - **Anfragen** — Kontakt-Datenbank (Status, Notizen, Archiv, Löschen)
    - **Banner** — Top-Leiste (Mittagsangebot): Text, Link, Farben
    - **Texte** — Startseite, Zeiten, Schüler-Mittag, Standort
    - **Wochenkarte** — Mo–Fr Gerichte & Preise
@@ -29,6 +29,8 @@ Project **wassana** → Settings → Environment Variables:
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | E-Mail-Versand Kontaktformular |
 | `CONTACT_TO` | Empfänger (Inhaber-Mail) |
 | `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | **Pflicht auf Vercel** — sonst gehen Admin-Änderungen nach Redeploy verloren |
+| `BLOB_READ_WRITE_TOKEN` | **Empfohlen** — speichert Kontaktanfragen dauerhaft (verschlüsselt, nicht in GitHub) |
+| `INQUIRIES_SECRET` | Optional — eigener Schlüssel für Anfragen-Verschlüsselung |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional Search-Console Meta |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Push-Benachrichtigungen Admin-App (Public) |
 | `VAPID_PRIVATE_KEY` | Push-Benachrichtigungen Admin-App (Private) |
@@ -105,6 +107,8 @@ Technisch vorbereitet: Canonicals (nur www), Open Graph, JSON-LD (Restaurant/Men
 - Origin-Check auf mutierenden APIs
 - Kein Default-Admin-Passwort in Production
 - Kontakt-Anfragen (PII) werden **nicht** ins GitHub-Repo geschrieben
+- Anfragen-DB im Admin: Status (Neu/Offen/Erledigt), private Notizen, Archiv, Löschen
+- Dauerhaft auf Vercel nur mit `BLOB_READ_WRITE_TOKEN` (AES-verschlüsselter Blob); sonst `/tmp` + E-Mail
 - Admin & `/api/*` mit `noindex`
 
 ## Technik
