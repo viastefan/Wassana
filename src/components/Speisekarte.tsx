@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { allergens, menuSections, weeklyMenu } from "@/lib/menu";
+import { allergens, menuSections } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
+import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
 
 function ItemRow({
   nr,
@@ -40,7 +41,13 @@ function ItemRow({
   );
 }
 
-export function Wochenkarte({ compact = false }: { compact?: boolean }) {
+export function Wochenkarte({
+  compact = false,
+  menu,
+}: {
+  compact?: boolean;
+  menu: WeeklyMenuData;
+}) {
   return (
     <section id="wochenkarte" className={compact ? "" : "bg-[color:var(--bg)]"}>
       <div className={compact ? "" : "mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-24"}>
@@ -52,14 +59,14 @@ export function Wochenkarte({ compact = false }: { compact?: boolean }) {
             <h2 className="font-display text-4xl text-[color:var(--red)] md:text-5xl">
               Wochenkarte
             </h2>
-            <p className="text-sm text-[color:var(--muted)]">{weeklyMenu.note}</p>
+            <p className="text-sm text-[color:var(--muted)]">{menu.note}</p>
           </div>
           <div className="gold-rule mt-5" />
         </Reveal>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {weeklyMenu.days.map((day, index) => (
-            <Reveal key={day.day} delay={(index % 3) as 0 | 1 | 2}>
+          {menu.days.map((day, index) => (
+            <Reveal key={`${day.day}-${index}`} delay={(index % 3) as 0 | 1 | 2}>
               <article className="h-full border-t border-[color:var(--gold-soft)] pt-5">
                 <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
                   {day.day}
@@ -67,7 +74,7 @@ export function Wochenkarte({ compact = false }: { compact?: boolean }) {
                 <h3 className="font-display mt-2 text-2xl text-[color:var(--ink)]">
                   {day.dish}
                 </h3>
-                {"description" in day && day.description ? (
+                {day.description ? (
                   <p className="mt-2 text-sm text-[color:var(--muted)]">
                     {day.description}
                   </p>
@@ -107,7 +114,7 @@ export function Wochenkarte({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export function SpeisekarteFull() {
+export function SpeisekarteFull({ menu }: { menu: WeeklyMenuData }) {
   return (
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
@@ -124,7 +131,7 @@ export function SpeisekarteFull() {
           </div>
         </div>
 
-        <Wochenkarte />
+        <Wochenkarte menu={menu} />
 
         <div className="mt-8 space-y-16">
           {menuSections.map((section) => (

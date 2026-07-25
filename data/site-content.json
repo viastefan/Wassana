@@ -1,0 +1,29 @@
+{
+  "hero": {
+    "eyebrow": "Thai Imbiss · Landshut",
+    "lede": "Frisch gekocht am Regierungsplatz — Curry, Wok und Mitnehmen."
+  },
+  "meaning": "Das Wort Wassana bedeutet Glück und gutes Schicksal. Außerdem verbindet man mit diesem Wort auch Frische, Neubeginn und Wohlstand.",
+  "hours": {
+    "weekdays": "Mo–Fr 11:00–18:00",
+    "weekdaysLong": "Montag bis Freitag von 11:00–18:00 Uhr",
+    "weekend": "Sa, So & Feiertage geschlossen"
+  },
+  "studentLunch": {
+    "eyebrow": "Mittag für Schüler & Azubis",
+    "title": "Gericht inkl. Getränk",
+    "text": "Mo–Fr mittags: ein Gericht der Wochenkarte plus Softgetränk — für Schülerinnen, Schüler und Azubis.",
+    "price": "ab 8,90 €",
+    "note": "Gegen Vorlage von Schüler- oder Azubi-Ausweis."
+  },
+  "location": {
+    "eyebrow": "Hier findest du uns",
+    "title": "Regierungsplatz, Landshut",
+    "text": "Im Gewerbehaus am Regierungsplatz — frisch kochen, abholen, genießen."
+  },
+  "closing": {
+    "title": "Bis bald bei Wassana",
+    "text": ""
+  },
+  "updatedAt": "2026-07-25T00:00:00.000Z"
+}

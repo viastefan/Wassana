@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
 import { Reveal } from "@/components/Reveal";
+import type { SiteContent } from "@/lib/site-content";
 
-export function LocationSection() {
+export function LocationSection({
+  location,
+  hours,
+}: {
+  location: SiteContent["location"];
+  hours: SiteContent["hours"];
+}) {
   return (
     <section
       id="standort"
@@ -14,17 +21,16 @@ export function LocationSection() {
           <div className="flex h-full flex-col justify-center px-5 py-14 md:px-8 md:py-16">
             <div>
               <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-                Hier findest du uns
+                {location.eyebrow}
               </p>
               <h2
                 id="standort-heading"
                 className="font-display mt-3 text-3xl leading-tight text-[color:var(--red)] md:text-4xl"
               >
-                Regierungsplatz, Landshut
+                {location.title}
               </h2>
               <p className="mt-4 max-w-sm text-[color:var(--muted)] leading-relaxed">
-                Im Gewerbehaus am Regierungsplatz — frisch kochen, abholen,
-                genießen.
+                {location.text}
               </p>
 
               <address className="mt-10 not-italic">
@@ -51,10 +57,10 @@ export function LocationSection() {
                     Öffnungszeiten
                   </dt>
                   <dd className="mt-1 text-[color:var(--ink)]">
-                    {site.hours.weekdaysLong}
+                    {hours.weekdaysLong}
                     <br />
                     <span className="text-[color:var(--muted)]">
-                      {site.hours.weekend}
+                      {hours.weekend}
                     </span>
                   </dd>
                 </div>

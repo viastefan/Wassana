@@ -2,7 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
 
-export function SiteFooter() {
+type SiteFooterProps = {
+  hours?: {
+    weekdaysLong: string;
+    weekend: string;
+  };
+};
+
+export function SiteFooter({ hours }: SiteFooterProps) {
+  const weekdaysLong = hours?.weekdaysLong || site.hours.weekdaysLong;
+  const weekend = hours?.weekend || site.hours.weekend;
+
   return (
     <footer className="border-t border-[color:var(--line)] bg-[color:var(--bg-soft)]">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.3fr_1fr_1fr] md:px-8">
@@ -44,8 +54,8 @@ export function SiteFooter() {
           <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
             Öffnungszeiten
           </p>
-          <p className="mt-3 text-[color:var(--ink)]">{site.hours.weekdaysLong}</p>
-          <p className="mt-1 text-sm text-[color:var(--muted)]">{site.hours.weekend}</p>
+          <p className="mt-3 text-[color:var(--ink)]">{weekdaysLong}</p>
+          <p className="mt-1 text-sm text-[color:var(--muted)]">{weekend}</p>
           <a
             href={site.maps.place}
             target="_blank"

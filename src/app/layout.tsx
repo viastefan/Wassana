@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Special_Elite } from "next/font/google";
-import { CookingCoursePromo } from "@/components/CookingCoursePromo";
 import { JsonLdLocalBusiness, JsonLdWebSite } from "@/components/JsonLd";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
+import { PublicChrome } from "@/components/PublicChrome";
+import { getSiteContent } from "@/lib/site-content";
 import { getSiteUrl, site } from "@/lib/site";
 import "./globals.css";
 
@@ -82,22 +81,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const content = await getSiteContent();
+
   return (
     <html lang="de">
       <body className={`${typewriter.variable} antialiased`}>
         <JsonLdLocalBusiness />
         <JsonLdWebSite />
-        <div className="site-shell">
-          <SiteHeader />
-          {children}
-          <SiteFooter />
-          <CookingCoursePromo />
-        </div>
+        <PublicChrome content={content}>{children}</PublicChrome>
       </body>
     </html>
   );

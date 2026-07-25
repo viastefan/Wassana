@@ -6,6 +6,8 @@ import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
 import { StudentLunch } from "@/components/StudentLunch";
+import { getSiteContent } from "@/lib/site-content";
+import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -23,7 +25,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [content, weekly] = await Promise.all([
+    getSiteContent(),
+    getWeeklyMenuData(),
+  ]);
+
+  const closingText =
+    content.closing.text.trim() ||
+    `${site.address.street}, ${site.address.city} — ${content.hours.weekdaysLong}. ${content.hours.weekend}.`;
+
   return (
     <main>
       <section className="relative min-h-[100svh] overflow-hidden">
@@ -42,13 +53,13 @@ export default function HomePage() {
         />
         <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
           <p className="hero-copy text-sm tracking-[0.28em] text-[color:var(--gold-soft)] uppercase">
-            Thai Imbiss · Landshut
+            {content.hero.eyebrow}
           </p>
           <h1 className="hero-copy-delay font-display mt-4 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
             Wassana
           </h1>
           <p className="hero-copy-delay mt-6 max-w-md text-[clamp(1.05rem,2.1vw,1.3rem)] font-light leading-relaxed text-white/90">
-            Frisch gekocht am Regierungsplatz — Curry, Wok und Mitnehmen.
+            {content.hero.lede}
           </p>
           <a
             href={site.maps.directions}
@@ -115,7 +126,7 @@ export default function HomePage() {
             </p>
             <div className="gold-rule mx-auto mt-8 max-w-xs" />
             <p className="mt-8 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl">
-              {site.meaning}
+              {content.meaning}
             </p>
           </Reveal>
         </div>
@@ -149,7 +160,7 @@ export default function HomePage() {
         </Reveal>
       </SplitMedia>
 
-      <StudentLunch />
+      <StudentLunch offer={content.studentLunch} />
 
       <section className="bg-[color:var(--bg-soft)]" aria-label="Angebot">
         <div className="mx-auto grid max-w-6xl gap-0 px-5 md:grid-cols-3 md:px-8">
@@ -186,21 +197,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      <LocationSection />
+      <LocationSection location={content.location} hours={content.hours} />
 
       <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
-        <Wochenkarte compact />
+        <Wochenkarte compact menu={weekly} />
       </section>
 
       <section className="border-t border-[color:var(--line)] bg-[color:var(--paper)]">
         <div className="mx-auto max-w-2xl px-5 py-14 text-center md:px-8 md:py-16">
           <Reveal>
             <p className="font-display text-3xl text-[color:var(--red)] md:text-4xl">
-              Bis bald bei Wassana
+              {content.closing.title}
             </p>
             <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
-              {site.address.street}, {site.address.city} —{" "}
-              {site.hours.weekdaysLong}. {site.hours.weekend}.
+              {closingText}
             </p>
             <a href={site.phoneHref} className="btn-primary mt-8 inline-flex">
               {site.phone}

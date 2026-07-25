@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { MediaBand } from "@/components/Media";
 import { SpeisekarteFull } from "@/components/Speisekarte";
 import { StudentLunch } from "@/components/StudentLunch";
+import { getSiteContent } from "@/lib/site-content";
+import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 
 export const metadata: Metadata = {
   title: "Speisekarte Thai Imbiss Landshut",
@@ -16,7 +18,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SpeisekartePage() {
+export default async function SpeisekartePage() {
+  const [content, weekly] = await Promise.all([
+    getSiteContent(),
+    getWeeklyMenuData(),
+  ]);
+
   return (
     <main>
       <MediaBand
@@ -28,8 +35,8 @@ export default function SpeisekartePage() {
         priority
         height="short"
       />
-      <StudentLunch compact />
-      <SpeisekarteFull />
+      <StudentLunch compact offer={content.studentLunch} />
+      <SpeisekarteFull menu={weekly} />
     </main>
   );
 }

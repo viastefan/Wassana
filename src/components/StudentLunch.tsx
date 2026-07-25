@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
-import { site } from "@/lib/site";
+import type { SiteContent } from "@/lib/site-content";
 
 type StudentLunchProps = {
-  /** Compact notice for Speisekarte; fuller block for the homepage. */
   compact?: boolean;
+  offer: SiteContent["studentLunch"];
 };
 
-export function StudentLunch({ compact = false }: StudentLunchProps) {
-  const offer = site.studentLunch;
-
+export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
   if (compact) {
     return (
       <aside
@@ -58,7 +56,10 @@ export function StudentLunch({ compact = false }: StudentLunchProps) {
             {offer.price}
           </p>
           <p className="mt-3 text-sm text-[color:var(--muted)]">{offer.note}</p>
-          <Link href="/speisekarte#wochenkarte" className="btn-primary mt-8 inline-flex">
+          <Link
+            href="/speisekarte#wochenkarte"
+            className="btn-primary mt-8 inline-flex"
+          >
             Zur Wochenkarte
           </Link>
         </Reveal>
