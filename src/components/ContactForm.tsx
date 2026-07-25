@@ -8,37 +8,64 @@ type ContactFormProps = {
   subject?: string;
   title?: string;
   intro?: string;
+  source?: string;
 };
 
 export function ContactForm({
-  to = site.email,
   subject = "Anfrage über die Website",
   title = "Nachricht senden",
   intro = "Schreib uns kurz dein Anliegen — wir melden uns zurück.",
+  source = "website",
 }: ContactFormProps) {
-  const [status, setStatus] = useState<"idle" | "ready">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
+    "idle",
+  );
+  const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") || "").trim();
-    const email = String(data.get("email") || "").trim();
-    const phone = String(data.get("phone") || "").trim();
-    const message = String(data.get("message") || "").trim();
+    setStatus("sending");
+    setError("");
+    setWarning("");
 
-    const body = [
-      `Name: ${name}`,
-      `E-Mail: ${email}`,
-      phone ? `Telefon: ${phone}` : null,
-      "",
-      message,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const form = event.currentTarget;
+    const data = new FormData(form);
 
-    const href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = href;
-    setStatus("ready");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: String(data.get("name") || "").trim(),
+          email: String(data.get("email") || "").trim(),
+          phone: String(data.get("phone") || "").trim(),
+          message: String(data.get("message") || "").trim(),
+          subject,
+          source,
+          website: String(data.get("website") || ""),
+        }),
+      });
+
+      const payload = (await res.json().catch(() => null)) as {
+        error?: string;
+        warning?: string;
+        ok?: boolean;
+      } | null;
+
+      if (!res.ok) {
+        setStatus("error");
+        setError(payload?.error || "Senden fehlgeschlagen. Bitte später erneut versuchen.");
+        return;
+      }
+
+      form.reset();
+      setWarning(payload?.warning || "");
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+      setError("Netzwerkfehler. Bitte später erneut versuchen oder anrufen.");
+    }
   }
 
   return (
@@ -47,6 +74,17 @@ export function ContactForm({
       <p className="mt-3 max-w-md text-[color:var(--muted)]">{intro}</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-5">
+        {/* Honeypot */}
+        <label className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0">
+          Website
+          <input
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </label>
+
         <label className="block">
           <span className="mb-2 block text-sm text-[color:var(--muted)]">Name</span>
           <input
@@ -90,17 +128,40 @@ export function ContactForm({
             placeholder="Dein Anliegen"
           />
         </label>
-        <button type="submit" className="btn-primary mt-2">
-          E-Mail öffnen
+        <button
+          type="submit"
+          className="btn-primary mt-2"
+          disabled={status === "sending"}
+        >
+          {status === "sending" ? "Wird gesendet …" : "Anfrage senden"}
         </button>
-        {status === "ready" ? (
-          <p className="text-sm text-[color:var(--muted)]">
-            Dein E-Mail-Programm sollte sich öffnen. Alternativ direkt an{" "}
-            <a href={`mailto:${to}`} className="text-[color:var(--red)] underline-offset-2 hover:underline">
-              {to}
+
+        {status === "sent" ? (
+          <p className="text-sm leading-relaxed text-[color:var(--ink)]">
+            Danke — deine Anfrage ist angekommen. Du bekommst eine Bestätigung
+            per E-Mail, und wir melden uns.
+            {warning ? (
+              <span className="mt-2 block text-[color:var(--muted)]">
+                Hinweis: {warning}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+
+        {status === "error" ? (
+          <p className="text-sm text-[color:var(--red)]">
+            {error} Alternativ:{" "}
+            <a
+              href={site.emailHref}
+              className="underline-offset-2 hover:underline"
+            >
+              {site.email}
             </a>{" "}
-            schreiben oder anrufen:{" "}
-            <a href={site.phoneHref} className="text-[color:var(--red)] underline-offset-2 hover:underline">
+            oder{" "}
+            <a
+              href={site.phoneHref}
+              className="underline-offset-2 hover:underline"
+            >
               {site.phone}
             </a>
             .

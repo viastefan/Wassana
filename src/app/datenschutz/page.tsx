@@ -109,10 +109,11 @@ export default function DatenschutzPage() {
                 verarbeitet (Art. 6 Abs. 1 lit. b DSGVO bzw. lit. f DSGVO).
               </p>
               <p className="mt-3">
-                Das Kontaktformular öffnet in der Regel Ihr lokales
-                E-Mail-Programm (mailto). Eine Speicherung der Formulardaten auf
-                unserem Server findet dabei nicht statt. Die Übermittlung erfolgt
-                über Ihren E-Mail-Anbieter.
+                Über das Kontaktformular werden Ihre Angaben an unseren Server
+                übermittelt, dort zur Bearbeitung gespeichert und per E-Mail an
+                uns sowie als Bestätigung an Ihre angegebene Adresse versendet.
+                Die Speicherung erfolgt nur so lange, wie es für die Bearbeitung
+                der Anfrage erforderlich ist.
               </p>
             </section>
           </Reveal>

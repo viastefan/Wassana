@@ -82,7 +82,7 @@ export default function KontaktPage() {
         </Reveal>
 
         <Reveal delay={1}>
-          <ContactForm />
+          <ContactForm source="kontakt" />
         </Reveal>
       </section>
     </main>

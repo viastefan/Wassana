@@ -72,10 +72,10 @@ export default function CateringPage() {
           </Reveal>
           <Reveal delay={1}>
             <ContactForm
-              to={site.email}
               subject="Catering Anfrage Landshut"
               title="Catering anfragen"
               intro="Kurz Anlass, Personenzahl und Wunschtermin — wir melden uns."
+              source="catering"
             />
           </Reveal>
         </div>

@@ -103,10 +103,10 @@ export default async function KochkursPage() {
           </Reveal>
           <Reveal delay={1}>
             <ContactForm
-              to={site.cookingEmail}
               subject="Kochkurs Anfrage Landshut"
               title="Kursplatz anfragen"
               intro="Name, Personenanzahl und Wunschtermin reichen völlig."
+              source="kochkurs"
             />
           </Reveal>
         </div>
