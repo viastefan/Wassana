@@ -2,7 +2,8 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 
 type MediaBandProps = {
-  src: string;
+  /** Empty/undefined = text-only band (layout adapts, no decorative photo). */
+  src?: string;
   alt: string;
   eyebrow?: string;
   title: string;
@@ -22,21 +23,26 @@ export function MediaBand({
   tone = "dark",
   height = "medium",
 }: MediaBandProps) {
+  const hasImage = Boolean(src?.trim());
   return (
     <section
       className={`media-band media-band--${height} ${
         tone === "soft" ? "media-band--soft" : ""
-      }`}
+      } ${hasImage ? "" : "media-band--plain"}`}
     >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        priority={priority}
-        className="media-band-image object-cover"
-        sizes="100vw"
-      />
-      <div className="media-band-veil" aria-hidden />
+      {hasImage ? (
+        <>
+          <Image
+            src={src!}
+            alt={alt}
+            fill
+            priority={priority}
+            className="media-band-image object-cover"
+            sizes="100vw"
+          />
+          <div className="media-band-veil" aria-hidden />
+        </>
+      ) : null}
       <div className="media-band-copy">
         {eyebrow ? <p className="media-band-eyebrow">{eyebrow}</p> : null}
         <h1 className="media-band-title">{title}</h1>

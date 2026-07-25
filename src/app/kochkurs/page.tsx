@@ -40,7 +40,8 @@ export default async function KochkursPage() {
   ]);
   const showNext = isPublicPromoVisible(course);
   const image = sanitizeCourseImage(course.image);
-  const midImage = alternateCourseImage(image);
+  const hasImage = Boolean(image);
+  const midImage = hasImage ? alternateCourseImage(image) : "";
   const pageTitle =
     course.pageTitle?.trim() || "Thai-Küche näher kennenlernen";
   const pageText =
@@ -92,12 +93,12 @@ export default async function KochkursPage() {
         <JsonLdCookingCourseEvent course={course} business={business} />
       ) : null}
       <MediaBand
-        src={image}
+        src={hasImage ? image : undefined}
         alt={`${course.title || "Thai Kochkurs"} bei Wassana in Landshut`}
         eyebrow="Kochkurs Landshut"
         title={pageTitle}
         text={pageText}
-        priority
+        priority={hasImage}
         height="short"
       />
 
@@ -139,16 +140,22 @@ export default async function KochkursPage() {
       ) : null}
 
       <section className="border-b border-[color:var(--line)]">
-        <div className="mx-auto grid max-w-6xl items-stretch md:grid-cols-2">
-          <div className="relative min-h-[240px] md:min-h-[320px]">
-            <Image
-              src={midImage}
-              alt="Thai-Gerichte und Atmosphäre beim Kochkurs bei Wassana"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </div>
+        <div
+          className={`mx-auto grid max-w-6xl items-stretch ${
+            midImage ? "md:grid-cols-2" : ""
+          }`}
+        >
+          {midImage ? (
+            <div className="relative min-h-[240px] md:min-h-[320px]">
+              <Image
+                src={midImage}
+                alt="Thai-Gerichte und Atmosphäre beim Kochkurs bei Wassana"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+          ) : null}
           <div className="flex flex-col justify-center bg-[color:var(--paper)] px-5 py-12 md:px-10 md:py-16">
             <Reveal>
               <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">

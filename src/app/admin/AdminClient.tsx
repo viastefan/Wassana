@@ -12,7 +12,7 @@ import {
 import { formatCourseDate } from "@/lib/cooking-course-format";
 import type { BusinessProfile } from "@/lib/business-profile-shared";
 import type { SiteContent } from "@/lib/site-content";
-import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
+import type { WeeklyMenuData } from "@/lib/weekly-menu-store-shared";
 import type { FullMenuData } from "@/lib/menu-store-shared";
 import {
   COURSE_IMAGE_OPTIONS,
@@ -20,6 +20,7 @@ import {
   type CookingCourseArchiveEntry,
   type CookingCourseData,
 } from "@/lib/cooking-course-shared";
+import { AdminImageField } from "@/components/admin/AdminImageField";
 import type { ContactInquiry, InquiryStatus } from "@/lib/inquiries-shared";
 import {
   inquirySourceLabel,
@@ -2096,34 +2097,14 @@ export function AdminClient() {
                 </Section>
 
                 <Section title="Bild für Unterseite">
-                  <p className="mb-2 text-sm text-[color:var(--admin-muted)]">
-                    Schmückt den Hero auf /kochkurs.
-                  </p>
-                  <div className="admin-image-grid">
-                    {COURSE_IMAGE_OPTIONS.map((option) => {
-                      const selected = course.image === option.src;
-                      return (
-                        <button
-                          key={option.src}
-                          type="button"
-                          className={`admin-image-option ${selected ? "is-selected" : ""}`}
-                          onClick={() =>
-                            setCourse((c) => ({ ...c, image: option.src }))
-                          }
-                          aria-pressed={selected}
-                        >
-                          <Image
-                            src={option.src}
-                            alt={option.label}
-                            width={160}
-                            height={100}
-                            className="admin-image-option-img"
-                          />
-                          <span>{option.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <AdminImageField
+                    value={course.image || ""}
+                    onChange={(image) => setCourse((c) => ({ ...c, image }))}
+                    presets={COURSE_IMAGE_OPTIONS}
+                    allowEmpty
+                    folder="kochkurs"
+                    hint="Schmückt den Hero und die Bildfläche auf /kochkurs. Ohne Bild erscheint nur der Text — Layout passt sich an."
+                  />
                 </Section>
 
                 <Section title="Texte auf /kochkurs">

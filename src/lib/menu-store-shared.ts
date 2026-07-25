@@ -6,6 +6,8 @@ export type FullMenuItem = {
   description: string;
   price: string;
   allergens: string;
+  /** Optional photo URL (Admin upload). Not shown on the public Speisekarte yet. */
+  image?: string;
 };
 
 export type FullMenuSection = {
@@ -34,7 +36,14 @@ export function slugifyMenuId(title: string): string {
 }
 
 export function blankMenuItem(): FullMenuItem {
-  return { nr: "", name: "", description: "", price: "", allergens: "" };
+  return {
+    nr: "",
+    name: "",
+    description: "",
+    price: "",
+    allergens: "",
+    image: "",
+  };
 }
 
 export function blankMenuSection(title = "Neue Kategorie"): FullMenuSection {

@@ -18,6 +18,7 @@ import {
   type FullMenuItem,
   type FullMenuSection,
 } from "@/lib/menu-store-shared";
+import { AdminImageField } from "@/components/admin/AdminImageField";
 import {
   Field,
   ScreenHeader,
@@ -380,6 +381,7 @@ export function AdminFullMenuEditor({
                     <p className="admin-dish-row-meta">
                       {item.price || "kein Preis"}
                       {item.allergens ? ` · ${item.allergens}` : ""}
+                      {item.image ? " · Bild hinterlegt" : ""}
                       {item.description
                         ? ` · ${item.description.slice(0, 48)}${
                             item.description.length > 48 ? "…" : ""
@@ -530,6 +532,18 @@ export function AdminFullMenuEditor({
                       placeholder="optional"
                     />
                   </Field>
+                  <div className="admin-field-wrap">
+                    <span className="admin-field-label">Bild</span>
+                    <AdminImageField
+                      value={draftItem.image || ""}
+                      onChange={(image) =>
+                        setDraftItem({ ...draftItem, image })
+                      }
+                      allowEmpty
+                      folder="gerichte"
+                      hint="Nur im Admin gespeichert — auf der öffentlichen Speisekarte noch nicht sichtbar."
+                    />
+                  </div>
                 </>
               ) : null}
 
