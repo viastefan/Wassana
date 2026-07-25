@@ -1445,12 +1445,6 @@ a.btn-ghost:hover {
   text-align: left;
 }
 
-.mobile-nav-caret {
-  margin-left: auto;
-  font-size: 0.75rem;
-  opacity: 0.7;
-}
-
 .mobile-contact-panel {
   display: grid;
   grid-template-rows: 0fr;
@@ -1470,8 +1464,8 @@ a.btn-ghost:hover {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  margin: 0.2rem 0 0.2rem 2.4rem;
-  padding: 0.55rem 0.75rem;
+  margin: 0.15rem 0 0.15rem 3rem;
+  padding: 0.5rem 0.65rem;
   border-left: 2px solid var(--gold-soft);
   color: var(--ink) !important;
   text-decoration: none;
@@ -1487,7 +1481,7 @@ a.btn-ghost:hover {
   color: var(--muted);
 }
 
-/* Mobiles Menü: smooth ein-/ausfahren, zentriert */
+/* Mobiles Menü: ein-/ausfahren, linksbündig untereinander */
 .mobile-nav {
   display: grid;
   grid-template-rows: 0fr;
@@ -1516,16 +1510,17 @@ a.btn-ghost:hover {
 
 .mobile-nav-list {
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
+  align-items: stretch;
+  width: min(18rem, 100%);
+  gap: 0.1rem;
 }
 
 .mobile-nav-list li {
-  width: min(16rem, 100%);
+  width: 100%;
   opacity: 0;
   transform: translateY(-10px);
   transition:
@@ -1539,16 +1534,16 @@ a.btn-ghost:hover {
 }
 
 .mobile-nav-link {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
   align-items: baseline;
-  justify-content: center;
-  gap: 0.85rem;
+  column-gap: 0.75rem;
   width: 100%;
-  padding: 0.95rem 0.5rem;
+  padding: 0.7rem 0.35rem;
   color: var(--ink) !important;
-  font-size: 1.35rem;
+  font-size: 1.28rem;
   letter-spacing: 0.04em;
-  text-align: center;
+  text-align: left;
   border-bottom: 1px solid transparent;
   transition: color 0.2s ease, border-color 0.2s ease;
 }
@@ -1563,10 +1558,18 @@ a.btn-ghost:hover {
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   color: var(--gold);
+  text-align: right;
+}
+
+.mobile-nav-caret {
+  margin-left: 0;
+  justify-self: end;
+  font-size: 0.75rem;
+  opacity: 0.7;
 }
 
 .mobile-nav-meta {
-  margin: 1.4rem 0 0;
+  margin: 1.15rem 0 0;
   text-align: center;
   font-size: 0.78rem;
   letter-spacing: 0.04em;
