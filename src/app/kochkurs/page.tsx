@@ -283,14 +283,14 @@ export default async function KochkursPage() {
               möglich.
             </p>
           </Reveal>
-          <div className="side-form-sticky">
+          <aside className="side-form-sticky" aria-label="Kochkurs-Anfrage">
             <ContactForm
               subject="Kochkurs Anfrage Landshut"
               title="Kursplatz anfragen"
               intro="Name, Personenanzahl und Wunschtermin reichen völlig."
               source="kochkurs"
             />
-          </div>
+          </aside>
         </div>
       </section>
     </main>

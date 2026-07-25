@@ -124,14 +124,14 @@ export default async function CateringPage() {
               .
             </p>
           </Reveal>
-          <div className="side-form-sticky">
+          <aside className="side-form-sticky" aria-label="Catering-Anfrage">
             <ContactForm
               subject="Catering Anfrage Landshut"
               title="Catering anfragen"
               intro="Kurz Anlass, Personenzahl und Wunschtermin — wir melden uns."
               source="catering"
             />
-          </div>
+          </aside>
         </div>
       </section>
     </main>
