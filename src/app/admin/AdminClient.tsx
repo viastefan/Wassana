@@ -1642,8 +1642,6 @@ export function AdminClient() {
           </div>
         ) : (
           <>
-            {installBlock}
-
             {tab === "home" ? (
               <section className="space-y-4">
                 <div className="admin-live-hero">

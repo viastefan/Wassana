@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { AllergenLegend, AllergenMarks } from "@/components/AllergenLegend";
 import { DishInfoButton } from "@/components/DishInfoButton";
 import { MenuPdfDownload } from "@/components/MenuPdfDownload";
@@ -40,17 +41,33 @@ function ItemRow({
   );
 }
 
+function Motion({
+  animate,
+  delay = 0,
+  children,
+}: {
+  animate: boolean;
+  delay?: 0 | 1 | 2;
+  children: ReactNode;
+}) {
+  if (!animate) return <>{children}</>;
+  return <Reveal delay={delay}>{children}</Reveal>;
+}
+
 export function Wochenkarte({
   compact = false,
   menu,
+  animate = true,
 }: {
   compact?: boolean;
   menu: WeeklyMenuData;
+  /** Scroll/reveal animations — off on Speisekarte page */
+  animate?: boolean;
 }) {
   return (
     <section id="wochenkarte" className={compact ? "" : "bg-[color:var(--bg)]"}>
       <div className={compact ? "" : "mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-24"}>
-        <Reveal>
+        <Motion animate={animate}>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
             Diese Woche bei Wassana
           </p>
@@ -64,11 +81,15 @@ export function Wochenkarte({
             </div>
           </div>
           <div className="gold-rule mt-5" />
-        </Reveal>
+        </Motion>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {menu.days.map((day, index) => (
-            <Reveal key={`${day.day}-${index}`} delay={(index % 3) as 0 | 1 | 2}>
+            <Motion
+              key={`${day.day}-${index}`}
+              animate={animate}
+              delay={(index % 3) as 0 | 1 | 2}
+            >
               <article className="h-full border-t border-[color:var(--gold-soft)] px-4 pt-5 sm:px-0">
                 <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
                   {day.day}
@@ -115,19 +136,19 @@ export function Wochenkarte({
                   ))}
                 </div>
               </article>
-            </Reveal>
+            </Motion>
           ))}
         </div>
 
         {compact ? (
-          <Reveal>
+          <Motion animate={animate}>
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link href="/speisekarte" className="btn-primary">
                 Zur vollständigen Speisekarte
               </Link>
               <AllergenLegend variant="link" />
             </div>
-          </Reveal>
+          </Motion>
         ) : null}
       </div>
     </section>
@@ -164,72 +185,68 @@ export function SpeisekarteFull({
           </div>
         </div>
 
-        <Wochenkarte menu={menu} />
+        <Wochenkarte menu={menu} animate={false} />
 
         <div className="mt-8 space-y-16">
           {sections.map((section) => (
-            <Reveal key={section.id}>
-              <div id={section.id}>
-                <h3 className="font-display text-3xl text-[color:var(--ink)]">
-                  {section.title}
-                </h3>
-                {section.note ? (
-                  <p className="mt-2 text-sm text-[color:var(--muted)]">
-                    {section.note}
-                  </p>
-                ) : null}
-                <div className="gold-rule mt-4" />
-                <div className="mt-2">
-                  {section.items.map((item, idx) => (
-                    <ItemRow
-                      key={`${section.id}-${item.nr}-${idx}`}
-                      nr={item.nr}
-                      name={item.name}
-                      description={item.description}
-                      price={item.price}
-                      allergens={item.allergens}
-                    />
-                  ))}
-                </div>
+            <div key={section.id} id={section.id}>
+              <h3 className="font-display text-3xl text-[color:var(--ink)]">
+                {section.title}
+              </h3>
+              {section.note ? (
+                <p className="mt-2 text-sm text-[color:var(--muted)]">
+                  {section.note}
+                </p>
+              ) : null}
+              <div className="gold-rule mt-4" />
+              <div className="mt-2">
+                {section.items.map((item, idx) => (
+                  <ItemRow
+                    key={`${section.id}-${item.nr}-${idx}`}
+                    nr={item.nr}
+                    name={item.name}
+                    description={item.description}
+                    price={item.price}
+                    allergens={item.allergens}
+                  />
+                ))}
               </div>
-            </Reveal>
+            </div>
           ))}
         </div>
 
-        <Reveal>
-          <div
-            id="kennzeichnung"
-            className="allergen-legend-block mt-16 border-t border-[color:var(--line)] pt-8"
-          >
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                  Hinweise & Kennzeichnung
-                </p>
-                <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[color:var(--muted)]">
-                  Hochgestellte Zeichen neben den Gerichten stehen für Zusatzstoffe
-                  und Allergene. Schärfe nach Wunsch: nicht scharf – leicht scharf –
-                  mittelscharf – scharf – sehr scharf. Extra Soße 0,10 €. Getränke
-                  mit * inkl. 0,15 € Pfand.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <AllergenLegend variant="button" />
-                <MenuPdfDownload
-                  className="btn-primary"
-                  label="Als PDF speichern"
-                />
-              </div>
+        <div
+          id="kennzeichnung"
+          className="allergen-legend-block mt-16 border-t border-[color:var(--line)] pt-8"
+        >
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
+                Hinweise & Kennzeichnung
+              </p>
+              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[color:var(--muted)]">
+                Hochgestellte Zeichen neben den Gerichten stehen für Zusatzstoffe
+                und Allergene. Schärfe nach Wunsch: nicht scharf – leicht scharf –
+                mittelscharf – scharf – sehr scharf. Extra Soße 0,10 €. Getränke
+                mit * inkl. 0,15 € Pfand.
+              </p>
             </div>
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              {allergens.map((item) => (
-                <p key={item.code} className="text-sm text-[color:var(--muted)]">
-                  <span className="allergen-code">{item.code}</span> {item.label}
-                </p>
-              ))}
+            <div className="flex flex-wrap items-center gap-3">
+              <AllergenLegend variant="button" />
+              <MenuPdfDownload
+                className="btn-primary"
+                label="Als PDF speichern"
+              />
             </div>
           </div>
-        </Reveal>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+            {allergens.map((item) => (
+              <p key={item.code} className="text-sm text-[color:var(--muted)]">
+                <span className="allergen-code">{item.code}</span> {item.label}
+              </p>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

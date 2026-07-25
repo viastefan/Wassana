@@ -47,7 +47,7 @@ export default async function HomePage() {
     <main>
       <JsonLdBreadcrumbs items={[{ name: "Start", path: "/" }]} />
       <JsonLdFaqPage items={landshutFaqs} />
-      <section className="relative min-h-[100svh] overflow-hidden">
+      <section className="relative min-h-[78svh] overflow-hidden md:min-h-[100svh]">
         <Image
           src="/images/hero.jpg"
           alt="Thai-Gericht zum Mitnehmen bei Wassana Thai Imbiss in Landshut"
@@ -61,12 +61,12 @@ export default async function HomePage() {
           style={{ background: "var(--hero-overlay)" }}
           aria-hidden
         />
-        <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
+        <div className="relative mx-auto flex min-h-[78svh] max-w-6xl flex-col justify-end px-5 pb-12 pt-24 md:min-h-[100svh] md:px-8 md:pb-24 md:pt-28">
           <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
             {content.hero.eyebrow.trim() ||
               "Thai Imbiss und Feinkost · Landshut"}
           </p>
-          <h1 className="hero-copy-delay font-display mt-3 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
+          <h1 className="hero-copy-delay font-display mt-3 text-[clamp(2.85rem,10vw,6.75rem)] leading-[0.92] text-white md:text-[clamp(3.4rem,11vw,6.75rem)]">
             Willkommen
             <br />
             bei Wassana
