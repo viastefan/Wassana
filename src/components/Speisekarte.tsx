@@ -128,9 +128,9 @@ export function SpeisekarteFull({
   return (
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
-        <div className="menu-sticky sticky z-20 -mx-5 mb-10 border-b border-[color:var(--line)] bg-[color:var(--bg)] px-5 py-3 md:-mx-8 md:px-8">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1">
+        <div className="menu-sticky sticky z-20 -mx-5 mb-8 border-b border-[color:var(--line)] bg-[color:var(--bg)] px-5 py-3 md:-mx-8 md:mb-10 md:px-8">
+          <div className="menu-sticky-row">
+            <div className="menu-sticky-chips">
               <a href="#wochenkarte" className="chip">
                 Wochenkarte
               </a>
@@ -141,7 +141,10 @@ export function SpeisekarteFull({
               ))}
               <AllergenLegend variant="chip" />
             </div>
-            <MenuPdfDownload className="btn-gold !px-3 !py-2 text-sm shrink-0" />
+            <MenuPdfDownload
+              className="btn-gold menu-sticky-pdf"
+              label="Als PDF"
+            />
           </div>
         </div>
 

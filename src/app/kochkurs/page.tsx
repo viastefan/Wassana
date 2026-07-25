@@ -217,7 +217,7 @@ export default async function KochkursPage() {
       ) : null}
 
       <section className="course-flow-band" aria-labelledby="course-flow-heading">
-        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-[var(--section-y)] md:grid-cols-2 md:items-start md:gap-16 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-[var(--section-y)] md:grid-cols-2 md:items-start md:gap-16 md:px-8">
           <Reveal>
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
               So läuft es

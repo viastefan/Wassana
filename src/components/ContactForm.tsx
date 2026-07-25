@@ -80,10 +80,14 @@ export function ContactForm({
 
   return (
     <div>
-      <h2 className="font-display text-3xl text-[color:var(--red)]">{title}</h2>
-      <p className="mt-3 max-w-md text-[color:var(--muted)]">{intro}</p>
+      <h2 className="font-display text-2xl text-[color:var(--red)] md:text-3xl">
+        {title}
+      </h2>
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-[color:var(--muted)] md:mt-3 md:text-base">
+        {intro}
+      </p>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-5">
+      <form onSubmit={onSubmit} className="mt-6 space-y-4 md:mt-8 md:space-y-5">
         {/* Honeypot */}
         <label className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0">
           Website
@@ -101,7 +105,7 @@ export function ContactForm({
             name="name"
             required
             autoComplete="name"
-            className="w-full border-b border-[color:var(--line)] bg-transparent py-3 outline-none transition focus:border-[color:var(--red)]"
+            className="w-full border-b border-[color:var(--line)] bg-transparent py-2.5 outline-none transition focus:border-[color:var(--red)] md:py-3"
             placeholder="Dein Name"
           />
         </label>
@@ -112,7 +116,7 @@ export function ContactForm({
             name="email"
             required
             autoComplete="email"
-            className="w-full border-b border-[color:var(--line)] bg-transparent py-3 outline-none transition focus:border-[color:var(--red)]"
+            className="w-full border-b border-[color:var(--line)] bg-transparent py-2.5 outline-none transition focus:border-[color:var(--red)] md:py-3"
             placeholder="name@mail.de"
           />
         </label>
@@ -124,7 +128,7 @@ export function ContactForm({
             type="tel"
             name="phone"
             autoComplete="tel"
-            className="w-full border-b border-[color:var(--line)] bg-transparent py-3 outline-none transition focus:border-[color:var(--red)]"
+            className="w-full border-b border-[color:var(--line)] bg-transparent py-2.5 outline-none transition focus:border-[color:var(--red)] md:py-3"
             placeholder="0871 …"
           />
         </label>
@@ -134,7 +138,7 @@ export function ContactForm({
             name="message"
             required
             rows={4}
-            className="w-full resize-y border-b border-[color:var(--line)] bg-transparent py-3 outline-none transition focus:border-[color:var(--red)]"
+            className="w-full resize-y border-b border-[color:var(--line)] bg-transparent py-2.5 outline-none transition focus:border-[color:var(--red)] md:py-3"
             placeholder="Dein Anliegen"
           />
         </label>

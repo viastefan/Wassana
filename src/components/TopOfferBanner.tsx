@@ -80,7 +80,7 @@ export function TopOfferBanner({
           <>
             {" "}
             <span
-              className="font-semibold whitespace-nowrap"
+              className="font-semibold"
               style={{ color: banner.highlightColor }}
             >
               {banner.highlight}
