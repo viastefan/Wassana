@@ -60,8 +60,19 @@ function formatWhen(iso: string) {
   }
 }
 
-const fieldClass =
-  "mt-2 w-full border border-[color:var(--line)] bg-[color:var(--paper)] px-4 py-3 text-[color:var(--ink)] outline-none focus:border-[color:var(--red)]";
+const fieldClass = "admin-field";
+
+const NAV_META: Record<
+  Tab,
+  { label: string; glyph: string; title: string }
+> = {
+  home: { label: "Home", glyph: "HO", title: "Übersicht" },
+  course: { label: "Kurs", glyph: "KK", title: "Kochkurs" },
+  inbox: { label: "Post", glyph: "IN", title: "Anfragen" },
+  banner: { label: "Banner", glyph: "BN", title: "Top-Banner" },
+  content: { label: "Texte", glyph: "TX", title: "Website-Texte" },
+  menu: { label: "Menü", glyph: "WK", title: "Wochenkarte" },
+};
 
 export function AdminClient() {
   const [authed, setAuthed] = useState(false);
@@ -376,124 +387,166 @@ export function AdminClient() {
 
   const nav = useMemo(
     () =>
-      [
-        { id: "home" as const, label: "Home" },
-        { id: "course" as const, label: "Kurs" },
-        {
-          id: "inbox" as const,
-          label: unread > 0 ? `Post (${unread})` : "Post",
-        },
-        { id: "banner" as const, label: "Banner" },
-        { id: "content" as const, label: "Texte" },
-        { id: "menu" as const, label: "Menü" },
-      ] as const,
+      (["home", "course", "inbox", "banner", "content", "menu"] as const).map(
+        (id) => ({
+          id,
+          label:
+            id === "inbox" && unread > 0
+              ? `${NAV_META[id].label} ${unread}`
+              : NAV_META[id].label,
+          glyph: NAV_META[id].glyph,
+        }),
+      ),
     [unread],
   );
 
+  const installBlock = (
+    <section className="admin-install-hero mb-5">
+      <p className="admin-kicker !text-[color:var(--gold-soft)]">Web-App</p>
+      <h2 className="font-display mt-2 text-2xl text-white md:text-[1.7rem]">
+        {installed ? "App ist installiert" : "App jetzt herunterladen"}
+      </h2>
+      {installed ? (
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
+          Wassana Verwaltung läuft als App auf diesem Gerät — schnell öffnen,
+          wie eine echte Laden-App.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
+            Speichere die Verwaltung auf dem Homescreen. Danach startet sie
+            ohne Browser-Leiste — ideal fürs Handy im Laden.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {installEvent ? (
+              <button
+                type="button"
+                className="btn-primary !bg-white !text-[color:var(--red)] hover:!bg-[color:var(--bg)]"
+                onClick={() => void onInstall()}
+              >
+                App installieren
+              </button>
+            ) : (
+              <span className="admin-chip !bg-white/12 !text-white">
+                Bereit zum Speichern
+              </span>
+            )}
+          </div>
+          {!installEvent ? (
+            <p className="mt-3 text-xs leading-relaxed text-white/70">
+              iPhone: Teilen → „Zum Home-Bildschirm“. Android: Menü → „App
+              installieren“ / „Zum Startbildschirm“.
+            </p>
+          ) : null}
+        </>
+      )}
+    </section>
+  );
+
   return (
-    <div className="admin-shell min-h-[100svh] bg-[color:var(--bg)] text-[color:var(--ink)]">
-      <header className="sticky top-0 z-30 border-b border-[color:var(--line)] bg-[color:var(--paper)]/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
-          <Image
-            src="/admin/icon-192.png"
-            alt=""
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-xl object-contain"
-          />
+    <div className="admin-shell min-h-[100svh] text-[color:var(--ink)]">
+      <header className="admin-topbar">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3.5">
+          <div className="admin-brand-mark">
+            <Image
+              src="/admin/icon-192.png"
+              alt=""
+              width={40}
+              height={40}
+              className="h-9 w-9 object-contain"
+            />
+          </div>
           <div className="min-w-0 flex-1">
             <p className="truncate font-display text-lg text-[color:var(--red)]">
               Wassana Verwaltung
             </p>
             <p className="truncate text-xs text-[color:var(--muted)]">
-              Für den Besitzer · als App installierbar
+              Laden-App · Banner, Menü, Anfragen
             </p>
           </div>
           {authed ? (
-            <button type="button" className="btn-gold !px-3 !py-2 text-sm" onClick={onLogout}>
+            <button
+              type="button"
+              className="btn-gold !px-3 !py-2 text-sm"
+              onClick={onLogout}
+            >
               Raus
             </button>
-          ) : null}
+          ) : (
+            <span className="admin-chip is-live">Live</span>
+          )}
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 pb-28 pt-6">
+      <main className="mx-auto max-w-3xl px-4 pb-28 pt-5">
         {checking ? (
-          <p className="text-sm text-[color:var(--muted)]">Laden …</p>
-        ) : !authed ? (
-          <form onSubmit={onLogin} className="space-y-4">
-            <h1 className="font-display text-3xl text-[color:var(--red)]">
-              Anmelden
-            </h1>
-            <p className="text-[color:var(--muted)] leading-relaxed">
-              Hier verwaltest du Kochkurs, Anfragen, Website-Texte und die
-              Wochenkarte. Danach kannst du die App auf dem Handy speichern.
+          <div className="admin-login-card">
+            <p className="admin-kicker">Laden</p>
+            <p className="mt-2 font-display text-2xl text-[color:var(--red)]">
+              Verwaltung startet …
             </p>
-            <label className="block">
-              <span className="text-sm text-[color:var(--muted)]">Passwort</span>
-              <input
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={fieldClass}
-                required
-              />
-            </label>
-            {loginError ? (
-              <p className="text-sm text-[color:var(--red)]">{loginError}</p>
-            ) : null}
-            <button type="submit" className="btn-primary" disabled={saving}>
-              {saving ? "Prüfen …" : "Anmelden"}
-            </button>
-          </form>
+          </div>
+        ) : !authed ? (
+          <div className="space-y-5">
+            {installBlock}
+            <form onSubmit={onLogin} className="admin-login-card space-y-4">
+              <p className="admin-kicker">Zugang</p>
+              <h1 className="font-display text-3xl text-[color:var(--red)]">
+                Anmelden
+              </h1>
+              <p className="text-[color:var(--muted)] leading-relaxed">
+                Danach steuerst du Kochkurs, Anfragen, Banner, Texte und die
+                Wochenkarte — direkt als App.
+              </p>
+              <label className="block">
+                <span className="text-sm text-[color:var(--muted)]">
+                  Passwort
+                </span>
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={fieldClass}
+                  required
+                />
+              </label>
+              {loginError ? (
+                <p className="text-sm text-[color:var(--red)]">{loginError}</p>
+              ) : null}
+              <button type="submit" className="btn-primary" disabled={saving}>
+                {saving ? "Prüfen …" : "In die Verwaltung"}
+              </button>
+            </form>
+          </div>
         ) : (
           <>
-            <div className="mb-5 border border-[color:var(--line)] bg-[color:var(--paper)] px-4 py-4">
-              <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                App
-              </p>
-              {installed ? (
-                <p className="mt-2 text-sm text-[color:var(--muted)]">
-                  Läuft als installierte App auf diesem Gerät.
-                </p>
-              ) : (
-                <>
-                  <p className="mt-2 text-sm text-[color:var(--muted)]">
-                    Auf dem Startbildschirm speichern — wie eine richtige App
-                    für den Laden.
-                  </p>
-                  {installEvent ? (
-                    <button
-                      type="button"
-                      className="btn-primary mt-3"
-                      onClick={() => void onInstall()}
-                    >
-                      App installieren
-                    </button>
-                  ) : (
-                    <p className="mt-2 text-sm text-[color:var(--muted)]">
-                      iPhone: Teilen-Symbol → „Zum Home-Bildschirm“. Android:
-                      Browser-Menü → „App installieren“.
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
+            {!installed ? installBlock : null}
 
             {tab === "home" ? (
               <section className="space-y-4">
-                <h1 className="font-display text-3xl text-[color:var(--red)]">
-                  Übersicht
-                </h1>
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className="admin-kicker">Dashboard</p>
+                    <h1 className="font-display mt-1 text-3xl text-[color:var(--red)]">
+                      Übersicht
+                    </h1>
+                  </div>
+                  <span className="admin-chip is-live">
+                    {unread > 0 ? `${unread} neu` : "aktuell"}
+                  </span>
+                </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button
                     type="button"
-                    className="admin-card text-left"
+                    className="admin-card"
                     onClick={() => setTab("course")}
                   >
-                    <p className="text-sm text-[color:var(--gold)]">Kochkurs</p>
-                    <p className="mt-2 font-display text-xl text-[color:var(--red)]">
+                    <span className="admin-card-icon">KK</span>
+                    <p className="mt-3 text-sm text-[color:var(--gold)]">
+                      Kochkurs
+                    </p>
+                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
                       {course.title || "Termin"}
                     </p>
                     <p className="mt-1 text-sm text-[color:var(--muted)]">
@@ -505,11 +558,14 @@ export function AdminClient() {
                   </button>
                   <button
                     type="button"
-                    className="admin-card text-left"
+                    className="admin-card"
                     onClick={() => setTab("inbox")}
                   >
-                    <p className="text-sm text-[color:var(--gold)]">Anfragen</p>
-                    <p className="mt-2 font-display text-xl text-[color:var(--red)]">
+                    <span className="admin-card-icon">IN</span>
+                    <p className="mt-3 text-sm text-[color:var(--gold)]">
+                      Anfragen
+                    </p>
+                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
                       {unread > 0 ? `${unread} neu` : "Posteingang"}
                     </p>
                     <p className="mt-1 text-sm text-[color:var(--muted)]">
@@ -518,11 +574,14 @@ export function AdminClient() {
                   </button>
                   <button
                     type="button"
-                    className="admin-card text-left"
+                    className="admin-card"
                     onClick={() => setTab("banner")}
                   >
-                    <p className="text-sm text-[color:var(--gold)]">Top-Banner</p>
-                    <p className="mt-2 font-display text-xl text-[color:var(--red)]">
+                    <span className="admin-card-icon">BN</span>
+                    <p className="mt-3 text-sm text-[color:var(--gold)]">
+                      Top-Banner
+                    </p>
+                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
                       {content?.topBanner?.active ? "Sichtbar" : "Aus"}
                     </p>
                     <p className="mt-1 text-sm text-[color:var(--muted)]">
@@ -531,11 +590,14 @@ export function AdminClient() {
                   </button>
                   <button
                     type="button"
-                    className="admin-card text-left"
+                    className="admin-card"
                     onClick={() => setTab("content")}
                   >
-                    <p className="text-sm text-[color:var(--gold)]">Website</p>
-                    <p className="mt-2 font-display text-xl text-[color:var(--red)]">
+                    <span className="admin-card-icon">TX</span>
+                    <p className="mt-3 text-sm text-[color:var(--gold)]">
+                      Website
+                    </p>
+                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
                       Texte ändern
                     </p>
                     <p className="mt-1 text-sm text-[color:var(--muted)]">
@@ -544,15 +606,18 @@ export function AdminClient() {
                   </button>
                   <button
                     type="button"
-                    className="admin-card text-left"
+                    className="admin-card sm:col-span-2"
                     onClick={() => setTab("menu")}
                   >
-                    <p className="text-sm text-[color:var(--gold)]">Speisekarte</p>
-                    <p className="mt-2 font-display text-xl text-[color:var(--red)]">
-                      Wochenkarte
+                    <span className="admin-card-icon">WK</span>
+                    <p className="mt-3 text-sm text-[color:var(--gold)]">
+                      Speisekarte
+                    </p>
+                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
+                      Wochenkarte pflegen
                     </p>
                     <p className="mt-1 text-sm text-[color:var(--muted)]">
-                      Mo–Fr Gerichte pflegen
+                      Mo–Fr Gerichte & Preise aktualisieren
                     </p>
                   </button>
                 </div>
@@ -1278,18 +1343,16 @@ export function AdminClient() {
             ) : null}
 
             {error ? (
-              <p className="mt-5 text-sm text-[color:var(--red)]">{error}</p>
+              <p className="admin-toast is-error">{error}</p>
             ) : null}
-            {status ? (
-              <p className="mt-5 text-sm text-[color:var(--ink)]">{status}</p>
-            ) : null}
+            {status ? <p className="admin-toast">{status}</p> : null}
           </>
         )}
       </main>
 
       {authed ? (
-        <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-30 border-t border-[color:var(--line)] bg-[color:var(--paper)]/95 backdrop-blur-md">
-          <div className="mx-auto grid max-w-3xl grid-cols-6 gap-1 px-1 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-40">
+          <div className="mx-auto grid max-w-3xl grid-cols-6 gap-1 px-1.5 py-2 pb-[max(0.55rem,env(safe-area-inset-bottom))]">
             {nav.map((item) => (
               <button
                 key={item.id}
@@ -1304,13 +1367,11 @@ export function AdminClient() {
                   }
                   if (item.id === "menu") void loadWeekly();
                 }}
-                className={`rounded-lg px-0.5 py-2 text-center text-[0.62rem] leading-tight transition ${
-                  tab === item.id
-                    ? "bg-[color:var(--red)] text-white"
-                    : "text-[color:var(--muted)]"
-                }`}
+                className={`admin-tab ${tab === item.id ? "is-active" : ""}`}
+                aria-current={tab === item.id ? "page" : undefined}
               >
-                {item.label}
+                <span className="admin-tab-glyph">{item.glyph}</span>
+                <span className="admin-tab-label">{item.label}</span>
               </button>
             ))}
           </div>

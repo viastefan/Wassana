@@ -7,10 +7,14 @@ export const metadata: Metadata = {
   description: "Kochkurs, Anfragen und Website-Inhalte verwalten.",
   robots: { index: false, follow: false },
   manifest: "/admin.webmanifest",
+  applicationName: "Wassana Verwaltung",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Wassana",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
   },
   icons: {
     icon: [
