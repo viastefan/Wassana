@@ -66,7 +66,8 @@ In Vercel: Variable `GITHUB_TOKEN` = Token, optional `GITHUB_REPO=viastefan/Wass
    - Meta: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel setzen → Redeploy
 3. **Sitemap** einreichen: `https://www.wassana-thai-imbiss.de/sitemap.xml`
 4. **URL-Prüfung** → Indexierung beantragen für:
-   - `/` · `/speisekarte` · `/kontakt` · `/catering` · `/kochkurs`
+   - `/` · `/speisekarte` · `/mitnehmen` · `/schueler-mittagessen`
+   - `/kontakt` · `/anfahrt` · `/catering` · `/kochkurs` · `/ueber-uns`
 5. **Verbesserungen → Rich-Suchergebnisse** prüfen (FAQ, Event, Breadcrumbs)
 6. Optional: Bing Webmaster Tools mit derselben Sitemap
 

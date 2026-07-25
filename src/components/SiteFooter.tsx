@@ -13,6 +13,17 @@ type SiteFooterProps = {
   };
 };
 
+const exploreLinks = [
+  { href: "/speisekarte", label: "Speisekarte" },
+  { href: "/mitnehmen", label: "Mitnehmen" },
+  { href: "/schueler-mittagessen", label: "Schüler-Mittagessen" },
+  { href: "/catering", label: "Catering" },
+  { href: "/kochkurs", label: "Kochkurs" },
+  { href: "/ueber-uns", label: "Über uns" },
+  { href: "/anfahrt", label: "Anfahrt" },
+  { href: "/kontakt", label: "Kontakt" },
+] as const;
+
 export function SiteFooter({ hours }: SiteFooterProps) {
   const business = useBusiness();
   const weekdaysLong = hours?.weekdaysLong || site.hours.weekdaysLong;
@@ -20,7 +31,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
 
   return (
     <footer className="site-footer border-t border-[color:var(--line)]">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.3fr_1fr_1fr] md:px-8">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-2 lg:grid-cols-4 md:px-8">
         <div>
           <Link href="/" className="inline-flex items-center gap-3">
             <Image
@@ -40,6 +51,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-[color:var(--muted)]">
             <Link
               href="/admin"
+              rel="nofollow"
               className="text-[color:var(--muted)] transition hover:text-[color:var(--muted)]"
               title="Intern"
               aria-label="Intern: Verwaltung"
@@ -57,18 +69,33 @@ export function SiteFooter({ hours }: SiteFooterProps) {
 
         <div>
           <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
+            Entdecken
+          </p>
+          <div className="mt-3 flex flex-col gap-2 text-[color:var(--ink)]">
+            {exploreLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="hover:text-[color:var(--red)]"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
             Öffnungszeiten
           </p>
           <p className="mt-3 text-[color:var(--ink)]">{weekdaysLong}</p>
           <p className="mt-1 text-sm text-[color:var(--muted)]">{weekend}</p>
-          <a
-            href={business.maps.place}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/anfahrt"
             className="mt-5 inline-block text-sm text-[color:var(--red)] underline-offset-4 hover:underline"
           >
-            Google Maps
-          </a>
+            Anfahrt & Karte
+          </Link>
         </div>
 
         <div>

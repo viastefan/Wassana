@@ -41,6 +41,7 @@ export function LocationSection({
                 <p className="text-lg text-[color:var(--ink)]">
                   <Link
                     href="/admin"
+                    rel="nofollow"
                     className="text-[color:var(--ink)] transition hover:text-[color:var(--ink)]"
                     title="Intern"
                     aria-label="Intern: Kochkurs verwalten"

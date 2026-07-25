@@ -21,10 +21,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.95,
     },
     {
+      url: `${base}/mitnehmen`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${base}/schueler-mittagessen`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${base}/kontakt`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.9,
+    },
+    {
+      url: `${base}/anfahrt`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.88,
     },
     {
       url: `${base}/catering`,
@@ -37,6 +55,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "weekly",
       priority: 0.85,
+    },
+    {
+      url: `${base}/ueber-uns`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.8,
     },
     {
       url: `${base}/impressum`,

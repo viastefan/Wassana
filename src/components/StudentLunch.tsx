@@ -67,13 +67,18 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
             {offer.price}
           </p>
           <p className="mt-3 text-sm text-[color:var(--muted)]">{offer.note}</p>
-          <button
-            type="button"
-            className="btn-primary mt-8 inline-flex"
-            onClick={() => offerPopup?.openOffer()}
-          >
-            Mehr erfahren
-          </button>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              className="btn-primary inline-flex"
+              onClick={() => offerPopup?.openOffer()}
+            >
+              Mehr erfahren
+            </button>
+            <Link href="/schueler-mittagessen" className="btn-gold inline-flex">
+              Zur Angebotsseite
+            </Link>
+          </div>
         </Reveal>
       </div>
     </section>

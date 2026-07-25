@@ -236,12 +236,12 @@ export default async function HomePage() {
               Mittagspause in Landshut oder zum Mitnehmen nach Hause.
             </p>
             <div className="takeaway-band-actions">
-              <Link href="/speisekarte" className="btn-primary">
-                Speisekarte ansehen
+              <Link href="/mitnehmen" className="btn-primary">
+                Mitnehmen & Abholen
               </Link>
-              <a href={business.phoneHref} className="btn-ghost">
-                {business.phone}
-              </a>
+              <Link href="/speisekarte" className="btn-ghost">
+                Speisekarte
+              </Link>
             </div>
           </Reveal>
         </div>

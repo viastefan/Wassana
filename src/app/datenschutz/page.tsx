@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { site } from "@/lib/site";
@@ -8,8 +9,16 @@ export const metadata: Metadata = {
   title: "Datenschutzerklärung",
   description: `Datenschutzerklärung von ${site.fullName} in ${site.address.city} — Informationen zu Cookies, Google Maps, Kontaktformular, Hosting und Bildern gemäß DSGVO und TTDSG.`,
   alternates: { canonical: "/datenschutz" },
+  openGraph: {
+    title: "Datenschutz | Wassana Thai Imbiss Landshut",
+    description:
+      "Informationen zu Cookies, Google Maps, Kontaktformular und Hosting gemäß DSGVO.",
+    url: "/datenschutz",
+  },
   robots: { index: true, follow: true },
 };
+
+export const dynamic = "force-dynamic";
 
 const lastUpdated = "25. Juli 2026";
 
@@ -17,6 +26,12 @@ export default async function DatenschutzPage() {
   const business = await getResolvedBusiness();
   return (
     <main className="pt-24">
+      <JsonLdBreadcrumbs
+        items={[
+          { name: "Start", path: "/" },
+          { name: "Datenschutz", path: "/datenschutz" },
+        ]}
+      />
       <section className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-20">
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">

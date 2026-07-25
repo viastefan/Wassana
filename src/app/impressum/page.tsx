@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
@@ -9,6 +10,11 @@ export const metadata: Metadata = {
   title: "Impressum",
   description: `Impressum von ${site.fullName}, ${site.address.street}, ${site.address.zip} ${site.address.city}.`,
   alternates: { canonical: "/impressum" },
+  openGraph: {
+    title: "Impressum | Wassana Thai Imbiss Landshut",
+    description: `Rechtliche Angaben zu ${site.fullName} in Landshut.`,
+    url: "/impressum",
+  },
   robots: { index: true, follow: true },
 };
 
@@ -21,6 +27,12 @@ export default async function ImpressumPage() {
   ]);
   return (
     <main className="pt-24">
+      <JsonLdBreadcrumbs
+        items={[
+          { name: "Start", path: "/" },
+          { name: "Impressum", path: "/impressum" },
+        ]}
+      />
       <section className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-20">
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
