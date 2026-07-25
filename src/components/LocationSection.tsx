@@ -103,8 +103,8 @@ export function LocationSection({
         </Reveal>
 
         <Reveal delay={1} className="h-full">
-          <div className="flex h-full min-h-[340px] items-stretch border-t border-[color:var(--line)] md:min-h-0 md:border-t-0 md:border-l md:py-16 md:pr-8">
-            <div className="relative h-full min-h-[340px] w-full overflow-hidden">
+          <div className="flex h-full min-h-[340px] items-stretch border-t border-[color:var(--line)] md:min-h-0 md:border-t-0 md:py-16 md:pr-8">
+            <div className="relative h-full min-h-[340px] w-full overflow-hidden md:rounded-sm">
               <MapEmbed
                 title={`Karte: ${site.fullName}, ${site.address.street}, ${site.address.city}`}
               />
