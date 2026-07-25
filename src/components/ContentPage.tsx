@@ -32,7 +32,7 @@ export function ContentPage({
         priority
         height="short"
       />
-      <section className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
+      <section className="surface-section border-b">
         <div className="mx-auto max-w-3xl px-5 py-[var(--section-y)] md:px-8">
           <Reveal>
             <div className="space-y-8 text-[color:var(--muted)] leading-relaxed">

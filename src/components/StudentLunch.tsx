@@ -16,7 +16,7 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
     return (
       <aside
         aria-label={offer.eyebrow}
-        className="feature-band student-lunch-band border-y border-[color:var(--line)]"
+        className="feature-band student-lunch-band surface-section border-y"
       >
         <button
           type="button"
@@ -41,7 +41,7 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
   return (
     <section
       aria-labelledby="schueler-mittag-heading"
-      className="feature-band border-y border-[color:var(--line)]"
+      className="feature-band surface-section border-y"
     >
       <div className="mx-auto max-w-3xl px-5 py-14 text-center md:px-8 md:py-16">
         <Reveal>

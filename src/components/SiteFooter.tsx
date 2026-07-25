@@ -29,7 +29,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
   const weekend = hours?.weekend || site.hours.weekend;
 
   return (
-    <footer className="site-footer border-t border-[color:var(--line)]">
+    <footer className="site-footer border-t">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-2 lg:grid-cols-4 md:px-8">
         <div>
           <Link href="/" className="inline-flex items-center gap-3">
@@ -129,7 +129,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
         </div>
       </div>
 
-      <div className="border-t border-[color:var(--line)]">
+      <div className="site-footer-meta">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 text-sm text-[color:var(--muted)] md:flex-row md:items-center md:justify-between md:px-8">
           <p>
             © {new Date().getFullYear()} {business.fullName}
