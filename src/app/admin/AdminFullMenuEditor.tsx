@@ -1,7 +1,10 @@
 "use client";
 
 import {
+  useEffect,
+  useId,
   useMemo,
+  useRef,
   useState,
   type Dispatch,
   type FormEvent,
@@ -12,6 +15,7 @@ import {
   blankMenuSection,
   slugifyMenuId,
   type FullMenuData,
+  type FullMenuItem,
   type FullMenuSection,
 } from "@/lib/menu-store-shared";
 import {
@@ -23,6 +27,15 @@ import {
 } from "./ui";
 
 const fieldClass = "admin-field";
+
+type EditTarget =
+  | { kind: "item"; sectionIndex: number; itemIndex: number }
+  | { kind: "section"; sectionIndex: number }
+  | null;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export function AdminFullMenuEditor({
   menu,
@@ -38,6 +51,14 @@ export function AdminFullMenuEditor({
   onSave: (event: FormEvent) => void;
 }) {
   const [search, setSearch] = useState("");
+  const [editTarget, setEditTarget] = useState<EditTarget>(null);
+  const [draftItem, setDraftItem] = useState<FullMenuItem | null>(null);
+  const [draftSection, setDraftSection] = useState<FullMenuSection | null>(
+    null,
+  );
+  const [sheetSaving, setSheetSaving] = useState(false);
+  const titleId = useId();
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   function updateSections(
     updater: (sections: FullMenuSection[]) => FullMenuSection[],
@@ -94,11 +115,14 @@ export function AdminFullMenuEditor({
     updateSections((sections) => {
       const section = sections[sectionIndex];
       if (!section || section.items.length >= 80) return sections;
+      const items = [...section.items, blankMenuItem()];
       const copy = [...sections];
-      copy[sectionIndex] = {
-        ...section,
-        items: [...section.items, blankMenuItem()],
-      };
+      copy[sectionIndex] = { ...section, items };
+      const itemIndex = items.length - 1;
+      queueMicrotask(() => {
+        setEditTarget({ kind: "item", sectionIndex, itemIndex });
+        setDraftItem({ ...items[itemIndex] });
+      });
       return copy;
     });
   }
@@ -115,6 +139,85 @@ export function AdminFullMenuEditor({
       return copy;
     });
   }
+
+  function openItem(sectionIndex: number, itemIndex: number) {
+    const item = menu.sections[sectionIndex]?.items[itemIndex];
+    if (!item) return;
+    setDraftItem({ ...item });
+    setDraftSection(null);
+    setEditTarget({ kind: "item", sectionIndex, itemIndex });
+  }
+
+  function openSection(sectionIndex: number) {
+    const section = menu.sections[sectionIndex];
+    if (!section) return;
+    setDraftSection({ ...section });
+    setDraftItem(null);
+    setEditTarget({ kind: "section", sectionIndex });
+  }
+
+  function closeSheet() {
+    if (sheetSaving) return;
+    setEditTarget(null);
+    setDraftItem(null);
+    setDraftSection(null);
+  }
+
+  async function saveSheet() {
+    if (!editTarget || sheetSaving) return;
+    setSheetSaving(true);
+    await sleep(2000);
+
+    if (editTarget.kind === "item" && draftItem) {
+      const { sectionIndex, itemIndex } = editTarget;
+      updateSections((sections) => {
+        const section = sections[sectionIndex];
+        if (!section) return sections;
+        const items = [...section.items];
+        items[itemIndex] = { ...draftItem };
+        const copy = [...sections];
+        copy[sectionIndex] = { ...section, items };
+        return copy;
+      });
+    }
+
+    if (editTarget.kind === "section" && draftSection) {
+      const { sectionIndex } = editTarget;
+      updateSections((sections) => {
+        const copy = [...sections];
+        const current = copy[sectionIndex];
+        if (!current) return sections;
+        copy[sectionIndex] = {
+          ...current,
+          title: draftSection.title,
+          id: draftSection.id || slugifyMenuId(draftSection.title),
+          note: draftSection.note || "",
+        };
+        return copy;
+      });
+    }
+
+    setSheetSaving(false);
+    setEditTarget(null);
+    setDraftItem(null);
+    setDraftSection(null);
+  }
+
+  useEffect(() => {
+    if (!editTarget) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !sheetSaving) closeSheet();
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editTarget, sheetSaving]);
 
   const filteredSections = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -148,338 +251,394 @@ export function AdminFullMenuEditor({
   );
 
   return (
-    <form onSubmit={onSave} className="admin-form space-y-3">
-      <ScreenHeader
-        kicker="Speisekarte"
-        title="Alle Gerichte"
-        description="Hier pflegst du die feste Speisekarte. Kein Code, kein Deploy — nur eingeben und veröffentlichen."
-        action={
-          <button
-            type="button"
-            className="btn-primary !px-3 !py-2 text-sm"
-            disabled={menu.sections.length >= 30}
-            onClick={addSection}
-          >
-            + Kategorie
-          </button>
-        }
-      />
-
-      <div className="admin-live-hero">
-        <p className="admin-kicker">So geht’s live</p>
-        <ol className="admin-live-steps">
-          <li>
-            <span className="admin-live-step-num">1</span>
-            <span>
-              Fehlende Gerichte mit <strong>+ Gericht</strong> oder{" "}
-              <strong>+ Kategorie</strong> eintragen
-            </span>
-          </li>
-          <li>
-            <span className="admin-live-step-num">2</span>
-            <span>
-              Unten <strong>Speisekarte veröffentlichen</strong> tippen
-            </span>
-          </li>
-          <li>
-            <span className="admin-live-step-num">3</span>
-            <span>
-              Grün = sofort auf der Website unter /speisekarte (Live-Speicher /
-              Vercel Blob)
-            </span>
-          </li>
-        </ol>
-        <p className="mt-3 text-sm text-[color:var(--admin-muted)]">
-          GitHub ist nur optionales Backup. Für die öffentliche Seite reicht
-          Veröffentlichen. Aktuell: {menu.sections.length} Kategorien ·{" "}
-          {dishCount} Gerichte
-          {menu.updatedAt
-            ? ` · Stand ${new Intl.DateTimeFormat("de-DE", {
-                dateStyle: "medium",
-                timeStyle: "short",
-              }).format(new Date(menu.updatedAt))}`
-            : ""}
-          .
-        </p>
-      </div>
-
-      <Section title="Suchen & Hinweis">
-        <Field label="Gericht oder Kategorie suchen">
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="admin-menu-search"
-            placeholder="z. B. Pad Thai, Vorspeisen, Nr. 12 …"
-            autoComplete="off"
-          />
-        </Field>
-        <p className="text-sm text-[color:var(--admin-muted)]">
-          Steht unter den beliebten Gerichten der Woche. Mit ↑ ↓ sortieren.
-          Kennzeichnung z. B. A,B,C.
-        </p>
-      </Section>
-
-      {filteredSections.length === 0 ? (
-        <p className="admin-empty">
-          Nichts gefunden für „{search.trim()}“. Suche leeren oder neues Gericht
-          anlegen.
-        </p>
-      ) : null}
-
-      {filteredSections.map(({ section, index: sectionIndex }) => (
-        <Section
-          key={`${section.id}-${sectionIndex}`}
-          title={section.title || `Kategorie ${sectionIndex + 1}`}
+    <>
+      <form onSubmit={onSave} className="admin-form space-y-3">
+        <ScreenHeader
+          kicker="Speisekarte"
+          title="Alle Gerichte"
+          description="Liste scrollen, Gericht tippen zum Bearbeiten. Veröffentlichen unten macht alles live."
           action={
-            <>
+            <button
+              type="button"
+              className="btn-primary !px-3 !py-2 text-sm"
+              disabled={menu.sections.length >= 30}
+              onClick={addSection}
+            >
+              + Kategorie
+            </button>
+          }
+        />
+
+        <div className="admin-live-hero">
+          <p className="admin-kicker">So geht’s</p>
+          <ol className="admin-live-steps">
+            <li>
+              <span className="admin-live-step-num">1</span>
+              <span>Durch die Karte scrollen und Gerichte finden</span>
+            </li>
+            <li>
+              <span className="admin-live-step-num">2</span>
+              <span>
+                <strong>Bearbeiten</strong> öffnet das Sheet — Speichern dauert
+                ca. 2 Sekunden
+              </span>
+            </li>
+            <li>
+              <span className="admin-live-step-num">3</span>
+              <span>
+                Unten <strong>veröffentlichen</strong> = sofort live auf der
+                Website
+              </span>
+            </li>
+          </ol>
+          <p className="mt-3 text-sm text-[color:var(--admin-muted)]">
+            Aktuell: {menu.sections.length} Kategorien · {dishCount} Gerichte
+            {menu.updatedAt
+              ? ` · Stand ${new Intl.DateTimeFormat("de-DE", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                }).format(new Date(menu.updatedAt))}`
+              : ""}
+            .
+          </p>
+        </div>
+
+        <Section title="Suchen">
+          <Field label="Gericht oder Kategorie">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="admin-menu-search"
+              placeholder="z. B. Pad Thai, Vorspeisen, Nr. 12 …"
+              autoComplete="off"
+            />
+          </Field>
+        </Section>
+
+        {filteredSections.length === 0 ? (
+          <p className="admin-empty">
+            Nichts gefunden für „{search.trim()}“.
+          </p>
+        ) : null}
+
+        {filteredSections.map(({ section, index: sectionIndex }) => (
+          <Section
+            key={`${section.id}-${sectionIndex}`}
+            title={section.title || `Kategorie ${sectionIndex + 1}`}
+            action={
+              <>
+                <button
+                  type="button"
+                  className="admin-sort-btn"
+                  aria-label="Kategorie nach oben"
+                  disabled={sectionIndex === 0}
+                  onClick={() => moveSection(sectionIndex, -1)}
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="admin-sort-btn"
+                  aria-label="Kategorie nach unten"
+                  disabled={sectionIndex === menu.sections.length - 1}
+                  onClick={() => moveSection(sectionIndex, 1)}
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  className="btn-gold !px-2.5 !py-1.5 text-xs"
+                  onClick={() => openSection(sectionIndex)}
+                >
+                  Kategorie
+                </button>
+                <button
+                  type="button"
+                  className="btn-gold !px-2.5 !py-1.5 text-xs"
+                  disabled={section.items.length >= 80}
+                  onClick={() => addItem(sectionIndex)}
+                >
+                  + Gericht
+                </button>
+              </>
+            }
+          >
+            <div className="admin-dish-list">
+              {section.items.map((item, itemIndex) => (
+                <div
+                  key={`${section.id}-${itemIndex}-${item.nr}`}
+                  className="admin-dish-row"
+                >
+                  <div className="admin-dish-row-main">
+                    <p className="admin-dish-row-title">
+                      <span className="admin-dish-row-nr">
+                        {item.nr || "–"}
+                      </span>{" "}
+                      {item.name || "Ohne Namen"}
+                    </p>
+                    <p className="admin-dish-row-meta">
+                      {item.price || "kein Preis"}
+                      {item.allergens ? ` · ${item.allergens}` : ""}
+                      {item.description
+                        ? ` · ${item.description.slice(0, 48)}${
+                            item.description.length > 48 ? "…" : ""
+                          }`
+                        : ""}
+                    </p>
+                  </div>
+                  <div className="admin-dish-row-actions">
+                    <button
+                      type="button"
+                      className="admin-sort-btn"
+                      aria-label="Nach oben"
+                      disabled={itemIndex === 0}
+                      onClick={() => moveItem(sectionIndex, itemIndex, -1)}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-sort-btn"
+                      aria-label="Nach unten"
+                      disabled={itemIndex === section.items.length - 1}
+                      onClick={() => moveItem(sectionIndex, itemIndex, 1)}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-primary !px-3 !py-1.5 text-sm"
+                      onClick={() => openItem(sectionIndex, itemIndex)}
+                    >
+                      Bearbeiten
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+        ))}
+
+        <StickySave
+          saving={saving}
+          phase={publishPhase}
+          label="Speisekarte veröffentlichen"
+          hint="Speichert in den Live-Speicher — ohne Code und ohne Deploy. Grün = auf der Website."
+        />
+      </form>
+
+      {editTarget ? (
+        <div
+          className="admin-sheet-root"
+          role="presentation"
+          onClick={() => {
+            if (!sheetSaving) closeSheet();
+          }}
+        >
+          <div
+            className="admin-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="admin-sheet-handle" aria-hidden />
+            <div className="admin-sheet-top">
+              <div>
+                <p className="admin-kicker">
+                  {editTarget.kind === "item" ? "Gericht" : "Kategorie"}
+                </p>
+                <h2
+                  id={titleId}
+                  className="font-display mt-1 text-2xl text-[color:var(--admin-burgundy)]"
+                >
+                  {editTarget.kind === "item"
+                    ? draftItem?.name || "Gericht bearbeiten"
+                    : draftSection?.title || "Kategorie bearbeiten"}
+                </h2>
+              </div>
               <button
+                ref={closeRef}
                 type="button"
-                className="admin-sort-btn"
-                aria-label="Kategorie nach oben"
-                disabled={sectionIndex === 0}
-                onClick={() => moveSection(sectionIndex, -1)}
-              >
-                ↑
-              </button>
-              <button
-                type="button"
-                className="admin-sort-btn"
-                aria-label="Kategorie nach unten"
-                disabled={sectionIndex === menu.sections.length - 1}
-                onClick={() => moveSection(sectionIndex, 1)}
-              >
-                ↓
-              </button>
-              <button
-                type="button"
-                className="admin-sort-btn"
-                aria-label="Kategorie entfernen"
-                disabled={menu.sections.length <= 1}
-                onClick={() => removeSection(sectionIndex)}
-                title="Entfernen"
+                className="admin-sheet-close"
+                onClick={closeSheet}
+                disabled={sheetSaving}
+                aria-label="Schließen"
               >
                 ×
               </button>
-            </>
-          }
-        >
-          <Field label="Titel der Kategorie">
-            <input
-              value={section.title}
-              onChange={(e) => {
-                const title = e.target.value;
-                updateSections((sections) => {
-                  const copy = [...sections];
-                  const current = copy[sectionIndex];
-                  if (!current) return sections;
-                  copy[sectionIndex] = {
-                    ...current,
-                    title,
-                    id: current.id || slugifyMenuId(title),
-                  };
-                  return copy;
-                });
-              }}
-              className={fieldClass}
-              placeholder="z. B. Hauptgerichte"
-            />
-          </Field>
-          <Field
-            label="Technische ID"
-            hint="für Sprungmarken auf der Seite, z. B. hauptgerichte"
-          >
-            <input
-              value={section.id}
-              onChange={(e) => {
-                const id = e.target.value;
-                updateSections((sections) => {
-                  const copy = [...sections];
-                  const current = copy[sectionIndex];
-                  if (!current) return sections;
-                  copy[sectionIndex] = { ...current, id };
-                  return copy;
-                });
-              }}
-              className={fieldClass}
-              placeholder="hauptgerichte"
-            />
-          </Field>
-          <Field label="Hinweis unter dem Titel (optional)">
-            <input
-              value={section.note || ""}
-              onChange={(e) => {
-                const note = e.target.value;
-                updateSections((sections) => {
-                  const copy = [...sections];
-                  const current = copy[sectionIndex];
-                  if (!current) return sections;
-                  copy[sectionIndex] = { ...current, note };
-                  return copy;
-                });
-              }}
-              className={fieldClass}
-              placeholder="optional"
-            />
-          </Field>
-
-          <div className="admin-day-grid">
-            <div className="admin-day-grid-head">
-              <p className="admin-day-grid-label">
-                Gerichte · {section.items.length}
-              </p>
-              <button
-                type="button"
-                className="btn-gold !px-3 !py-1.5 text-sm"
-                disabled={section.items.length >= 80}
-                onClick={() => addItem(sectionIndex)}
-              >
-                + Gericht
-              </button>
             </div>
 
-            {section.items.map((item, itemIndex) => (
-              <div
-                key={`${section.id}-${itemIndex}`}
-                className="admin-full-item"
-              >
-                <div className="admin-day-row-sort">
-                  <button
-                    type="button"
-                    className="admin-sort-btn"
-                    aria-label={`Gericht ${itemIndex + 1} nach oben`}
-                    disabled={itemIndex === 0}
-                    onClick={() => moveItem(sectionIndex, itemIndex, -1)}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-sort-btn"
-                    aria-label={`Gericht ${itemIndex + 1} nach unten`}
-                    disabled={itemIndex === section.items.length - 1}
-                    onClick={() => moveItem(sectionIndex, itemIndex, 1)}
-                  >
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-sort-btn"
-                    aria-label={`Gericht ${itemIndex + 1} entfernen`}
-                    disabled={section.items.length <= 1}
-                    onClick={() => removeItem(sectionIndex, itemIndex)}
-                    title="Entfernen"
-                  >
-                    ×
-                  </button>
-                </div>
-                <div className="admin-full-item-fields">
-                  <input
-                    aria-label="Nr"
-                    value={item.nr}
-                    onChange={(e) => {
-                      const nr = e.target.value;
-                      updateSections((sections) => {
-                        const copy = [...sections];
-                        const current = copy[sectionIndex];
-                        if (!current) return sections;
-                        const items = [...current.items];
-                        items[itemIndex] = { ...items[itemIndex], nr };
-                        copy[sectionIndex] = { ...current, items };
-                        return copy;
-                      });
-                    }}
-                    className={fieldClass}
-                    placeholder="Nr"
-                  />
-                  <input
-                    aria-label="Name"
-                    value={item.name}
-                    onChange={(e) => {
-                      const name = e.target.value;
-                      updateSections((sections) => {
-                        const copy = [...sections];
-                        const current = copy[sectionIndex];
-                        if (!current) return sections;
-                        const items = [...current.items];
-                        items[itemIndex] = { ...items[itemIndex], name };
-                        copy[sectionIndex] = { ...current, items };
-                        return copy;
-                      });
-                    }}
-                    className={fieldClass}
-                    placeholder="Name"
-                  />
-                  <input
-                    aria-label="Preis"
-                    value={item.price}
-                    onChange={(e) => {
-                      const price = e.target.value;
-                      updateSections((sections) => {
-                        const copy = [...sections];
-                        const current = copy[sectionIndex];
-                        if (!current) return sections;
-                        const items = [...current.items];
-                        items[itemIndex] = { ...items[itemIndex], price };
-                        copy[sectionIndex] = { ...current, items };
-                        return copy;
-                      });
-                    }}
-                    className={fieldClass}
-                    placeholder="Preis"
-                  />
-                  <input
-                    aria-label="Kennzeichnung"
-                    value={item.allergens || ""}
-                    onChange={(e) => {
-                      const allergens = e.target.value;
-                      updateSections((sections) => {
-                        const copy = [...sections];
-                        const current = copy[sectionIndex];
-                        if (!current) return sections;
-                        const items = [...current.items];
-                        items[itemIndex] = { ...items[itemIndex], allergens };
-                        copy[sectionIndex] = { ...current, items };
-                        return copy;
-                      });
-                    }}
-                    className={fieldClass}
-                    placeholder="A,B"
-                  />
-                  <input
-                    aria-label="Beschreibung"
-                    value={item.description || ""}
-                    onChange={(e) => {
-                      const description = e.target.value;
-                      updateSections((sections) => {
-                        const copy = [...sections];
-                        const current = copy[sectionIndex];
-                        if (!current) return sections;
-                        const items = [...current.items];
-                        items[itemIndex] = {
-                          ...items[itemIndex],
-                          description,
-                        };
-                        copy[sectionIndex] = { ...current, items };
-                        return copy;
-                      });
-                    }}
-                    className={`${fieldClass} admin-full-item-desc`}
-                    placeholder="Beschreibung (optional)"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Section>
-      ))}
+            <div className="admin-sheet-body">
+              {editTarget.kind === "item" && draftItem ? (
+                <>
+                  <Field label="Nr">
+                    <input
+                      value={draftItem.nr}
+                      onChange={(e) =>
+                        setDraftItem({ ...draftItem, nr: e.target.value })
+                      }
+                      className={fieldClass}
+                      placeholder="Nr"
+                    />
+                  </Field>
+                  <Field label="Name">
+                    <input
+                      value={draftItem.name}
+                      onChange={(e) =>
+                        setDraftItem({ ...draftItem, name: e.target.value })
+                      }
+                      className={fieldClass}
+                      placeholder="Name"
+                    />
+                  </Field>
+                  <Field label="Preis">
+                    <input
+                      value={draftItem.price}
+                      onChange={(e) =>
+                        setDraftItem({ ...draftItem, price: e.target.value })
+                      }
+                      className={fieldClass}
+                      placeholder="z. B. 9,90 €"
+                    />
+                  </Field>
+                  <Field label="Kennzeichnung" hint="z. B. A,B,C">
+                    <input
+                      value={draftItem.allergens}
+                      onChange={(e) =>
+                        setDraftItem({
+                          ...draftItem,
+                          allergens: e.target.value,
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="A,B"
+                    />
+                  </Field>
+                  <Field label="Beschreibung">
+                    <textarea
+                      value={draftItem.description}
+                      onChange={(e) =>
+                        setDraftItem({
+                          ...draftItem,
+                          description: e.target.value,
+                        })
+                      }
+                      className={fieldClass}
+                      rows={3}
+                      placeholder="optional"
+                    />
+                  </Field>
+                </>
+              ) : null}
 
-      <StickySave
-        saving={saving}
-        phase={publishPhase}
-        label="Speisekarte veröffentlichen"
-        hint="Speichert in den Live-Speicher (Vercel Blob) — ohne Code und ohne Deploy. Grün = auf der Website."
-      />
-    </form>
+              {editTarget.kind === "section" && draftSection ? (
+                <>
+                  <Field label="Titel">
+                    <input
+                      value={draftSection.title}
+                      onChange={(e) =>
+                        setDraftSection({
+                          ...draftSection,
+                          title: e.target.value,
+                        })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                  <Field
+                    label="Technische ID"
+                    hint="für Sprungmarken, z. B. hauptgerichte"
+                  >
+                    <input
+                      value={draftSection.id}
+                      onChange={(e) =>
+                        setDraftSection({
+                          ...draftSection,
+                          id: e.target.value,
+                        })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                  <Field label="Hinweis unter dem Titel">
+                    <input
+                      value={draftSection.note}
+                      onChange={(e) =>
+                        setDraftSection({
+                          ...draftSection,
+                          note: e.target.value,
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="optional"
+                    />
+                  </Field>
+                  <button
+                    type="button"
+                    className="btn-gold w-full"
+                    disabled={menu.sections.length <= 1 || sheetSaving}
+                    onClick={() => {
+                      removeSection(editTarget.sectionIndex);
+                      closeSheet();
+                    }}
+                  >
+                    Kategorie löschen
+                  </button>
+                </>
+              ) : null}
+            </div>
+
+            <div className="admin-sheet-footer">
+              {editTarget.kind === "item" ? (
+                <button
+                  type="button"
+                  className="btn-gold"
+                  disabled={
+                    sheetSaving ||
+                    (menu.sections[editTarget.sectionIndex]?.items.length ||
+                      0) <= 1
+                  }
+                  onClick={() => {
+                    removeItem(editTarget.sectionIndex, editTarget.itemIndex);
+                    closeSheet();
+                  }}
+                >
+                  Löschen
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-gold"
+                  disabled={sheetSaving}
+                  onClick={closeSheet}
+                >
+                  Abbrechen
+                </button>
+              )}
+              <button
+                type="button"
+                className={`btn-primary admin-sheet-save ${
+                  sheetSaving ? "is-loading" : ""
+                }`}
+                disabled={sheetSaving}
+                onClick={() => void saveSheet()}
+              >
+                <span
+                  className={`admin-sticky-save-fill ${
+                    sheetSaving ? "is-active" : ""
+                  }`}
+                  aria-hidden
+                />
+                <span className="admin-sticky-save-label">
+                  {sheetSaving ? "Speichern …" : "Speichern"}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }

@@ -541,7 +541,7 @@ export function AdminClient() {
     const started = Date.now();
     try {
       const result = await execute();
-      const wait = Math.max(0, 1200 - (Date.now() - started));
+      const wait = Math.max(0, 2000 - (Date.now() - started));
       if (wait) await sleep(wait);
 
       if (result.persist) setLastPersist(result.persist);
@@ -567,7 +567,7 @@ export function AdminClient() {
       }, 2500);
       return true;
     } catch (error) {
-      const wait = Math.max(0, 1200 - (Date.now() - started));
+      const wait = Math.max(0, 2000 - (Date.now() - started));
       if (wait) await sleep(wait);
       const report = await finalizeFailReport({
         action,

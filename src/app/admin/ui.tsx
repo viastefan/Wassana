@@ -172,11 +172,19 @@ export function StickySave({
       <button
         type="submit"
         className={`btn-primary admin-sticky-save-btn ${
-          phase === "online" ? "is-online" : ""
-        } ${phase === "error" ? "is-error" : ""}`}
+          phase === "publishing" || busy ? "is-loading" : ""
+        } ${phase === "online" ? "is-online" : ""} ${
+          phase === "error" ? "is-error" : ""
+        }`}
         disabled={busy || disabled || phase === "online"}
       >
-        {text}
+        <span
+          className={`admin-sticky-save-fill ${
+            phase === "publishing" || busy ? "is-active" : ""
+          }`}
+          aria-hidden
+        />
+        <span className="admin-sticky-save-label">{text}</span>
       </button>
     </div>
   );

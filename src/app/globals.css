@@ -951,11 +951,46 @@ button.admin-install-cta:hover {
   color: var(--admin-muted);
 }
 
-.admin-sticky-save-btn {
+.admin-sticky-save-btn,
+.admin-sheet-save {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   width: 100%;
   min-height: 3.2rem;
   border-radius: 999px;
   box-shadow: 0 12px 28px color-mix(in srgb, var(--admin-burgundy) 24%, transparent);
+}
+
+.admin-sticky-save-btn {
+  width: 100%;
+}
+
+.admin-sticky-save-label {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-sticky-save-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 0;
+  width: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, white 28%, transparent),
+    color-mix(in srgb, white 14%, transparent)
+  );
+  pointer-events: none;
+}
+
+.admin-sticky-save-fill.is-active {
+  animation: admin-btn-fill 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.admin-sticky-save-btn.is-loading,
+.admin-sheet-save.is-loading {
+  background: linear-gradient(180deg, #7a1a30, #5a1020) !important;
 }
 
 .admin-sticky-save-btn.is-online {
@@ -965,6 +1000,178 @@ button.admin-install-cta:hover {
 
 .admin-sticky-save-btn.is-error {
   background: linear-gradient(180deg, #5c1018, #3d0a10) !important;
+}
+
+@keyframes admin-btn-fill {
+  from {
+    width: 6%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-sticky-save-fill.is-active {
+    animation: none;
+    width: 100%;
+  }
+}
+
+.admin-dish-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.admin-dish-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 22%, var(--admin-line));
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-raised);
+  padding: 0.75rem 0.8rem;
+}
+
+.admin-dish-row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-dish-row-title {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--admin-ink);
+}
+
+.admin-dish-row-nr {
+  color: var(--admin-gold-deep);
+}
+
+.admin-dish-row-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--admin-muted);
+}
+
+.admin-dish-row-actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3rem;
+}
+
+.admin-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: grid;
+  place-items: end center;
+  padding: 0.65rem;
+  padding-bottom: calc(0.65rem + env(safe-area-inset-bottom, 0px));
+  background: rgba(16, 12, 14, 0.55);
+  backdrop-filter: blur(4px);
+  animation: admin-sheet-fade 0.22s ease both;
+}
+
+@media (min-width: 720px) {
+  .admin-sheet-root {
+    place-items: center;
+    padding: 1.25rem;
+  }
+}
+
+.admin-sheet {
+  display: flex;
+  width: min(100%, 28rem);
+  max-height: min(90svh, 42rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 35%, var(--admin-line));
+  border-radius: 1.25rem 1.25rem 1rem 1rem;
+  background:
+    linear-gradient(180deg, #fffdf8 0%, var(--admin-surface) 100%);
+  box-shadow: 0 24px 48px rgba(30, 33, 41, 0.22);
+  animation: admin-sheet-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.admin-sheet-handle {
+  width: 2.75rem;
+  height: 0.3rem;
+  margin: 0.55rem auto 0.15rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-ink) 18%, transparent);
+}
+
+.admin-sheet-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 1.1rem 0.35rem;
+}
+
+.admin-sheet-close {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-ink) 8%, transparent);
+  color: var(--admin-ink);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.admin-sheet-body {
+  display: grid;
+  gap: 0.75rem;
+  overflow: auto;
+  padding: 0.35rem 1.1rem 1rem;
+}
+
+.admin-sheet-footer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  border-top: 1px solid var(--admin-line);
+  padding: 0.85rem 1.1rem
+    calc(0.85rem + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--admin-surface) 92%, white);
+}
+
+@keyframes admin-sheet-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes admin-sheet-up {
+  from {
+    opacity: 0.6;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-sheet-root,
+  .admin-sheet {
+    animation: none;
+  }
 }
 
 .admin-fail-backdrop {
