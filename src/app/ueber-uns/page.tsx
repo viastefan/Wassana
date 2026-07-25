@@ -37,7 +37,7 @@ export default async function UeberUnsPage() {
         eyebrow="Wassana Landshut"
         title="Über uns"
         lead="Frisch gekocht am Regierungsplatz — mit dem Wunsch nach Glück und gutem Schicksal."
-        image="/images/laden-innen.jpg"
+        image="/images/laden-raum.jpg"
         imageAlt="Gastraum bei Wassana Thai Imbiss in Landshut"
       >
         <ContentBlock title="Was Wassana bedeutet">
@@ -79,15 +79,15 @@ export default async function UeberUnsPage() {
       <ImageStrip
         items={[
           {
-            src: "/images/laden-eingang.jpg",
+            src: "/images/laden-eingang-heute.jpg",
             alt: "Eingang von Wassana Thai Imbiss in Landshut",
             label: "Eingang",
             href: "/anfahrt",
           },
           {
-            src: "/images/gericht-nudeln.jpg",
-            alt: "Gebratene Nudeln mit Gemüse bei Wassana",
-            label: "Aus der Pfanne",
+            src: "/images/laden-tafeln.jpg",
+            alt: "Tagesgerichte auf den Tafeln vor Wassana",
+            label: "Heute bei Wassana",
             href: "/speisekarte",
           },
           {

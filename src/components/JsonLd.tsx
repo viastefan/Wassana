@@ -60,9 +60,9 @@ export function JsonLdLocalBusiness({
     telephone: business.phoneE164,
     email: business.email,
     image: [
-      `${url}/images/laden-fassade.jpg`,
-      `${url}/images/laden-innen.jpg`,
-      `${url}/images/gericht-ente.jpg`,
+      `${url}/images/laden-eingang-heute.jpg`,
+      `${url}/images/laden-raum.jpg`,
+      `${url}/images/einblicke-gerichte.jpg`,
       `${url}/images/hero.jpg`,
       `${url}/images/curry.jpg`,
       `${url}/images/logo.png`,
