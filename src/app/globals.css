@@ -1014,7 +1014,7 @@ button.admin-install-cta:hover {
 
 .allergen-dialog-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
 }
@@ -1022,15 +1022,18 @@ button.admin-install-cta:hover {
 .allergen-dialog-close {
   display: inline-grid;
   place-items: center;
-  width: 2.1rem;
-  height: 2.1rem;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
   border: 0;
   border-radius: 999px;
   background: color-mix(in srgb, var(--ink) 8%, transparent);
   color: var(--ink);
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   line-height: 1;
   cursor: pointer;
+  /* × sitzt optisch etwas hoch — leicht nach unten ziehen */
+  padding: 0 0 0.12rem;
 }
 
 .allergen-dialog-close:hover {
@@ -2478,9 +2481,16 @@ a.btn-ghost:hover {
   }
 
   .course-promo-close {
-    top: 0.3rem;
-    right: 0.45rem;
+    top: 0.95rem;
+    right: 0.55rem;
+    width: 2rem;
+    height: 2rem;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
     transform: none;
+    padding: 0 0 0.1rem;
   }
 }
 
@@ -2765,19 +2775,21 @@ a.btn-ghost:hover {
 
 .offer-popup-close {
   position: absolute;
-  top: 0.35rem;
+  top: 50%;
   right: 0.55rem;
+  transform: translateY(-50%);
   display: inline-grid;
   place-items: center;
   width: 2.1rem;
   height: 2.1rem;
   border: 0;
   border-radius: 999px;
-  background: transparent;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
   color: var(--muted);
-  font-size: 1.45rem;
+  font-size: 1.35rem;
   line-height: 1;
   cursor: pointer;
+  padding: 0 0 0.1rem;
 }
 
 .offer-popup-close:hover {
