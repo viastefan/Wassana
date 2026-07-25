@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Special_Elite } from "next/font/google";
 import { JsonLdLocalBusiness, JsonLdWebSite } from "@/components/JsonLd";
 import { PublicChrome } from "@/components/PublicChrome";
+import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
 import { getSiteUrl, site } from "@/lib/site";
 import "./globals.css";
@@ -120,14 +121,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const content = await getSiteContent();
+  const [content, business] = await Promise.all([
+    getSiteContent(),
+    getResolvedBusiness(),
+  ]);
 
   return (
     <html lang="de">
       <body className={`${typewriter.variable} antialiased`}>
-        <JsonLdLocalBusiness />
-        <JsonLdWebSite />
-        <PublicChrome content={content}>{children}</PublicChrome>
+        <JsonLdLocalBusiness business={business} />
+        <JsonLdWebSite business={business} />
+        <PublicChrome content={content} business={business}>
+          {children}
+        </PublicChrome>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { useBusiness } from "@/components/BusinessContext";
 import { site } from "@/lib/site";
 
 const navItems = [
@@ -13,28 +14,28 @@ const navItems = [
   { href: "/kochkurs", label: "Kochkurs" },
 ] as const;
 
-const contactActions = [
-  {
-    href: "/kontakt",
-    label: "Kontaktanfrage",
-    hint: "Formular schreiben",
-  },
-  {
-    href: site.emailHref,
-    label: "E-Mail",
-    hint: site.email,
-    external: true,
-  },
-  {
-    href: site.phoneHref,
-    label: "Anrufen",
-    hint: site.phone,
-    external: true,
-  },
-] as const;
-
 export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
+  const business = useBusiness();
   const pathname = usePathname();
+  const contactActions = [
+    {
+      href: "/kontakt",
+      label: "Kontaktanfrage",
+      hint: "Formular schreiben",
+    },
+    {
+      href: business.emailHref,
+      label: "E-Mail",
+      hint: business.email,
+      external: true,
+    },
+    {
+      href: business.phoneHref,
+      label: "Anrufen",
+      hint: business.phone,
+      external: true,
+    },
+  ] as const;
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(!isHome);
   const [open, setOpen] = useState(false);
@@ -307,7 +308,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
             <p className="mobile-nav-meta">
               {site.hours.weekdays}
               <span aria-hidden> · </span>
-              <a href={site.phoneHref}>{site.phone}</a>
+              <a href={business.phoneHref}>{business.phone}</a>
             </p>
           </nav>
         </div>

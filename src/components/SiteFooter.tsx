@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
+import { useBusiness } from "@/components/BusinessContext";
 import { site } from "@/lib/site";
 
 type SiteFooterProps = {
@@ -11,6 +14,7 @@ type SiteFooterProps = {
 };
 
 export function SiteFooter({ hours }: SiteFooterProps) {
+  const business = useBusiness();
   const weekdaysLong = hours?.weekdaysLong || site.hours.weekdaysLong;
   const weekend = hours?.weekend || site.hours.weekend;
 
@@ -38,16 +42,16 @@ export function SiteFooter({ hours }: SiteFooterProps) {
               href="/admin"
               className="text-[color:var(--muted)] transition hover:text-[color:var(--muted)]"
               title="Intern"
-              aria-label="Intern: Kochkurs verwalten"
+              aria-label="Intern: Verwaltung"
             >
-              {site.fullName}
+              {business.fullName}
             </Link>
             <br />
-            Inh.: {site.owner}
+            Inh.: {business.owner}
             <br />
-            {site.address.street}
+            {business.street}
             <br />
-            {site.address.zip} {site.address.city}
+            {business.zip} {business.city}
           </p>
         </div>
 
@@ -58,7 +62,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
           <p className="mt-3 text-[color:var(--ink)]">{weekdaysLong}</p>
           <p className="mt-1 text-sm text-[color:var(--muted)]">{weekend}</p>
           <a
-            href={site.maps.place}
+            href={business.maps.place}
             target="_blank"
             rel="noreferrer"
             className="mt-5 inline-block text-sm text-[color:var(--red)] underline-offset-4 hover:underline"
@@ -72,19 +76,25 @@ export function SiteFooter({ hours }: SiteFooterProps) {
             Kontakt
           </p>
           <div className="mt-3 flex flex-col gap-2 text-[color:var(--ink)]">
-            <a href={site.phoneHref} className="hover:text-[color:var(--red)]">
-              {site.phone}
-            </a>
-            <a href={site.emailHref} className="hover:text-[color:var(--red)]">
-              {site.email}
+            <a
+              href={business.phoneHref}
+              className="hover:text-[color:var(--red)]"
+            >
+              {business.phone}
             </a>
             <a
-              href={site.social.instagram}
+              href={business.emailHref}
+              className="hover:text-[color:var(--red)]"
+            >
+              {business.email}
+            </a>
+            <a
+              href={business.instagram}
               target="_blank"
               rel="noreferrer"
               className="hover:text-[color:var(--red)]"
             >
-              Instagram {site.social.instagramHandle}
+              Instagram {business.instagramHandle}
             </a>
             <Link href="/kontakt" className="hover:text-[color:var(--red)]">
               Kontaktformular
@@ -96,11 +106,11 @@ export function SiteFooter({ hours }: SiteFooterProps) {
       <div className="border-t border-[color:var(--line)]">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 text-sm text-[color:var(--muted)] md:flex-row md:items-center md:justify-between md:px-8">
           <p>
-            © {new Date().getFullYear()} {site.fullName}
+            © {new Date().getFullYear()} {business.fullName}
           </p>
           <div className="flex flex-wrap items-center gap-5">
             <a
-              href={site.maps.directions}
+              href={business.maps.directions}
               target="_blank"
               rel="noreferrer"
               className="hover:text-[color:var(--red)]"

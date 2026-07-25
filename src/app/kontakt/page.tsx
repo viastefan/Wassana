@@ -3,7 +3,7 @@ import { ContactForm } from "@/components/ContactForm";
 import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { getSiteContent } from "@/lib/site-content";
-import { site } from "@/lib/site";
+import { getResolvedBusiness } from "@/lib/business-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +21,11 @@ export const metadata: Metadata = {
 };
 
 export default async function KontaktPage() {
-  const content = await getSiteContent();
-  const mapsUrl = site.maps.place;
+  const [content, business] = await Promise.all([
+    getSiteContent(),
+    getResolvedBusiness(),
+  ]);
+  const mapsUrl = business.maps.place;
 
   return (
     <main className="pt-24">
@@ -49,27 +52,27 @@ export default async function KontaktPage() {
             <div>
               <p className="text-sm text-[color:var(--gold)]">Telefon</p>
               <a
-                href={site.phoneHref}
+                href={business.phoneHref}
                 className="mt-1 block text-xl hover:text-[color:var(--red)]"
               >
-                {site.phone}
+                {business.phone}
               </a>
             </div>
             <div>
               <p className="text-sm text-[color:var(--gold)]">E-Mail</p>
               <a
-                href={site.emailHref}
+                href={business.emailHref}
                 className="mt-1 block text-xl hover:text-[color:var(--red)]"
               >
-                {site.email}
+                {business.email}
               </a>
             </div>
             <div>
               <p className="text-sm text-[color:var(--gold)]">Adresse</p>
               <p className="mt-1 text-xl">
-                {site.address.street}
+                {business.street}
                 <br />
-                {site.address.zip} {site.address.city}
+                {business.zip} {business.city}
               </p>
               <a
                 href={mapsUrl}

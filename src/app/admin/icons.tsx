@@ -81,6 +81,15 @@ export function IconMenu({ className }: IconProps) {
   );
 }
 
+export function IconSettings({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M5.8 5.8l1.6 1.6M16.6 16.6l1.6 1.6M18.2 5.8l-1.6 1.6M7.4 16.6l-1.6 1.6" />
+    </Svg>
+  );
+}
+
 export function IconPulse({ className }: IconProps) {
   return (
     <Svg className={className}>
@@ -104,4 +113,5 @@ export const ADMIN_TAB_ICONS = {
   banner: IconBanner,
   content: IconTexts,
   menu: IconMenu,
+  settings: IconSettings,
 } as const;

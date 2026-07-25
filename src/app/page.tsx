@@ -6,9 +6,9 @@ import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
 import { StudentLunch } from "@/components/StudentLunch";
+import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
 import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
-import { site } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -28,14 +28,15 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [content, weekly] = await Promise.all([
+  const [content, weekly, business] = await Promise.all([
     getSiteContent(),
     getWeeklyMenuData(),
+    getResolvedBusiness(),
   ]);
 
   const closingText =
     content.closing.text.trim() ||
-    `${site.address.street}, ${site.address.city} — ${content.hours.weekdaysLong}. ${content.hours.weekend}.`;
+    `${business.street}, ${business.city} — ${content.hours.weekdaysLong}. ${content.hours.weekend}.`;
 
   return (
     <main>
@@ -66,7 +67,7 @@ export default async function HomePage() {
             {content.hero.lede}
           </p>
           <a
-            href={site.maps.directions}
+            href={business.maps.directions}
             target="_blank"
             rel="noreferrer"
             className="hero-copy-delay-2 group mt-7 inline-flex max-w-fit items-start gap-2.5 text-white/88 transition hover:text-white"
@@ -88,10 +89,10 @@ export default async function HomePage() {
             </svg>
             <span className="text-left leading-snug">
               <span className="block text-[0.95rem] tracking-wide md:text-base">
-                {site.address.street}
+                {business.street}
               </span>
               <span className="mt-0.5 block text-sm text-white/70">
-                {site.address.zip} {site.address.city} · Route öffnen
+                {business.zip} {business.city} · Route öffnen
               </span>
             </span>
           </a>
@@ -225,8 +226,8 @@ export default async function HomePage() {
             <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
               {closingText}
             </p>
-            <a href={site.phoneHref} className="btn-primary mt-8 inline-flex">
-              {site.phone}
+            <a href={business.phoneHref} className="btn-primary mt-8 inline-flex">
+              {business.phone}
             </a>
           </Reveal>
         </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
+import { getResolvedBusiness } from "@/lib/business-profile";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
 
 const lastUpdated = "25. Juli 2026";
 
-export default function DatenschutzPage() {
+export default async function DatenschutzPage() {
+  const business = await getResolvedBusiness();
   return (
     <main className="pt-24">
       <section className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-20">
@@ -36,25 +38,25 @@ export default function DatenschutzPage() {
                 1. Verantwortlicher
               </h2>
               <p className="mt-3 text-[color:var(--ink)]">
-                {site.fullName}
+                {business.fullName}
                 <br />
-                Inhaber: {site.owner}
+                Inhaber: {business.owner}
                 <br />
-                {site.address.street}
+                {business.street}
                 <br />
-                {site.address.zip} {site.address.city}
+                {business.zip} {business.city}
                 <br />
                 Deutschland
               </p>
               <p className="mt-3">
                 Telefon:{" "}
-                <a href={site.phoneHref} className="text-[color:var(--red)]">
-                  {site.phone}
+                <a href={business.phoneHref} className="text-[color:var(--red)]">
+                  {business.phone}
                 </a>
                 <br />
                 E-Mail:{" "}
-                <a href={site.emailHref} className="text-[color:var(--red)]">
-                  {site.email}
+                <a href={business.emailHref} className="text-[color:var(--red)]">
+                  {business.email}
                 </a>
               </p>
               <p className="mt-3">
@@ -356,8 +358,8 @@ export default function DatenschutzPage() {
               <p className="mt-3">
                 Wenn Sie der Meinung sind, dass ein Bild unberechtigt verwendet
                 wird, kontaktieren Sie uns bitte unter{" "}
-                <a href={site.emailHref} className="text-[color:var(--red)]">
-                  {site.email}
+                <a href={business.emailHref} className="text-[color:var(--red)]">
+                  {business.email}
                 </a>
                 . Wir prüfen den Vorgang unverzüglich.
               </p>
@@ -540,8 +542,8 @@ export default function DatenschutzPage() {
               </ul>
               <p className="mt-3">
                 Zur Ausübung Ihrer Rechte genügt eine formlose Nachricht an{" "}
-                <a href={site.emailHref} className="text-[color:var(--red)]">
-                  {site.email}
+                <a href={business.emailHref} className="text-[color:var(--red)]">
+                  {business.email}
                 </a>
                 .
               </p>

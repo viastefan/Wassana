@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { formatCourseDate } from "@/lib/cooking-course-format";
+import type { BusinessProfile } from "@/lib/business-profile-shared";
 import type { SiteContent } from "@/lib/site-content";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
 import {
@@ -42,7 +43,7 @@ type Inquiry = {
   mailGuestSent: boolean;
 };
 
-type Tab = "home" | "course" | "inbox" | "content" | "banner" | "menu";
+type Tab = "home" | "course" | "inbox" | "content" | "banner" | "menu" | "settings";
 
 type SiteRuntime = {
   online: boolean;
@@ -82,6 +83,7 @@ const NAV_META: Record<Tab, { label: string; title: string }> = {
   banner: { label: "Banner", title: "Top-Banner" },
   content: { label: "Texte", title: "Website-Texte" },
   menu: { label: "Menü", title: "Wochenkarte" },
+  settings: { label: "Betrieb", title: "Einstellungen" },
 };
 
 export function AdminClient() {
@@ -103,6 +105,7 @@ export function AdminClient() {
   const [unread, setUnread] = useState(0);
   const [content, setContent] = useState<SiteContent | null>(null);
   const [weekly, setWeekly] = useState<WeeklyMenuData | null>(null);
+  const [business, setBusiness] = useState<BusinessProfile | null>(null);
   const [runtime, setRuntime] = useState<SiteRuntime | null>(null);
   const [liveBusy, setLiveBusy] = useState<"banner" | "course" | null>(null);
 
@@ -129,6 +132,16 @@ export function AdminClient() {
     }
     if (!res.ok) return;
     setContent((await res.json()) as SiteContent);
+  }, []);
+
+  const loadBusiness = useCallback(async () => {
+    const res = await fetch("/api/admin/business", { cache: "no-store" });
+    if (res.status === 401) {
+      setAuthed(false);
+      return;
+    }
+    if (!res.ok) return;
+    setBusiness((await res.json()) as BusinessProfile);
   }, []);
 
   const loadWeekly = useCallback(async () => {
@@ -168,9 +181,10 @@ export function AdminClient() {
       loadInbox(),
       loadContent(),
       loadWeekly(),
+      loadBusiness(),
       checkRuntime(),
     ]);
-  }, [checkRuntime, loadContent, loadInbox, loadWeekly]);
+  }, [checkRuntime, loadBusiness, loadContent, loadInbox, loadWeekly]);
 
   useEffect(() => {
     let cancelled = false;
@@ -536,6 +550,53 @@ export function AdminClient() {
     }
   }
 
+  async function saveBusiness(event: FormEvent) {
+    event.preventDefault();
+    if (!business) return;
+    setSaving(true);
+    setError("");
+    setStatus("");
+    try {
+      const res = await fetch("/api/admin/business", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(business),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | (BusinessProfile & { error?: string; warning?: string })
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        setError(data?.error || "Betriebsdaten speichern fehlgeschlagen.");
+        return;
+      }
+      if (data) {
+        setBusiness({
+          fullName: data.fullName,
+          shortName: data.shortName,
+          owner: data.owner,
+          street: data.street,
+          zip: data.zip,
+          city: data.city,
+          region: data.region,
+          country: data.country,
+          phone: data.phone,
+          email: data.email,
+          instagram: data.instagram,
+          instagramHandle: data.instagramHandle,
+          facebook: data.facebook,
+          taxNote: data.taxNote,
+          updatedAt: data.updatedAt,
+        });
+      }
+      setStatus(data?.warning || "Betriebsdaten aktualisiert.");
+    } catch {
+      setError("Netzwerkfehler beim Speichern.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function markRead(id: string) {
     const res = await fetch("/api/admin/inquiries", {
       method: "PATCH",
@@ -572,7 +633,7 @@ export function AdminClient() {
 
   const nav = useMemo(
     () =>
-      (["home", "course", "inbox", "banner", "content", "menu"] as const).map(
+      (["home", "course", "inbox", "banner", "content", "menu", "settings"] as const).map(
         (id) => ({
           id,
           label:
@@ -895,6 +956,13 @@ export function AdminClient() {
                   })}
                 </div>
                 <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="btn-gold inline-flex"
+                    onClick={() => setTab("settings")}
+                  >
+                    Einstellungen
+                  </button>
                   <button
                     type="button"
                     className="btn-primary inline-flex"
@@ -1715,6 +1783,155 @@ export function AdminClient() {
               </form>
             ) : null}
 
+
+            {tab === "settings" && business ? (
+              <form onSubmit={saveBusiness} className="admin-form space-y-3">
+                <ScreenHeader
+                  kicker="Einstellungen"
+                  title="Betrieb & Inhaber"
+                  description="Alle Stammdaten für Website, Impressum, Kontakt und Anfragen."
+                />
+                <Section title="Betrieb">
+                  <Field label="Betriebsname">
+                    <input
+                      value={business.fullName}
+                      onChange={(e) =>
+                        setBusiness({ ...business, fullName: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                  <Field label="Kurzname (SEO)">
+                    <input
+                      value={business.shortName}
+                      onChange={(e) =>
+                        setBusiness({ ...business, shortName: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                  <Field label="Inhaber">
+                    <input
+                      value={business.owner}
+                      onChange={(e) =>
+                        setBusiness({ ...business, owner: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                </Section>
+                <Section title="Adresse">
+                  <Field label="Straße">
+                    <input
+                      value={business.street}
+                      onChange={(e) =>
+                        setBusiness({ ...business, street: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                  <div className="grid grid-cols-[7rem_1fr] gap-2">
+                    <Field label="PLZ">
+                      <input
+                        value={business.zip}
+                        onChange={(e) =>
+                          setBusiness({ ...business, zip: e.target.value })
+                        }
+                        className={fieldClass}
+                      />
+                    </Field>
+                    <Field label="Ort">
+                      <input
+                        value={business.city}
+                        onChange={(e) =>
+                          setBusiness({ ...business, city: e.target.value })
+                        }
+                        className={fieldClass}
+                      />
+                    </Field>
+                  </div>
+                  <Field label="Region">
+                    <input
+                      value={business.region}
+                      onChange={(e) =>
+                        setBusiness({ ...business, region: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                </Section>
+                <Section title="Kontakt">
+                  <Field label="Telefon">
+                    <input
+                      value={business.phone}
+                      onChange={(e) =>
+                        setBusiness({ ...business, phone: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                  <Field label="E-Mail">
+                    <input
+                      type="email"
+                      value={business.email}
+                      onChange={(e) =>
+                        setBusiness({ ...business, email: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                </Section>
+                <Section title="Social">
+                  <Field label="Instagram URL">
+                    <input
+                      value={business.instagram}
+                      onChange={(e) =>
+                        setBusiness({ ...business, instagram: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                  <Field label="Instagram Handle">
+                    <input
+                      value={business.instagramHandle}
+                      onChange={(e) =>
+                        setBusiness({
+                          ...business,
+                          instagramHandle: e.target.value,
+                        })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                  <Field label="Facebook URL">
+                    <input
+                      value={business.facebook}
+                      onChange={(e) =>
+                        setBusiness({ ...business, facebook: e.target.value })
+                      }
+                      className={fieldClass}
+                    />
+                  </Field>
+                </Section>
+                <Section title="Rechtliches">
+                  <Field
+                    label="Hinweis Umsatzsteuer / Impressum"
+                    hint="Erscheint im Impressum"
+                  >
+                    <textarea
+                      value={business.taxNote}
+                      onChange={(e) =>
+                        setBusiness({ ...business, taxNote: e.target.value })
+                      }
+                      className={fieldClass}
+                      rows={3}
+                    />
+                  </Field>
+                </Section>
+                <StickySave saving={saving} label="Betriebsdaten speichern" />
+              </form>
+            ) : null}
+
             {error ? (
               <p className="admin-toast is-error">{error}</p>
             ) : null}
@@ -1725,7 +1942,7 @@ export function AdminClient() {
 
       {authed ? (
         <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-40">
-          <div className="mx-auto grid max-w-3xl grid-cols-6 gap-1 px-1.5 py-2 pb-[max(0.55rem,env(safe-area-inset-bottom))]">
+          <div className="mx-auto grid max-w-3xl grid-cols-7 gap-0.5 px-1.5 py-2 pb-[max(0.55rem,env(safe-area-inset-bottom))]">
             {nav.map((item) => (
               <button
                 key={item.id}
@@ -1740,6 +1957,7 @@ export function AdminClient() {
                     void loadContent();
                   }
                   if (item.id === "menu") void loadWeekly();
+                  if (item.id === "settings") void loadBusiness();
                 }}
                 className={`admin-tab ${tab === item.id ? "is-active" : ""}`}
                 aria-current={tab === item.id ? "page" : undefined}

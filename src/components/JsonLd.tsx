@@ -1,19 +1,24 @@
+import type { ResolvedBusiness } from "@/lib/business-profile-shared";
 import { getSiteUrl, site } from "@/lib/site";
 
-export function JsonLdLocalBusiness() {
+export function JsonLdLocalBusiness({
+  business,
+}: {
+  business: ResolvedBusiness;
+}) {
   const url = getSiteUrl();
 
   const data = {
     "@context": "https://schema.org",
     "@type": ["Restaurant", "FoodEstablishment", "LocalBusiness"],
     "@id": `${url}/#business`,
-    name: site.fullName,
-    alternateName: ["Wassana Thai Imbiss", "Wassana Landshut", site.shortName],
+    name: business.fullName,
+    alternateName: ["Wassana Thai Imbiss", "Wassana Landshut", business.shortName],
     description:
       "Authentischer Thai Imbiss in Landshut am Regierungsplatz: Curries, Wok-Gerichte, Suppen, Catering und Kochkurse — frisch und zum Mitnehmen.",
     url,
-    telephone: site.phoneE164,
-    email: site.email,
+    telephone: business.phoneE164,
+    email: business.email,
     image: [`${url}/images/hero.jpg`, `${url}/images/curry.jpg`, `${url}/images/logo.png`],
     logo: `${url}/images/logo.png`,
     priceRange: "€€",
@@ -24,32 +29,32 @@ export function JsonLdLocalBusiness() {
     takeout: true,
     address: {
       "@type": "PostalAddress",
-      streetAddress: site.address.street,
-      addressLocality: site.address.city,
-      postalCode: site.address.zip,
-      addressRegion: site.address.region,
-      addressCountry: site.address.country,
+      streetAddress: business.street,
+      addressLocality: business.city,
+      postalCode: business.zip,
+      addressRegion: business.region,
+      addressCountry: business.country,
     },
     geo: {
       "@type": "GeoCoordinates",
       latitude: site.geo.latitude,
       longitude: site.geo.longitude,
     },
-    hasMap: site.maps.place,
+    hasMap: business.maps.place,
     openingHoursSpecification: site.hours.schema.map((slot) => ({
       "@type": "OpeningHoursSpecification",
       dayOfWeek: [...slot.days],
       opens: slot.opens,
       closes: slot.closes,
     })),
-    sameAs: [site.social.facebook, site.social.instagram],
+    sameAs: [business.facebook, business.instagram],
     areaServed: [
-      { "@type": "City", name: "Landshut" },
+      { "@type": "City", name: business.city },
       { "@type": "AdministrativeArea", name: "Niederbayern" },
     ],
     founder: {
       "@type": "Person",
-      name: site.owner,
+      name: business.owner,
     },
     potentialAction: [
       {
@@ -81,15 +86,15 @@ export function JsonLdLocalBusiness() {
   );
 }
 
-export function JsonLdWebSite() {
+export function JsonLdWebSite({ business }: { business: ResolvedBusiness }) {
   const url = getSiteUrl();
   const data = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${url}/#website`,
     url,
-    name: site.shortName,
-    alternateName: site.fullName,
+    name: business.shortName,
+    alternateName: business.fullName,
     description:
       "Thai Imbiss Wassana in Landshut — Speisekarte, Catering und Kochkurs. Mo–Fr frisch am Regierungsplatz.",
     inLanguage: "de-DE",
@@ -117,7 +122,7 @@ export function JsonLdBreadcrumbs({
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: `${url}${item.path}`,
+      item: `${url}${item.path === "/" ? "" : item.path}`,
     })),
   };
 

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { BusinessProvider } from "@/components/BusinessContext";
 import { CookieBanner } from "@/components/CookieBanner";
 import { CookingCoursePromo } from "@/components/CookingCoursePromo";
 import { OfferPopup } from "@/components/OfferPopup";
@@ -9,14 +10,17 @@ import { OfferPopupProvider } from "@/components/OfferPopupContext";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TopOfferBanner } from "@/components/TopOfferBanner";
+import type { ResolvedBusiness } from "@/lib/business-profile-shared";
 import type { SiteContent } from "@/lib/site-content-shared";
 
 export function PublicChrome({
   children,
   content,
+  business,
 }: {
   children: React.ReactNode;
   content: SiteContent;
+  business: ResolvedBusiness;
 }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
@@ -53,35 +57,37 @@ export function PublicChrome({
   }
 
   return (
-    <OfferPopupProvider offer={content.studentLunch}>
-      <div
-        className={`site-shell${bannerVisible ? " has-top-banner" : ""}`}
-        style={
-          {
-            ["--banner-h" as string]: `${bannerH}px`,
-          } as React.CSSProperties
-        }
-      >
-        <a href="#main-content" className="skip-link">
-          Zum Inhalt springen
-        </a>
-        <div className="site-top-chrome">
-          {bannerConfigured ? (
-            <div ref={bannerRef}>
-              <TopOfferBanner
-                banner={content.topBanner}
-                onVisibilityChange={onBannerVisibilityChange}
-              />
-            </div>
-          ) : null}
-          <SiteHeader embedded />
+    <BusinessProvider business={business}>
+      <OfferPopupProvider offer={content.studentLunch}>
+        <div
+          className={`site-shell${bannerVisible ? " has-top-banner" : ""}`}
+          style={
+            {
+              ["--banner-h" as string]: `${bannerH}px`,
+            } as React.CSSProperties
+          }
+        >
+          <a href="#main-content" className="skip-link">
+            Zum Inhalt springen
+          </a>
+          <div className="site-top-chrome">
+            {bannerConfigured ? (
+              <div ref={bannerRef}>
+                <TopOfferBanner
+                  banner={content.topBanner}
+                  onVisibilityChange={onBannerVisibilityChange}
+                />
+              </div>
+            ) : null}
+            <SiteHeader embedded />
+          </div>
+          <div id="main-content">{children}</div>
+          <SiteFooter hours={content.hours} />
+          <CookingCoursePromo />
+          <CookieBanner />
+          <OfferPopup />
         </div>
-        <div id="main-content">{children}</div>
-        <SiteFooter hours={content.hours} />
-        <CookingCoursePromo />
-        <CookieBanner />
-        <OfferPopup />
-      </div>
-    </OfferPopupProvider>
+      </OfferPopupProvider>
+    </BusinessProvider>
   );
 }

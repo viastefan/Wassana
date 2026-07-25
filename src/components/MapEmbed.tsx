@@ -6,14 +6,16 @@ import {
   parseConsent,
   type ConsentState,
 } from "@/lib/consent";
-import { site } from "@/lib/site";
+import { useBusiness } from "@/components/BusinessContext";
 
 type MapEmbedProps = {
   title: string;
   src?: string;
 };
 
-export function MapEmbed({ title, src = site.maps.embed }: MapEmbedProps) {
+export function MapEmbed({ title, src }: MapEmbedProps) {
+  const business = useBusiness();
+  const mapSrc = src || business.maps.embed;
   const [mapsAllowed, setMapsAllowed] = useState(false);
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export function MapEmbed({ title, src = site.maps.embed }: MapEmbedProps) {
             Karte laden
           </button>
           <a
-            href={site.maps.place}
+            href={business.maps.place}
             target="_blank"
             rel="noreferrer"
             className="btn-gold"
@@ -75,7 +77,7 @@ export function MapEmbed({ title, src = site.maps.embed }: MapEmbedProps) {
     <>
       <iframe
         title={title}
-        src={src}
+        src={mapSrc}
         className="location-map absolute inset-0 h-full w-full border-0"
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"

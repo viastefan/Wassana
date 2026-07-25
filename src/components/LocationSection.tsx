@@ -1,8 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { MapEmbed } from "@/components/MapEmbed";
 import { Reveal } from "@/components/Reveal";
+import { useBusiness } from "@/components/BusinessContext";
 import type { SiteContent } from "@/lib/site-content";
-import { site } from "@/lib/site";
 
 export function LocationSection({
   location,
@@ -11,6 +13,7 @@ export function LocationSection({
   location: SiteContent["location"];
   hours: SiteContent["hours"];
 }) {
+  const business = useBusiness();
   return (
     <section
       id="standort"
@@ -42,13 +45,13 @@ export function LocationSection({
                     title="Intern"
                     aria-label="Intern: Kochkurs verwalten"
                   >
-                    {site.fullName}
+                    {business.fullName}
                   </Link>
                 </p>
                 <p className="mt-2 text-[color:var(--muted)]">
-                  {site.address.street}
+                  {business.street}
                   <br />
-                  {site.address.zip} {site.address.city}
+                  {business.zip} {business.city}
                 </p>
               </address>
 
@@ -71,10 +74,10 @@ export function LocationSection({
                   </dt>
                   <dd className="mt-1">
                     <a
-                      href={site.phoneHref}
+                      href={business.phoneHref}
                       className="text-[color:var(--ink)] transition hover:text-[color:var(--red)]"
                     >
-                      {site.phone}
+                      {business.phone}
                     </a>
                   </dd>
                 </div>
@@ -83,7 +86,7 @@ export function LocationSection({
 
             <div className="mt-10 flex flex-wrap gap-3">
               <a
-                href={site.maps.directions}
+                href={business.maps.directions}
                 target="_blank"
                 rel="noreferrer"
                 className="btn-primary"
@@ -91,7 +94,7 @@ export function LocationSection({
                 Route planen
               </a>
               <a
-                href={site.maps.place}
+                href={business.maps.place}
                 target="_blank"
                 rel="noreferrer"
                 className="btn-gold"
@@ -106,7 +109,7 @@ export function LocationSection({
           <div className="flex h-full min-h-[340px] items-stretch border-t border-[color:var(--line)] md:min-h-0 md:border-t-0 md:py-16 md:pr-8">
             <div className="relative h-full min-h-[340px] w-full overflow-hidden md:rounded-sm">
               <MapEmbed
-                title={`Karte: ${site.fullName}, ${site.address.street}, ${site.address.city}`}
+                title={`Karte: ${business.fullName}, ${business.street}, ${business.city}`}
               />
             </div>
           </div>

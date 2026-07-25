@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { site } from "@/lib/site";
+import { useBusiness } from "@/components/BusinessContext";
 
 type ContactFormProps = {
   to?: string;
@@ -17,6 +17,7 @@ export function ContactForm({
   intro = "Schreib uns kurz dein Anliegen — wir melden uns zurück.",
   source = "website",
 }: ContactFormProps) {
+  const business = useBusiness();
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
@@ -165,17 +166,17 @@ export function ContactForm({
           <p className="text-sm text-[color:var(--red)]">
             {error} Alternativ:{" "}
             <a
-              href={site.emailHref}
+              href={business.emailHref}
               className="underline-offset-2 hover:underline"
             >
-              {site.email}
+              {business.email}
             </a>{" "}
             oder{" "}
             <a
-              href={site.phoneHref}
+              href={business.phoneHref}
               className="underline-offset-2 hover:underline"
             >
-              {site.phone}
+              {business.phone}
             </a>
             .
           </p>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
+import { getResolvedBusiness } from "@/lib/business-profile";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function ImpressumPage() {
+export default async function ImpressumPage() {
+  const business = await getResolvedBusiness();
   return (
     <main className="pt-24">
       <section className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-20">
@@ -33,13 +35,13 @@ export default function ImpressumPage() {
                 Anbieter
               </h2>
               <p className="mt-3">
-                <strong>{site.fullName}</strong>
+                <strong>{business.fullName}</strong>
                 <br />
-                Inhaber: {site.owner}
+                Inhaber: {business.owner}
                 <br />
-                {site.address.street}
+                {business.street}
                 <br />
-                {site.address.zip} {site.address.city}
+                {business.zip} {business.city}
                 <br />
                 Deutschland
               </p>
@@ -53,13 +55,13 @@ export default function ImpressumPage() {
               </h2>
               <p className="mt-3">
                 Telefon:{" "}
-                <a href={site.phoneHref} className="hover:text-[color:var(--red)]">
-                  {site.phone}
+                <a href={business.phoneHref} className="hover:text-[color:var(--red)]">
+                  {business.phone}
                 </a>
                 <br />
                 E-Mail:{" "}
-                <a href={site.emailHref} className="hover:text-[color:var(--red)]">
-                  {site.email}
+                <a href={business.emailHref} className="hover:text-[color:var(--red)]">
+                  {business.email}
                 </a>
               </p>
             </section>
@@ -71,9 +73,7 @@ export default function ImpressumPage() {
                 Umsatzsteuer
               </h2>
               <p className="mt-3 text-[color:var(--muted)]">
-                Als Kleinunternehmer bzw. soweit keine Umsatzsteuer-ID
-                ausgewiesen ist, gilt ggf. § 19 UStG. Eine USt-IdNr. kann hier
-                nachgereicht werden, sobald vorhanden.
+                {business.taxNote}
               </p>
             </section>
           </Reveal>
@@ -196,15 +196,15 @@ export default function ImpressumPage() {
               </h2>
               <div className="mt-3 flex flex-col gap-2">
                 <a
-                  href={site.social.instagram}
+                  href={business.instagram}
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-[color:var(--red)]"
                 >
-                  Instagram {site.social.instagramHandle}
+                  Instagram {business.instagramHandle}
                 </a>
                 <a
-                  href={site.social.facebook}
+                  href={business.facebook}
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-[color:var(--red)]"
