@@ -230,6 +230,9 @@ export function SpeisekarteFull({
             </div>
           </div>
         </Reveal>
+
+        {/* Mobile: fixed legend FAB → bottom sheet (hidden from md via CSS) */}
+        <AllergenLegend variant="fab" />
       </div>
     </section>
   );

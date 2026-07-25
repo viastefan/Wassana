@@ -5,19 +5,25 @@ import { allergens } from "@/lib/menu";
 
 type Props = {
   /** Compact chip-style trigger for sticky menu bar */
-  variant?: "chip" | "button" | "link";
+  variant?: "chip" | "button" | "link" | "fab";
   className?: string;
 };
 
-export function AllergenLegend({ variant = "button", className = "" }: Props) {
-  const [open, setOpen] = useState(false);
-  const titleId = useId();
-  const closeRef = useRef<HTMLButtonElement>(null);
-
+function AllergenDialog({
+  open,
+  onClose,
+  titleId,
+  closeRef,
+}: {
+  open: boolean;
+  onClose: () => void;
+  titleId: string;
+  closeRef: React.RefObject<HTMLButtonElement | null>;
+}) {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -27,7 +33,114 @@ export function AllergenLegend({ variant = "button", className = "" }: Props) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open]);
+  }, [open, onClose, closeRef]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="allergen-dialog-root"
+      role="presentation"
+      onClick={onClose}
+    >
+      <div
+        className="allergen-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="allergen-dialog-handle" aria-hidden />
+        <div className="allergen-dialog-top">
+          <div>
+            <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
+              Speisekarte
+            </p>
+            <h2
+              id={titleId}
+              className="font-display mt-1 text-2xl text-[color:var(--red)]"
+            >
+              Kennzeichnung
+            </h2>
+          </div>
+          <button
+            ref={closeRef}
+            type="button"
+            className="allergen-dialog-close"
+            onClick={onClose}
+            aria-label="Schließen"
+          >
+            ×
+          </button>
+        </div>
+
+        <p className="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">
+          Hochgestellte Buchstaben und Zahlen neben den Gerichten zeigen
+          Zusatzstoffe und Allergene — wie auf klassischen Speisekarten.
+        </p>
+
+        <ul className="allergen-dialog-list">
+          {allergens.map((item) => (
+            <li key={item.code}>
+              <span className="allergen-code">{item.code}</span>
+              <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-5 text-sm leading-relaxed text-[color:var(--muted)]">
+          Schärfe nach Wunsch: nicht scharf – leicht scharf – mittelscharf –
+          scharf – sehr scharf. Extra Soße 0,10 €. Getränke mit * inkl. 0,15 €
+          Pfand.
+        </p>
+
+        <button
+          type="button"
+          className="btn-primary mt-6 w-full"
+          onClick={onClose}
+        >
+          Verstanden
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function AllergenLegend({ variant = "button", className = "" }: Props) {
+  const [open, setOpen] = useState(false);
+  const titleId = useId();
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  if (variant === "fab") {
+    return (
+      <>
+        <button
+          type="button"
+          className={`allergen-fab ${className}`}
+          onClick={() => setOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label="Kennzeichnung öffnen — Allergene A B C"
+        >
+          <span className="allergen-fab-badge" aria-hidden>
+            <span>A</span>
+            <span>B</span>
+            <span>C</span>
+          </span>
+          <span className="allergen-fab-copy">
+            <span className="allergen-fab-kicker">Legende</span>
+            <span className="allergen-fab-title">Kennzeichnung</span>
+          </span>
+        </button>
+        <AllergenDialog
+          open={open}
+          onClose={() => setOpen(false)}
+          titleId={titleId}
+          closeRef={closeRef}
+        />
+      </>
+    );
+  }
 
   const triggerClass =
     variant === "chip"
@@ -47,73 +160,12 @@ export function AllergenLegend({ variant = "button", className = "" }: Props) {
       >
         Kennzeichnung
       </button>
-
-      {open ? (
-        <div
-          className="allergen-dialog-root"
-          role="presentation"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="allergen-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="allergen-dialog-top">
-              <div>
-                <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                  Speisekarte
-                </p>
-                <h2
-                  id={titleId}
-                  className="font-display mt-1 text-2xl text-[color:var(--red)]"
-                >
-                  Kennzeichnung
-                </h2>
-              </div>
-              <button
-                ref={closeRef}
-                type="button"
-                className="allergen-dialog-close"
-                onClick={() => setOpen(false)}
-                aria-label="Schließen"
-              >
-                ×
-              </button>
-            </div>
-
-            <p className="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">
-              Hochgestellte Buchstaben und Zahlen neben den Gerichten zeigen
-              Zusatzstoffe und Allergene — wie auf klassischen Speisekarten.
-            </p>
-
-            <ul className="allergen-dialog-list">
-              {allergens.map((item) => (
-                <li key={item.code}>
-                  <span className="allergen-code">{item.code}</span>
-                  <span>{item.label}</span>
-                </li>
-              ))}
-            </ul>
-
-            <p className="mt-5 text-sm leading-relaxed text-[color:var(--muted)]">
-              Schärfe nach Wunsch: nicht scharf – leicht scharf – mittelscharf –
-              scharf – sehr scharf. Extra Soße 0,10 €. Getränke mit * inkl.
-              0,15 € Pfand.
-            </p>
-
-            <button
-              type="button"
-              className="btn-primary mt-6 w-full"
-              onClick={() => setOpen(false)}
-            >
-              Verstanden
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <AllergenDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        titleId={titleId}
+        closeRef={closeRef}
+      />
     </>
   );
 }
