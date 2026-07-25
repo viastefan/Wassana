@@ -91,8 +91,10 @@ const NAV_META: Record<Tab, { label: string; title: string }> = {
 export function AdminClient() {
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [username, setUsername] = useState("Wassana");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [savedLoginReady, setSavedLoginReady] = useState(false);
   const [tab, setTab] = useState<Tab>("home");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -297,6 +299,12 @@ export function AdminClient() {
   }, [loadAll]);
 
   useEffect(() => {
+    if (checking || authed) return;
+    // Silent fill only — no popup. Button uses optional mediation.
+    void loadSavedCredentials("silent");
+  }, [checking, authed]);
+
+  useEffect(() => {
     const DISMISS_KEY = "wassana-admin-install-dismissed";
 
     try {
@@ -441,16 +449,62 @@ export function AdminClient() {
     }
   }
 
+  async function storeLoginCredentials(user: string, pass: string) {
+    if (typeof window === "undefined") return;
+    try {
+      const Cred = (
+        window as Window & {
+          PasswordCredential?: new (data: {
+            id: string;
+            password: string;
+            name?: string;
+          }) => Credential;
+        }
+      ).PasswordCredential;
+      if (!Cred || !navigator.credentials?.store) return;
+      const cred = new Cred({
+        id: user.trim() || "Wassana",
+        password: pass,
+        name: "Wassana Verwaltung",
+      });
+      await navigator.credentials.store(cred);
+    } catch {
+      // Browser may skip storing — native save prompt still works via autocomplete.
+    }
+  }
+
+  async function loadSavedCredentials(
+    mediation: CredentialMediationRequirement = "optional",
+  ) {
+    if (typeof window === "undefined" || !navigator.credentials?.get) return;
+    try {
+      const cred = (await navigator.credentials.get({
+        password: true,
+        mediation,
+      } as CredentialRequestOptions)) as
+        | (Credential & { password?: string; id: string })
+        | null;
+      if (!cred?.password) return;
+      setUsername(cred.id || "Wassana");
+      setPassword(cred.password);
+      setSavedLoginReady(true);
+    } catch {
+      // User cancelled picker or unsupported.
+    }
+  }
+
   async function onLogin(event: FormEvent) {
     event.preventDefault();
     if (saving) return;
     setLoginError("");
     setSaving(true);
+    const user = username.trim() || "Wassana";
+    const pass = password;
     try {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password: pass }),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as {
@@ -459,7 +513,9 @@ export function AdminClient() {
         setLoginError(data?.error || "Login fehlgeschlagen.");
         return;
       }
+      await storeLoginCredentials(user, pass);
       setPassword("");
+      setSavedLoginReady(false);
       setAuthed(true);
       setTab("home");
       await loadAll();
@@ -1122,7 +1178,12 @@ export function AdminClient() {
         ) : !authed ? (
           <div className="space-y-5">
             {installBlock}
-            <form onSubmit={onLogin} className="admin-login-card space-y-4">
+            <form
+              onSubmit={onLogin}
+              className="admin-login-card space-y-4"
+              autoComplete="on"
+              name="admin-login"
+            >
               <p className="admin-kicker">Zugang</p>
               <h1 className="font-display text-3xl text-[color:var(--admin-burgundy)]">
                 Anmelden
@@ -1133,23 +1194,68 @@ export function AdminClient() {
               </p>
               <label className="block">
                 <span className="text-sm text-[color:var(--admin-muted)]">
-                  Passwort
+                  Benutzer
                 </span>
                 <input
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="admin-username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  inputMode="text"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className={fieldClass}
                   required
                 />
               </label>
+              <label className="block">
+                <span className="text-sm text-[color:var(--admin-muted)]">
+                  Passwort
+                </span>
+                <input
+                  id="admin-password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setSavedLoginReady(false);
+                  }}
+                  className={fieldClass}
+                  required
+                />
+              </label>
+              {savedLoginReady ? (
+                <p className="text-sm text-[color:var(--admin-muted)]">
+                  Gespeichertes Passwort geladen — nur noch anmelden tippen.
+                </p>
+              ) : (
+                <p className="text-sm text-[color:var(--admin-muted)]">
+                  Nach dem ersten Login fragt das Handy oft „Passwort
+                  speichern?“ — annehmen. Die Sitzung bleibt danach ca. 14 Tage
+                  aktiv.
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <button type="submit" className="btn-primary" disabled={saving}>
+                  {saving ? "Prüfen …" : "In die Verwaltung"}
+                </button>
+                <button
+                  type="button"
+                  className="btn-gold"
+                  disabled={saving}
+                  onClick={() => void loadSavedCredentials()}
+                >
+                  Gespeichertes laden
+                </button>
+              </div>
               {loginError ? (
                 <p className="text-sm text-[color:var(--admin-burgundy)]">{loginError}</p>
               ) : null}
-              <button type="submit" className="btn-primary" disabled={saving}>
-                {saving ? "Prüfen …" : "In die Verwaltung"}
-              </button>
             </form>
           </div>
         ) : (
