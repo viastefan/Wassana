@@ -58,7 +58,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
               {business.fullName}
             </Link>
             <br />
-            Inh.: {business.owner}
+            Inhaber: {business.owner}
             <br />
             {business.street}
             <br />
