@@ -1,7 +1,7 @@
 import path from "path";
 import { weeklyMenu as fallbackWeekly } from "@/lib/menu";
 import {
-  readJsonFile,
+  readJsonWithFallback,
   writeJsonWithFallback,
   type PersistResult,
 } from "@/lib/persist-json";
@@ -82,10 +82,12 @@ function normalize(raw: Partial<WeeklyMenuData> | null): WeeklyMenuData {
 }
 
 export async function getWeeklyMenuData(): Promise<WeeklyMenuData> {
-  const fromTmp = await readJsonFile<Partial<WeeklyMenuData>>(TMP_PATH);
-  if (fromTmp) return normalize(fromTmp);
-  const fromData = await readJsonFile<Partial<WeeklyMenuData>>(DATA_PATH);
-  if (fromData) return normalize(fromData);
+  const raw = await readJsonWithFallback<Partial<WeeklyMenuData>>(
+    DATA_PATH,
+    TMP_PATH,
+    "data/weekly-menu.json",
+  );
+  if (raw) return normalize(raw);
   return defaultWeeklyMenu();
 }
 
@@ -104,7 +106,7 @@ export async function saveWeeklyMenuData(
     "data/weekly-menu.json",
     "chore: update weekly menu from admin",
   );
-  if (!persist.tmp && !persist.disk && !persist.github) {
+  if (!persist.durable && !persist.tmp) {
     throw new Error(
       persist.error || "Wochenkarte konnte nicht gespeichert werden.",
     );

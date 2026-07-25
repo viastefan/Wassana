@@ -1,5 +1,4 @@
 import { createHmac, timingSafeEqual } from "crypto";
-import { promises as fs } from "fs";
 import path from "path";
 import { formatCourseDate } from "@/lib/cooking-course-format";
 import {
@@ -13,6 +12,7 @@ import {
   type CookingCourseStoreData,
 } from "@/lib/cooking-course-shared";
 import {
+  readJsonWithFallback,
   writeJsonWithFallback,
   type PersistResult,
 } from "@/lib/persist-json";
@@ -165,15 +165,6 @@ function normalizeStore(raw: unknown): CookingCourseStore {
   };
 }
 
-async function readStoreFile(filePath: string): Promise<CookingCourseStore | null> {
-  try {
-    const raw = await fs.readFile(filePath, "utf8");
-    return normalizeStore(JSON.parse(raw));
-  } catch {
-    return null;
-  }
-}
-
 async function writeStore(
   store: CookingCourseStore,
   commitMessage: string,
@@ -193,10 +184,12 @@ async function writeStore(
 }
 
 export async function getCookingCourseStore(): Promise<CookingCourseStore> {
-  const fromTmp = await readStoreFile(TMP_PATH);
-  if (fromTmp) return fromTmp;
-  const fromData = await readStoreFile(DATA_PATH);
-  if (fromData) return fromData;
+  const raw = await readJsonWithFallback<unknown>(
+    DATA_PATH,
+    TMP_PATH,
+    "data/cooking-course.json",
+  );
+  if (raw) return normalizeStore(raw);
   return { current: fallbackCourse, archive: [] };
 }
 
@@ -218,7 +211,7 @@ export async function saveCookingCourse(
     "chore: update next cooking course",
   );
 
-  if (!persist.tmp && !persist.disk && !persist.github) {
+  if (!persist.durable && !persist.tmp) {
     throw new Error(persist.error || "Kochkurs konnte nicht gespeichert werden.");
   }
 
@@ -264,7 +257,7 @@ export async function completeCookingCourse(input: {
     nextStore,
     `chore: archive cooking course ${entry.date}`,
   );
-  if (!persist.tmp && !persist.disk && !persist.github) {
+  if (!persist.durable && !persist.tmp) {
     throw new Error(persist.error || "Abhaken fehlgeschlagen.");
   }
   return { store: nextStore, persist };
@@ -286,7 +279,7 @@ export async function deleteCurrentCookingCourse(): Promise<{
     nextStore,
     "chore: clear current cooking course",
   );
-  if (!persist.tmp && !persist.disk && !persist.github) {
+  if (!persist.durable && !persist.tmp) {
     throw new Error(persist.error || "Löschen fehlgeschlagen.");
   }
   return { store: nextStore, persist };
@@ -306,7 +299,7 @@ export async function deleteArchivedCookingCourse(id: string): Promise<{
     nextStore,
     "chore: delete archived cooking course",
   );
-  if (!persist.tmp && !persist.disk && !persist.github) {
+  if (!persist.durable && !persist.tmp) {
     throw new Error(persist.error || "Löschen fehlgeschlagen.");
   }
   return { store: nextStore, persist };
@@ -338,7 +331,7 @@ export async function updateArchivedCookingCourse(input: {
     nextStore,
     "chore: update cooking course fazit",
   );
-  if (!persist.tmp && !persist.disk && !persist.github) {
+  if (!persist.durable && !persist.tmp) {
     throw new Error(persist.error || "Speichern fehlgeschlagen.");
   }
   return { store: nextStore, persist };

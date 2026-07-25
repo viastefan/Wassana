@@ -1,7 +1,7 @@
 import path from "path";
 import webpush from "web-push";
 import {
-  readJsonFile,
+  readJsonWithFallback,
   writeJsonWithFallback,
 } from "@/lib/persist-json";
 import { sanitizeText } from "@/lib/security";
@@ -51,10 +51,12 @@ export function isPushConfigured(): boolean {
 }
 
 async function readStore(): Promise<Store> {
-  const fromTmp = await readJsonFile<Store>(TMP_PATH);
-  if (fromTmp?.subscriptions) return fromTmp;
-  const fromData = await readJsonFile<Store>(DATA_PATH);
-  if (fromData?.subscriptions) return fromData;
+  const raw = await readJsonWithFallback<Store>(
+    DATA_PATH,
+    TMP_PATH,
+    "data/push-subscriptions.json",
+  );
+  if (raw?.subscriptions) return raw;
   return { subscriptions: [], updatedAt: new Date().toISOString() };
 }
 

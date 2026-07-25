@@ -6,6 +6,7 @@ export const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}`;
 export type PersistSnapshot = {
   disk?: boolean;
   tmp?: boolean;
+  blob?: boolean;
   github?: boolean;
   durable?: boolean;
 };
@@ -48,11 +49,10 @@ export function formatDiagnosticReport(report: DiagnosticReport): string {
     ...report.details.map((line) => `- ${line}`),
     "",
     "Umgebung:",
-    `- Vercel: ${report.env.vercel ? "ja" : "nein"}`,
-    `- GITHUB_TOKEN: ${report.env.githubToken ? "gesetzt" : "FEHLT"}`,
+    `- Blob: ${report.env.blob ? "gesetzt" : "FEHLT"}`,
+    `- GITHUB_TOKEN: ${report.env.githubToken ? "gesetzt (optional Backup)" : "fehlt (optional)"}`,
     `- GITHUB_REPO: ${report.env.githubRepo ? "gesetzt/ableitbar" : "unklar"}`,
     `- SMTP: ${report.env.smtp ? "gesetzt" : "fehlt"}`,
-    `- Blob: ${report.env.blob ? "gesetzt" : "fehlt"}`,
     `- Site-URL: ${report.env.siteUrl}`,
   ];
 
@@ -60,6 +60,7 @@ export function formatDiagnosticReport(report: DiagnosticReport): string {
     lines.push(
       "",
       "Persistenz:",
+      `- Blob: ${yesNo(report.persist.blob)}`,
       `- Disk: ${yesNo(report.persist.disk)}`,
       `- /tmp: ${yesNo(report.persist.tmp)}`,
       `- GitHub: ${yesNo(report.persist.github)}`,
@@ -130,9 +131,14 @@ export function buildPublishDiagnostic(input: {
   if (input.error) details.push(input.error);
 
   if (input.persist) {
-    if (!input.persist.github && env.vercel) {
+    if (input.persist.blob) {
       details.push(
-        "GitHub-Commit hat nicht geklappt — ohne GITHUB_TOKEN bleiben Änderungen auf Vercel nicht live.",
+        "In Vercel Blob gespeichert — Website liest die Änderung sofort (ohne Redeploy).",
+      );
+    }
+    if (!input.persist.blob && !input.persist.github && env.vercel) {
+      details.push(
+        "Weder Blob noch GitHub haben gespeichert — Live-Update auf .de ist blockiert.",
       );
     }
     if (input.persist.tmp && !input.persist.durable) {
@@ -140,16 +146,14 @@ export function buildPublishDiagnostic(input: {
         "Nur in /tmp gespeichert (temporär, verschwindet bei neuem Deploy).",
       );
     }
-    if (input.persist.durable && input.persist.github) {
-      details.push(
-        "In GitHub gespeichert — Vercel sollte automatisch neu deployen (kann 1–2 Min. dauern).",
-      );
+    if (input.persist.github) {
+      details.push("Zusätzlich als GitHub-Backup committed.");
     }
   }
 
-  if (!env.githubToken && env.vercel) {
+  if (!env.blob && env.vercel) {
     details.push(
-      "KRITISCH: GITHUB_TOKEN fehlt in Vercel → Admin-Änderungen kommen nicht dauerhaft auf www.wassana-thai-imbiss.de.",
+      "KRITISCH: BLOB_READ_WRITE_TOKEN fehlt in Vercel → Admin-Änderungen kommen nicht dauerhaft live.",
     );
   }
   if (!env.smtp) {
@@ -169,8 +173,8 @@ export function buildPublishDiagnostic(input: {
   const summary = input.ok
     ? "Veröffentlichung erfolgreich."
     : input.error ||
-      (!env.githubToken
-        ? "Nicht live: GITHUB_TOKEN fehlt auf Vercel."
+      (!env.blob
+        ? "Nicht live: BLOB_READ_WRITE_TOKEN fehlt auf Vercel."
         : "Veröffentlichung fehlgeschlagen.");
 
   return {

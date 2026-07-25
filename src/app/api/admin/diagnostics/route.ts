@@ -20,10 +20,10 @@ export async function GET() {
   const env = envDiagnostics();
   const report = buildPublishDiagnostic({
     action: "Statusprüfung",
-    ok: !env.vercel || env.githubToken,
+    ok: !env.vercel || env.blob,
     error:
-      env.vercel && !env.githubToken
-        ? "GITHUB_TOKEN fehlt — Live-Veröffentlichung auf .de ist blockiert."
+      env.vercel && !env.blob
+        ? "BLOB_READ_WRITE_TOKEN fehlt — Live-Veröffentlichung auf .de ist blockiert."
         : undefined,
   });
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { PersistResult } from "@/lib/persist-json";
 
-/** On Vercel, /tmp alone is not enough — CMS must hit disk or GitHub. */
+/** On Vercel, /tmp alone is not enough — CMS must hit Blob, disk, or GitHub. */
 export function isEphemeralHosting() {
   return Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
 }
@@ -14,20 +14,23 @@ export function persistWarningOrFail<T extends Record<string, unknown>>(
   body: T,
   persist: PersistResult,
 ) {
+  const persistView = {
+    disk: persist.disk,
+    tmp: persist.tmp,
+    blob: persist.blob,
+    github: persist.github,
+    durable: persist.durable,
+  };
+
   if (!persist.durable && isEphemeralHosting()) {
     return NextResponse.json(
       {
         ...body,
         error:
           persist.error ||
-          "Nicht dauerhaft gespeichert. Bitte GITHUB_TOKEN in Vercel setzen und erneut speichern.",
+          "Nicht dauerhaft gespeichert. BLOB_READ_WRITE_TOKEN in Vercel prüfen.",
         warning: persist.error,
-        persist: {
-          disk: persist.disk,
-          tmp: persist.tmp,
-          github: persist.github,
-          durable: persist.durable,
-        },
+        persist: persistView,
       },
       { status: 503 },
     );
@@ -36,11 +39,6 @@ export function persistWarningOrFail<T extends Record<string, unknown>>(
   return NextResponse.json({
     ...body,
     warning: persist.durable ? undefined : persist.error,
-    persist: {
-      disk: persist.disk,
-      tmp: persist.tmp,
-      github: persist.github,
-      durable: persist.durable,
-    },
+    persist: persistView,
   });
 }

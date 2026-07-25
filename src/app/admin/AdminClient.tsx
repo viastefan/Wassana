@@ -470,6 +470,7 @@ export function AdminClient() {
       persist?: {
         disk?: boolean;
         tmp?: boolean;
+        blob?: boolean;
         github?: boolean;
         durable?: boolean;
       };
@@ -529,6 +530,7 @@ export function AdminClient() {
     persist?: {
       disk?: boolean;
       tmp?: boolean;
+      blob?: boolean;
       github?: boolean;
       durable?: boolean;
     };
@@ -654,6 +656,7 @@ export function AdminClient() {
             persist?: {
               disk?: boolean;
               tmp?: boolean;
+              blob?: boolean;
               github?: boolean;
               durable?: boolean;
             };
@@ -819,6 +822,7 @@ export function AdminClient() {
             persist?: {
               disk?: boolean;
               tmp?: boolean;
+              blob?: boolean;
               github?: boolean;
               durable?: boolean;
             };
@@ -869,6 +873,7 @@ export function AdminClient() {
             persist?: {
               disk?: boolean;
               tmp?: boolean;
+              blob?: boolean;
               github?: boolean;
               durable?: boolean;
             };
@@ -1018,6 +1023,7 @@ export function AdminClient() {
             persist?: {
               disk?: boolean;
               tmp?: boolean;
+              blob?: boolean;
               github?: boolean;
               durable?: boolean;
             };

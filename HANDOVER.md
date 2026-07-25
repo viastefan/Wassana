@@ -28,9 +28,9 @@ Project **wassana** → Settings → Environment Variables:
 | `NEXT_PUBLIC_SITE_URL` | `https://www.wassana-thai-imbiss.de` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | E-Mail-Versand Kontaktformular |
 | `CONTACT_TO` | Empfänger (Inhaber-Mail) |
-| `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | **Pflicht auf Vercel** — ohne Token gehen Banner/Texte/Menü **nicht live** auf `.de` |
+| `BLOB_READ_WRITE_TOKEN` | **Pflicht** — Admin-CMS live auf `.de` (Banner, Texte, Menü, …) |
+| `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | Optional — Backup der CMS-JSONs ins Repo |
 | SMTP_* / `CONTACT_TO` | Für Kontaktmails + Admin-Support/Passwort-Reset an `stefandirnberger@viawen.com` |
-| `BLOB_READ_WRITE_TOKEN` | **Empfohlen** — speichert Kontaktanfragen dauerhaft (verschlüsselt, nicht in GitHub) |
 | `INQUIRIES_SECRET` | Optional — eigener Schlüssel für Anfragen-Verschlüsselung |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional Search-Console Meta |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Push-Benachrichtigungen Admin-App (Public) |
@@ -44,15 +44,16 @@ Nach Änderungen an Env-Variablen: Redeploy.
 
 ### Admin → Live Website (wichtig)
 
-Auf Vercel ist das Dateisystem schreibgeschützt. Speichern läuft so:
+Auf Vercel speichert der Admin so:
 
-1. kurz in `/tmp` (nur diese Server-Instanz)
-2. dauerhaft per **GitHub Commit** in `data/*.json` → triggert Redeploy → live für alle
+1. **Vercel Blob** (dauerhaft, sofort live — kein Redeploy nötig)
+2. kurz zusätzlich in `/tmp`
+3. optional GitHub-Backup, falls `GITHUB_TOKEN` gesetzt ist
 
-Ohne `GITHUB_TOKEN` schlägt Speichern im Admin mit Fehler fehl (503), damit nichts „scheinbar gespeichert“ wird.
+`BLOB_READ_WRITE_TOKEN` ist Pflicht für Live-Änderungen (Banner, Texte, Menü, Kochkurs, Betrieb).  
+Ohne Blob bleibt nur temporäres `/tmp` — dann ändert sich `.de` nicht zuverlässig.
 
-`GITHUB_TOKEN` anlegen: GitHub → Settings → Developer settings → Personal access token (classic) mit Scope **`repo`** für `viastefan/Wassana`.  
-In Vercel: Variable `GITHUB_TOKEN` = Token, optional `GITHUB_REPO=viastefan/Wassana`, `GITHUB_BRANCH=main`.
+Optional: `GITHUB_TOKEN` für Versionshistorie im Repo (nicht mehr nötig für Live).
 
 ## Rechtliches / Cookies
 

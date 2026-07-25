@@ -1,12 +1,97 @@
-/** Shared GitHub + disk persistence for admin-editable JSON files. */
+/** Durable CMS persistence: Vercel Blob (live) + optional GitHub backup + disk/tmp. */
+
+import { head, put } from "@vercel/blob";
 
 export type PersistResult = {
   disk: boolean;
   tmp: boolean;
+  blob: boolean;
   github: boolean;
   durable: boolean;
   error?: string;
 };
+
+function blobToken() {
+  return process.env.BLOB_READ_WRITE_TOKEN?.trim() || "";
+}
+
+export function isBlobConfigured() {
+  return Boolean(blobToken());
+}
+
+/** Blob pathname for a CMS file (stable, overwriteable). */
+export function cmsBlobPath(githubPath: string) {
+  const clean = githubPath.replace(/^\//, "");
+  return clean.startsWith("cms/") ? clean : `cms/${clean}`;
+}
+
+async function writeToBlob(
+  githubPath: string,
+  content: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const token = blobToken();
+  if (!token) {
+    return {
+      ok: false,
+      error:
+        "BLOB_READ_WRITE_TOKEN fehlt — Live-CMS auf Vercel nicht möglich.",
+    };
+  }
+
+  try {
+    await put(cmsBlobPath(githubPath), content.endsWith("\n") ? content : `${content}\n`, {
+      access: "public",
+      token,
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      cacheControlMaxAge: 60,
+    });
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? `Blob-Speichern fehlgeschlagen: ${error.message}`
+          : "Blob-Speichern fehlgeschlagen.",
+    };
+  }
+}
+
+export async function readJsonFromBlob<T>(
+  githubPath: string,
+): Promise<T | null> {
+  const token = blobToken();
+  if (!token) return null;
+
+  try {
+    const meta = await head(cmsBlobPath(githubPath), { token });
+    const res = await fetch(meta.url, { cache: "no-store" });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Read order for live CMS: Blob → /tmp → repo data file.
+ * After an Admin save on Vercel, Blob is the source of truth.
+ */
+export async function readJsonWithFallback<T>(
+  dataPath: string,
+  tmpPath: string,
+  githubPath: string,
+): Promise<T | null> {
+  const fromBlob = await readJsonFromBlob<T>(githubPath);
+  if (fromBlob) return fromBlob;
+
+  const fromTmp = await readJsonFile<T>(tmpPath);
+  if (fromTmp) return fromTmp;
+
+  return readJsonFile<T>(dataPath);
+}
 
 export async function writeJsonWithFallback(
   dataPath: string,
@@ -36,22 +121,31 @@ export async function writeJsonWithFallback(
     // ignore
   }
 
+  const blob = await writeToBlob(githubPath, payload);
+  // GitHub remains optional backup / history — not required for live .de
   const github = await maybeCommitToGitHub(githubPath, payload, commitMessage);
-  const durable = disk || github.ok;
+
+  const durable = disk || blob.ok || github.ok;
   const result: PersistResult = {
     disk,
     tmp,
+    blob: blob.ok,
     github: github.ok,
     durable,
   };
 
-  if (!tmp && !disk && !github.ok) {
+  if (!tmp && !disk && !blob.ok && !github.ok) {
     result.error =
+      blob.error ||
       github.error ||
-      "Speichern fehlgeschlagen — weder Dateisystem noch GitHub erreichbar.";
+      "Speichern fehlgeschlagen — weder Blob noch Dateisystem erreichbar.";
   } else if (!durable) {
     result.error =
-      "Nur temporär gespeichert. GITHUB_TOKEN setzen für dauerhafte Speicherung auf Vercel.";
+      blob.error ||
+      "Nur temporär gespeichert. BLOB_READ_WRITE_TOKEN in Vercel prüfen.";
+  } else if (blob.ok && !github.ok && process.env.VERCEL) {
+    // Soft note only — live works via Blob without GitHub.
+    result.error = undefined;
   }
 
   return result;
@@ -83,19 +177,8 @@ async function maybeCommitToGitHub(
     process.env.VERCEL_GIT_COMMIT_REF ||
     "main";
 
-  if (!token) {
-    return {
-      ok: false,
-      error:
-        "GITHUB_TOKEN fehlt in Vercel — Änderungen werden nicht dauerhaft auf .de veröffentlicht.",
-    };
-  }
-  if (!repo) {
-    return {
-      ok: false,
-      error:
-        "GITHUB_REPO fehlt (oder Git-Metadaten). Bitte GITHUB_REPO=viastefan/Wassana setzen.",
-    };
+  if (!token || !repo) {
+    return { ok: false };
   }
 
   const apiFile = `https://api.github.com/repos/${repo}/contents/${filePath}`;
@@ -132,7 +215,6 @@ async function maybeCommitToGitHub(
 
     let put = await putWithSha(sha);
 
-    // Race: file changed — refresh SHA once
     if (put.status === 409) {
       const again = await fetch(
         `${apiFile}?ref=${encodeURIComponent(branch)}`,
@@ -148,7 +230,7 @@ async function maybeCommitToGitHub(
       const text = await put.text().catch(() => "");
       return {
         ok: false,
-        error: `GitHub-Speichern fehlgeschlagen (${put.status}). ${text.slice(0, 120)}`,
+        error: `GitHub-Backup fehlgeschlagen (${put.status}). ${text.slice(0, 120)}`,
       };
     }
 
@@ -159,7 +241,7 @@ async function maybeCommitToGitHub(
       error:
         error instanceof Error
           ? error.message
-          : "GitHub-Speichern fehlgeschlagen.",
+          : "GitHub-Backup fehlgeschlagen.",
     };
   }
 }

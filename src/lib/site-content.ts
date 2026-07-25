@@ -1,7 +1,7 @@
 import path from "path";
 import { site } from "@/lib/site";
 import {
-  readJsonFile,
+  readJsonWithFallback,
   writeJsonWithFallback,
   type PersistResult,
 } from "@/lib/persist-json";
@@ -223,10 +223,12 @@ function normalize(raw: Partial<SiteContent> | null): SiteContent {
 }
 
 export async function getSiteContent(): Promise<SiteContent> {
-  const fromTmp = await readJsonFile<Partial<SiteContent>>(TMP_PATH);
-  if (fromTmp) return normalize(fromTmp);
-  const fromData = await readJsonFile<Partial<SiteContent>>(DATA_PATH);
-  if (fromData) return normalize(fromData);
+  const raw = await readJsonWithFallback<Partial<SiteContent>>(
+    DATA_PATH,
+    TMP_PATH,
+    "data/site-content.json",
+  );
+  if (raw) return normalize(raw);
   return defaultSiteContent();
 }
 
@@ -245,7 +247,7 @@ export async function saveSiteContent(
     "data/site-content.json",
     "chore: update site content from admin",
   );
-  if (!persist.tmp && !persist.disk && !persist.github) {
+  if (!persist.durable && !persist.tmp) {
     throw new Error(persist.error || "Inhalte konnten nicht gespeichert werden.");
   }
   return { content: next, persist };

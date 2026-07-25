@@ -7,7 +7,7 @@ import {
   type ResolvedBusiness,
 } from "@/lib/business-profile-shared";
 import {
-  readJsonFile,
+  readJsonWithFallback,
   writeJsonWithFallback,
   type PersistResult,
 } from "@/lib/persist-json";
@@ -23,10 +23,12 @@ const DATA_PATH = path.join(process.cwd(), "data", "business-profile.json");
 const TMP_PATH = path.join("/tmp", "wassana-business-profile.json");
 
 export async function getBusinessProfile(): Promise<BusinessProfile> {
-  const fromTmp = await readJsonFile<Partial<BusinessProfile>>(TMP_PATH);
-  if (fromTmp) return normalizeBusinessProfile(fromTmp);
-  const fromData = await readJsonFile<Partial<BusinessProfile>>(DATA_PATH);
-  if (fromData) return normalizeBusinessProfile(fromData);
+  const raw = await readJsonWithFallback<Partial<BusinessProfile>>(
+    DATA_PATH,
+    TMP_PATH,
+    "data/business-profile.json",
+  );
+  if (raw) return normalizeBusinessProfile(raw);
   return defaultBusinessProfile();
 }
 
@@ -49,7 +51,7 @@ export async function saveBusinessProfile(
     "data/business-profile.json",
     "chore: update business profile from admin",
   );
-  if (!persist.tmp && !persist.disk && !persist.github) {
+  if (!persist.durable && !persist.tmp) {
     throw new Error(
       persist.error || "Betriebsdaten konnten nicht gespeichert werden.",
     );
