@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { site } from "@/lib/site";
+import { MapEmbed } from "@/components/MapEmbed";
 import { Reveal } from "@/components/Reveal";
 import type { SiteContent } from "@/lib/site-content";
+import { site } from "@/lib/site";
 
 export function LocationSection({
   location,
@@ -104,17 +105,8 @@ export function LocationSection({
         <Reveal delay={1} className="h-full">
           <div className="flex h-full min-h-[340px] items-stretch border-t border-[color:var(--line)] md:min-h-0 md:border-t-0 md:border-l md:py-16 md:pr-8">
             <div className="relative h-full min-h-[340px] w-full overflow-hidden">
-              <iframe
+              <MapEmbed
                 title={`Karte: ${site.fullName}, ${site.address.street}, ${site.address.city}`}
-                src={site.maps.embed}
-                className="location-map absolute inset-0 h-full w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
-              />
-              <div
-                className="pointer-events-none absolute inset-0 location-map-veil"
-                aria-hidden
               />
             </div>
           </div>

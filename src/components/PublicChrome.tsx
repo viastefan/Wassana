@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { CookieBanner } from "@/components/CookieBanner";
 import { CookingCoursePromo } from "@/components/CookingCoursePromo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -22,10 +23,14 @@ export function PublicChrome({
 
   return (
     <div className="site-shell">
+      <a href="#main-content" className="skip-link">
+        Zum Inhalt springen
+      </a>
       <SiteHeader />
-      {children}
+      <div id="main-content">{children}</div>
       <SiteFooter hours={content.hours} />
       <CookingCoursePromo />
+      <CookieBanner />
     </div>
   );
 }

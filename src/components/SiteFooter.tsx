@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CookieSettingsButton } from "@/components/CookieSettingsButton";
 import { site } from "@/lib/site";
 
 type SiteFooterProps = {
@@ -112,6 +113,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
             <Link href="/datenschutz" className="hover:text-[color:var(--red)]">
               Datenschutz
             </Link>
+            <CookieSettingsButton />
           </div>
         </div>
       </div>

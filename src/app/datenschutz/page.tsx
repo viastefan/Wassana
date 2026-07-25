@@ -124,11 +124,14 @@ export default function DatenschutzPage() {
                 5. Google Maps
               </h2>
               <p className="mt-3">
-                Auf unserer Website ist eine Karte von Google Maps eingebunden
-                (Anbieter: Google Ireland Limited, Gordon House, Barrow Street,
-                Dublin 4, Irland). Beim Laden der Karte kann Google Daten
-                erheben (u. a. IP-Adresse). Die Einbindung erfolgt zur
-                Darstellung unseres Standorts (Art. 6 Abs. 1 lit. f DSGVO).
+                Auf unserer Website kann eine Karte von Google Maps eingebunden
+                werden (Anbieter: Google Ireland Limited, Gordon House, Barrow
+                Street, Dublin 4, Irland). Die Karte wird erst nach Ihrer
+                ausdrücklichen Zustimmung geladen. Beim Laden kann Google Daten
+                erheben (u. a. IP-Adresse). Rechtsgrundlage ist Ihre Einwilligung
+                (Art. 6 Abs. 1 lit. a DSGVO). Sie können die Einwilligung über
+                den Cookie-Hinweis bzw. den Link „Cookies“ im Footer jederzeit
+                neu setzen.
               </p>
               <p className="mt-3">
                 Weitere Informationen:{" "}
@@ -151,12 +154,27 @@ export default function DatenschutzPage() {
                 6. Cookies / lokale Speicherung
               </h2>
               <p className="mt-3">
-                Wir setzen keine Tracking- oder Marketing-Cookies ein. Technisch
-                notwendige Speicherung im Browser kann vorkommen, z. B. wenn Sie
-                den Hinweis zum Kochkurs schließen (sessionStorage) oder sich im
-                Admin-Bereich anmelden (Session-Cookie). Diese Speicherung dient
-                ausschließlich der Funktion der Website (Art. 6 Abs. 1 lit. f
-                DSGVO).
+                Wir setzen keine Tracking- oder Marketing-Cookies ein. Folgende
+                Speicherung kann vorkommen:
+              </p>
+              <ul className="mt-3 list-disc space-y-2 pl-5">
+                <li>
+                  Cookie-Einwilligung (localStorage) — speichert Ihre Auswahl zu
+                  notwendigen Funktionen und Google Maps.
+                </li>
+                <li>
+                  Kochkurs-Hinweis (sessionStorage) — merkt sich, wenn Sie den
+                  Hinweis schließen.
+                </li>
+                <li>
+                  Admin-Login (Session-Cookie) — nur für den geschützten
+                  Verwaltungsbereich.
+                </li>
+              </ul>
+              <p className="mt-3">
+                Notwendige Speicherung erfolgt auf Grundlage von Art. 6 Abs. 1
+                lit. f DSGVO; optionale Dienste (Google Maps) nur mit
+                Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO.
               </p>
             </section>
           </Reveal>

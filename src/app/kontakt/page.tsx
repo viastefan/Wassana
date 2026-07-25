@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { Reveal } from "@/components/Reveal";
+import { getSiteContent } from "@/lib/site-content";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -15,9 +16,10 @@ export const metadata: Metadata = {
   },
 };
 
-const mapsUrl = site.maps.place;
+export default async function KontaktPage() {
+  const content = await getSiteContent();
+  const mapsUrl = site.maps.place;
 
-export default function KontaktPage() {
   return (
     <main className="pt-24">
       <section className="mx-auto grid max-w-6xl gap-14 px-5 py-12 md:grid-cols-2 md:gap-20 md:px-8 md:py-20">
@@ -71,10 +73,10 @@ export default function KontaktPage() {
             <div>
               <p className="text-sm text-[color:var(--gold)]">Öffnungszeiten</p>
               <p className="mt-1 text-[color:var(--ink)]">
-                {site.hours.weekdaysLong}
+                {content.hours.weekdaysLong}
                 <br />
                 <span className="text-[color:var(--muted)]">
-                  {site.hours.weekend}
+                  {content.hours.weekend}
                 </span>
               </p>
             </div>
