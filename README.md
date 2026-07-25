@@ -9,7 +9,7 @@ Weiß · Gold · Dunkelrot
 ## Seiten
 
 - `/` Startseite mit Begrüßung und Speisekarte
-- `/speisekarte` Speisekarte & Wochenkarte
+- `/speisekarte` Speisekarte & beliebte Gerichte der Woche
 - `/catering` Catering mit E-Mail-Kontakt
 - `/kochkurs` Kochkurs mit E-Mail-Kontakt
 - `/kontakt` Kontakt
