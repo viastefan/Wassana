@@ -2436,8 +2436,29 @@ a.btn-ghost:hover {
   }
 }
 
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-media-parallax {
+  position: absolute;
+  /* Extra bleed so zoom + pan never show empty edges */
+  inset: -12%;
+  will-change: transform;
+  transform: translate3d(
+      0,
+      calc(var(--hero-scroll, 0) * 14%),
+      0
+    )
+    scale(calc(1 + var(--hero-scroll, 0) * 0.14));
+}
+
 .hero-media {
-  animation: hero-zoom 18s ease-out forwards;
+  transform-origin: 58% 42%;
+  animation: hero-kenburns 32s ease-in-out infinite alternate;
 }
 
 .reveal {
@@ -2493,6 +2514,15 @@ a.btn-ghost:hover {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes hero-kenburns {
+  from {
+    transform: scale(1.04) translate3d(0.8%, -0.4%, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-2.2%, 1.6%, 0);
   }
 }
 
@@ -3894,6 +3924,7 @@ a.btn-ghost:hover {
   }
 
   .hero-media,
+  .hero-media-parallax,
   .hero-copy,
   .hero-copy-delay,
   .hero-copy-delay-2,
