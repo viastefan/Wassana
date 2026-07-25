@@ -1475,11 +1475,11 @@ button.admin-install-cta:hover {
   backdrop-filter: blur(4px);
 }
 
+/* Desktop: true viewport centering (portal + absolute center) */
 @media (min-width: 768px) {
   .allergen-dialog-root {
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
+    display: block;
+    padding: 0;
   }
 }
 
@@ -1495,8 +1495,13 @@ button.admin-install-cta:hover {
 
 @media (min-width: 768px) {
   .allergen-dialog {
-    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(calc(100vw - 3rem), 28rem);
     max-height: min(86svh, 40rem);
+    margin: 0;
     border-radius: 0.55rem;
     box-shadow: 0 28px 64px rgba(30, 33, 41, 0.24);
   }
@@ -1510,9 +1515,8 @@ button.admin-install-cta:hover {
 }
 
 .allergen-dialog-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-grid;
+  place-items: center;
   flex-shrink: 0;
   width: 2.25rem;
   height: 2.25rem;
@@ -1522,18 +1526,15 @@ button.admin-install-cta:hover {
   border-radius: 999px;
   background: color-mix(in srgb, var(--ink) 8%, transparent);
   color: var(--ink);
-  font-size: 1.4rem;
   line-height: 0;
   cursor: pointer;
 }
 
 .allergen-dialog-close-icon {
   display: block;
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1;
-  /* Optical center for the × glyph in this typeface */
-  transform: translateY(-0.04em);
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
 }
 
 .allergen-dialog-close:hover {

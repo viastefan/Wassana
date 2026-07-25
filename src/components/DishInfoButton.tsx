@@ -101,7 +101,22 @@ export function DishInfoButton({ day }: { day: WeeklyMenuDay }) {
                 onClick={() => setOpen(false)}
                 aria-label="Schließen"
               >
-                ×
+                <svg
+                  className="allergen-dialog-close-icon"
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  aria-hidden
+                  focusable="false"
+                >
+                  <path
+                    d="M5 5l14 14M19 5L5 19"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </button>
             </div>
 
