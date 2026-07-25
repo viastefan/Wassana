@@ -6,79 +6,29 @@ import {
   type PersistResult,
 } from "@/lib/persist-json";
 import { sanitizeText } from "@/lib/security";
+import {
+  defaultStudentLunch,
+  defaultTopBanner,
+  sanitizeColor,
+  sanitizeHref,
+  type SiteContent,
+  type TopBanner,
+} from "@/lib/site-content-shared";
 
-export type TopBanner = {
-  active: boolean;
-  text: string;
-  highlight: string;
-  linkHref: string;
-  linkLabel: string;
-  backgroundColor: string;
-  textColor: string;
-  highlightColor: string;
-};
-
-export type SiteContent = {
-  hero: {
-    eyebrow: string;
-    lede: string;
-  };
-  meaning: string;
-  hours: {
-    weekdays: string;
-    weekdaysLong: string;
-    weekend: string;
-  };
-  studentLunch: {
-    eyebrow: string;
-    title: string;
-    text: string;
-    price: string;
-    note: string;
-  };
-  topBanner: TopBanner;
-  location: {
-    eyebrow: string;
-    title: string;
-    text: string;
-  };
-  closing: {
-    title: string;
-    text: string;
-  };
-  updatedAt: string;
-};
+export type {
+  SiteContent,
+  StudentLunchOffer,
+  TopBanner,
+} from "@/lib/site-content-shared";
+export {
+  STUDENT_LUNCH_POPUP_HREF,
+  defaultStudentLunch,
+  defaultTopBanner,
+  isStudentLunchPopupHref,
+} from "@/lib/site-content-shared";
 
 const DATA_PATH = path.join(process.cwd(), "data", "site-content.json");
 const TMP_PATH = path.join("/tmp", "wassana-site-content.json");
-
-const HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
-
-function sanitizeColor(value: string, fallback: string): string {
-  const next = String(value || "").trim();
-  return HEX.test(next) ? next.toLowerCase() : fallback;
-}
-
-function sanitizeHref(value: string, fallback: string): string {
-  const next = sanitizeText(String(value || ""), 200);
-  if (!next) return fallback;
-  if (next.startsWith("/") || next.startsWith("#")) return next;
-  if (/^https?:\/\//i.test(next)) return next;
-  return fallback;
-}
-
-export function defaultTopBanner(): TopBanner {
-  return {
-    active: true,
-    text: "Schüler & Azubis mittags: Gericht inkl. Getränk",
-    highlight: site.studentLunch.price,
-    linkHref: "/speisekarte#wochenkarte",
-    linkLabel: "Mehr",
-    backgroundColor: "#7a0c24",
-    textColor: "#f7f3ea",
-    highlightColor: "#cbb892",
-  };
-}
 
 export function defaultSiteContent(): SiteContent {
   return {
@@ -92,7 +42,7 @@ export function defaultSiteContent(): SiteContent {
       weekdaysLong: site.hours.weekdaysLong,
       weekend: site.hours.weekend,
     },
-    studentLunch: { ...site.studentLunch },
+    studentLunch: defaultStudentLunch(),
     topBanner: defaultTopBanner(),
     location: {
       eyebrow: "Hier findest du uns",
@@ -154,6 +104,60 @@ function normalize(raw: Partial<SiteContent> | null): SiteContent {
       note: sanitizeText(
         String(raw.studentLunch?.note ?? base.studentLunch.note),
         240,
+      ),
+      popupTitle: sanitizeText(
+        String(
+          raw.studentLunch?.popupTitle ??
+            raw.studentLunch?.title ??
+            base.studentLunch.popupTitle,
+        ),
+        160,
+      ),
+      popupLead: sanitizeText(
+        String(
+          raw.studentLunch?.popupLead ??
+            raw.studentLunch?.text ??
+            base.studentLunch.popupLead,
+        ),
+        400,
+      ),
+      popupBody: sanitizeText(
+        String(raw.studentLunch?.popupBody ?? base.studentLunch.popupBody),
+        1200,
+      ),
+      popupBullets: sanitizeText(
+        String(
+          raw.studentLunch?.popupBullets ?? base.studentLunch.popupBullets,
+        ),
+        800,
+      ),
+      popupPrice: sanitizeText(
+        String(
+          raw.studentLunch?.popupPrice ??
+            raw.studentLunch?.price ??
+            base.studentLunch.popupPrice,
+        ),
+        40,
+      ),
+      popupNote: sanitizeText(
+        String(
+          raw.studentLunch?.popupNote ??
+            raw.studentLunch?.note ??
+            base.studentLunch.popupNote,
+        ),
+        240,
+      ),
+      popupCtaLabel: sanitizeText(
+        String(
+          raw.studentLunch?.popupCtaLabel ?? base.studentLunch.popupCtaLabel,
+        ),
+        60,
+      ),
+      popupCtaHref: sanitizeHref(
+        String(
+          raw.studentLunch?.popupCtaHref ?? base.studentLunch.popupCtaHref,
+        ),
+        base.studentLunch.popupCtaHref,
       ),
     },
     topBanner: {

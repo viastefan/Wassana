@@ -1,8 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import type { SiteContent } from "@/lib/site-content";
+import {
+  isStudentLunchPopupHref,
+  type SiteContent,
+} from "@/lib/site-content-shared";
+import { useOfferPopupOptional } from "@/components/OfferPopupContext";
 
 type TopOfferBannerProps = {
   banner: SiteContent["topBanner"];
@@ -22,6 +25,7 @@ export function TopOfferBanner({
   banner,
   onVisibilityChange,
 }: TopOfferBannerProps) {
+  const offerPopup = useOfferPopupOptional();
   const storageKey = useMemo(() => bannerStorageKey(banner), [banner]);
   const [dismissed, setDismissed] = useState(false);
   const [ready, setReady] = useState(false);
@@ -36,7 +40,6 @@ export function TopOfferBanner({
   }, [storageKey]);
 
   const configured = banner.active && Boolean(banner.text.trim());
-  // Until storage is read, keep the banner visible to avoid layout jump.
   const visible = configured && !(ready && dismissed);
 
   useEffect(() => {
@@ -62,6 +65,11 @@ export function TopOfferBanner({
     color: banner.textColor,
   } as const;
 
+  const opensPopup = isStudentLunchPopupHref(banner.linkHref);
+  const hasAction =
+    Boolean(banner.linkLabel.trim()) &&
+    (opensPopup || Boolean(banner.linkHref.trim()));
+
   const copy = (
     <>
       <span className="min-w-0">
@@ -78,7 +86,7 @@ export function TopOfferBanner({
           </>
         ) : null}
       </span>
-      {banner.linkLabel.trim() && banner.linkHref.trim() ? (
+      {hasAction ? (
         <span
           className="shrink-0 underline underline-offset-2 opacity-95"
           style={{ color: banner.highlightColor }}
@@ -91,14 +99,23 @@ export function TopOfferBanner({
 
   return (
     <div className="top-offer-banner relative" style={style} role="note">
-      {banner.linkHref.trim() ? (
-        <Link
+      {opensPopup ? (
+        <button
+          type="button"
+          className="top-offer-banner-copy block w-full transition hover:opacity-95"
+          aria-label={banner.text}
+          onClick={() => offerPopup?.openOffer()}
+        >
+          <div className="top-offer-banner-inner">{copy}</div>
+        </button>
+      ) : banner.linkHref.trim() ? (
+        <a
           href={banner.linkHref}
           className="top-offer-banner-copy block transition hover:opacity-95"
           aria-label={banner.text}
         >
           <div className="top-offer-banner-inner">{copy}</div>
-        </Link>
+        </a>
       ) : (
         <div className="top-offer-banner-copy">
           <div className="top-offer-banner-inner">{copy}</div>

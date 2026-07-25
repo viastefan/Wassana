@@ -814,7 +814,10 @@ export function AdminClient() {
                       placeholder="ab 8,90 €"
                     />
                   </Field>
-                  <Field label="Link-Ziel">
+                  <Field
+                    label="Link-Ziel"
+                    hint="#mittag öffnet das Angebot-Popup · sonst normale URL"
+                  >
                     <input
                       value={content.topBanner.linkHref}
                       onChange={(e) =>
@@ -827,7 +830,7 @@ export function AdminClient() {
                         })
                       }
                       className={fieldClass}
-                      placeholder="/speisekarte#wochenkarte"
+                      placeholder="#mittag"
                     />
                   </Field>
                   <Field label="Link-Text">
@@ -943,7 +946,7 @@ export function AdminClient() {
                         active: true,
                         text: `${content.studentLunch.eyebrow}: ${content.studentLunch.title}`,
                         highlight: content.studentLunch.price,
-                        linkHref: "/speisekarte#wochenkarte",
+                        linkHref: "#mittag",
                         linkLabel: "Mehr",
                       },
                     })
@@ -1071,6 +1074,77 @@ export function AdminClient() {
                       />
                     </Field>
                   ))}
+                </Section>
+
+                <Section title="Mittag-Popup">
+                  <p className="mb-2 text-sm text-[color:var(--muted)]">
+                    Inhalt für Banner „Mehr“ und den Button auf der Startseite.
+                    Auf dem Handy als Sheet von unten.
+                  </p>
+                  {(
+                    [
+                      ["popupTitle", "Popup-Titel"],
+                      ["popupLead", "Kurztext oben"],
+                      ["popupPrice", "Preis im Popup"],
+                      ["popupNote", "Hinweis im Popup"],
+                      ["popupCtaLabel", "Button-Text"],
+                      ["popupCtaHref", "Button-Link"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <Field key={key} label={label}>
+                      <input
+                        value={content.studentLunch[key]}
+                        onChange={(e) =>
+                          setContent({
+                            ...content,
+                            studentLunch: {
+                              ...content.studentLunch,
+                              [key]: e.target.value,
+                            },
+                          })
+                        }
+                        className={fieldClass}
+                      />
+                    </Field>
+                  ))}
+                  <Field
+                    label="Ausführlicher Text"
+                    hint="Längere Erklärung im Popup"
+                  >
+                    <textarea
+                      value={content.studentLunch.popupBody}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          studentLunch: {
+                            ...content.studentLunch,
+                            popupBody: e.target.value,
+                          },
+                        })
+                      }
+                      className={fieldClass}
+                      rows={4}
+                    />
+                  </Field>
+                  <Field
+                    label="Punkte (eine Zeile = ein Punkt)"
+                    hint="z. B. Softgetränk inklusive"
+                  >
+                    <textarea
+                      value={content.studentLunch.popupBullets}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          studentLunch: {
+                            ...content.studentLunch,
+                            popupBullets: e.target.value,
+                          },
+                        })
+                      }
+                      className={fieldClass}
+                      rows={5}
+                    />
+                  </Field>
                 </Section>
 
                 <Section title="Standort">

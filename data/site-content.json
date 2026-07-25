@@ -14,13 +14,21 @@
     "title": "Gericht inkl. Getränk",
     "text": "Mo–Fr mittags: ein Gericht der Wochenkarte plus Softgetränk — für Schülerinnen, Schüler und Azubis.",
     "price": "ab 8,90 €",
-    "note": "Gegen Vorlage von Schüler- oder Azubi-Ausweis."
+    "note": "Gegen Vorlage von Schüler- oder Azubi-Ausweis.",
+    "popupTitle": "Mittag für Schüler & Azubis",
+    "popupLead": "Gericht inkl. Getränk — mittags bei Wassana.",
+    "popupBody": "Mo–Fr mittags gibt’s ein Gericht der aktuellen Wochenkarte plus Softgetränk. Ideal zum Mitnehmen oder vor Ort abholen.",
+    "popupBullets": "Gericht der Wochenkarte\nSoftgetränk inklusive\nFür Schülerinnen, Schüler und Azubis\nGegen Vorlage vom Ausweis",
+    "popupPrice": "ab 8,90 €",
+    "popupNote": "Gegen Vorlage von Schüler- oder Azubi-Ausweis.",
+    "popupCtaLabel": "Zur Wochenkarte",
+    "popupCtaHref": "/speisekarte#wochenkarte"
   },
   "topBanner": {
     "active": true,
     "text": "Schüler & Azubis mittags: Gericht inkl. Getränk",
     "highlight": "ab 8,90 €",
-    "linkHref": "/speisekarte#wochenkarte",
+    "linkHref": "#mittag",
     "linkLabel": "Mehr",
     "backgroundColor": "#7a0c24",
     "textColor": "#f7f3ea",

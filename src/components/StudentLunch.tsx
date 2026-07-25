@@ -1,6 +1,8 @@
-import Link from "next/link";
+"use client";
+
 import { Reveal } from "@/components/Reveal";
-import type { SiteContent } from "@/lib/site-content";
+import { useOfferPopupOptional } from "@/components/OfferPopupContext";
+import type { SiteContent } from "@/lib/site-content-shared";
 
 type StudentLunchProps = {
   compact?: boolean;
@@ -8,13 +10,19 @@ type StudentLunchProps = {
 };
 
 export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
+  const offerPopup = useOfferPopupOptional();
+
   if (compact) {
     return (
       <aside
         aria-label={offer.eyebrow}
         className="feature-band border-y border-[color:var(--line)]"
       >
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-6 md:flex-row md:items-baseline md:justify-between md:gap-8 md:px-8">
+        <button
+          type="button"
+          className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-5 py-6 text-left transition hover:bg-[color:var(--paper)]/40 md:flex-row md:items-baseline md:justify-between md:gap-8 md:px-8"
+          onClick={() => offerPopup?.openOffer()}
+        >
           <p className="text-sm tracking-[0.18em] text-[color:var(--gold)] uppercase">
             {offer.eyebrow}
           </p>
@@ -26,8 +34,11 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
             <span className="mt-1 block text-sm text-[color:var(--muted)]">
               {offer.note}
             </span>
+            <span className="mt-2 inline-block text-sm text-[color:var(--red)] underline-offset-2 hover:underline">
+              Mehr erfahren
+            </span>
           </p>
-        </div>
+        </button>
       </aside>
     );
   }
@@ -56,12 +67,13 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
             {offer.price}
           </p>
           <p className="mt-3 text-sm text-[color:var(--muted)]">{offer.note}</p>
-          <Link
-            href="/speisekarte#wochenkarte"
+          <button
+            type="button"
             className="btn-primary mt-8 inline-flex"
+            onClick={() => offerPopup?.openOffer()}
           >
-            Zur Wochenkarte
-          </Link>
+            Mehr erfahren
+          </button>
         </Reveal>
       </div>
     </section>
