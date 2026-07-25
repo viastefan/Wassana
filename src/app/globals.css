@@ -1469,9 +1469,10 @@ button.admin-install-cta:hover {
   z-index: 80;
   display: grid;
   place-items: end center;
-  padding: 0.75rem;
+  padding: 0;
   background: rgba(30, 33, 41, 0.45);
   backdrop-filter: blur(4px);
+  animation: allergen-sheet-backdrop 0.22s ease both;
 }
 
 @media (min-width: 640px) {
@@ -1487,8 +1488,151 @@ button.admin-install-cta:hover {
   overflow: auto;
   border: 1px solid color-mix(in srgb, var(--gold) 35%, var(--line));
   background: var(--paper);
-  padding: 1.25rem 1.2rem 1.35rem;
+  padding: 0.65rem 1.2rem 1.35rem;
   box-shadow: 0 22px 48px rgba(30, 33, 41, 0.22);
+  border-radius: 1.15rem 1.15rem 0 0;
+  animation: allergen-sheet-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (min-width: 640px) {
+  .allergen-dialog {
+    border-radius: 0.2rem;
+    padding: 1.25rem 1.2rem 1.35rem;
+    animation: allergen-sheet-pop 0.22s ease both;
+  }
+}
+
+.allergen-dialog-handle {
+  display: block;
+  width: 2.75rem;
+  height: 0.28rem;
+  margin: 0.15rem auto 0.85rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+@media (min-width: 640px) {
+  .allergen-dialog-handle {
+    display: none;
+  }
+}
+
+.allergen-fab {
+  position: fixed;
+  z-index: 65;
+  right: 0.85rem;
+  bottom: max(4.85rem, calc(env(safe-area-inset-bottom, 0px) + 4.6rem));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: calc(100vw - 1.7rem);
+  padding: 0.45rem 0.7rem 0.45rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line));
+  background: color-mix(in srgb, var(--paper) 92%, white);
+  color: var(--ink);
+  box-shadow: 0 10px 28px rgba(30, 33, 41, 0.14);
+  cursor: pointer;
+  animation: allergen-fab-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.allergen-fab:hover,
+.allergen-fab:focus-visible {
+  border-color: color-mix(in srgb, var(--gold) 70%, var(--line));
+  outline: none;
+}
+
+.allergen-fab-badge {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.12rem;
+  flex-shrink: 0;
+  width: 2.55rem;
+  height: 2.55rem;
+  padding: 0.28rem;
+  border: 1px solid color-mix(in srgb, var(--red) 28%, var(--line));
+  background: color-mix(in srgb, var(--bg) 70%, var(--paper));
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--red);
+  place-items: center;
+}
+
+.allergen-fab-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.08rem;
+  min-width: 0;
+  text-align: left;
+}
+
+.allergen-fab-kicker {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.allergen-fab-title {
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: 0.95rem;
+  color: var(--red);
+  line-height: 1.1;
+}
+
+html.has-cookie-banner .allergen-fab {
+  bottom: max(14.4rem, calc(env(safe-area-inset-bottom, 0px) + 14.1rem));
+}
+
+@media (min-width: 768px) {
+  .allergen-fab {
+    display: none;
+  }
+}
+
+@keyframes allergen-fab-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.65rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes allergen-sheet-backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes allergen-sheet-up {
+  from {
+    opacity: 0.6;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes allergen-sheet-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .allergen-dialog-top {
@@ -3899,6 +4043,9 @@ a.btn-ghost:hover {
   .hero-copy-delay-2,
   .reveal,
   .course-promo,
+  .allergen-fab,
+  .allergen-dialog-root,
+  .allergen-dialog,
   .media-band-image,
   .split-media-frame img,
   .image-strip-item img,
