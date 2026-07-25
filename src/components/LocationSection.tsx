@@ -8,9 +8,9 @@ export function LocationSection() {
       aria-labelledby="standort-heading"
       className="border-t border-[color:var(--line)]"
     >
-      <div className="mx-auto grid max-w-6xl md:grid-cols-2">
-        <Reveal>
-          <div className="flex h-full flex-col justify-between px-5 py-14 md:px-8 md:py-20">
+      <div className="mx-auto grid max-w-6xl items-stretch md:grid-cols-2">
+        <Reveal className="h-full">
+          <div className="flex h-full flex-col justify-center px-5 py-14 md:px-8 md:py-16">
             <div>
               <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
                 Hier findest du uns
@@ -87,20 +87,22 @@ export function LocationSection() {
           </div>
         </Reveal>
 
-        <Reveal delay={1}>
-          <div className="relative min-h-[340px] overflow-hidden border-t border-[color:var(--line)] md:min-h-[480px] md:border-t-0 md:border-l">
-            <iframe
-              title={`Karte: ${site.fullName}, ${site.address.street}, ${site.address.city}`}
-              src={site.maps.embed}
-              className="location-map absolute inset-0 h-full w-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-            />
-            <div
-              className="pointer-events-none absolute inset-0 location-map-veil"
-              aria-hidden
-            />
+        <Reveal delay={1} className="h-full">
+          <div className="flex h-full min-h-[340px] items-stretch border-t border-[color:var(--line)] md:min-h-0 md:border-t-0 md:border-l md:py-16 md:pr-8">
+            <div className="relative h-full min-h-[340px] w-full overflow-hidden">
+              <iframe
+                title={`Karte: ${site.fullName}, ${site.address.street}, ${site.address.city}`}
+                src={site.maps.embed}
+                className="location-map absolute inset-0 h-full w-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+              <div
+                className="pointer-events-none absolute inset-0 location-map-veil"
+                aria-hidden
+              />
+            </div>
           </div>
         </Reveal>
       </div>
