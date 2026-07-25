@@ -46,7 +46,7 @@ export function Wochenkarte({ compact = false }: { compact?: boolean }) {
       <div className={compact ? "" : "mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-24"}>
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Diese Woche
+            Diese Woche bei Wassana
           </p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <h2 className="font-display text-4xl text-[color:var(--red)] md:text-5xl">

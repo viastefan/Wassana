@@ -43,15 +43,11 @@ export default function HomePage() {
             Wassana
           </p>
           <p className="hero-copy-delay mt-3 text-sm tracking-[0.24em] text-[color:var(--gold-soft)] uppercase">
-            Thai Imbiss · Landshut
+            Thai Imbiss und Feinkost · Landshut
           </p>
           <h1 className="hero-copy-delay mt-6 max-w-xl text-[clamp(1.15rem,2.4vw,1.45rem)] font-light leading-relaxed text-white/92">
-            Sawasdee und herzlich willkommen im Wassana Thai Imbiss im
-            Gewerbehaus am Regierungsplatz.
+            Sawasdee — willkommen bei Wassana am Regierungsplatz.
           </h1>
-          <p className="hero-copy-delay-2 mt-4 max-w-md text-[0.98rem] leading-relaxed text-white/72">
-            {site.meaning}
-          </p>
           <div className="hero-copy-delay-2 mt-9 flex flex-wrap gap-3">
             <Link href="/speisekarte" className="btn-primary">
               Speisekarte
@@ -63,11 +59,41 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
+      <section
+        aria-labelledby="wassana-heading"
+        className="border-b border-[color:var(--line)] bg-[color:var(--paper)]"
+      >
+        <div className="mx-auto max-w-3xl px-5 py-16 text-center md:px-8 md:py-20">
+          <Reveal>
+            <Image
+              src="/images/logo.png"
+              alt=""
+              width={72}
+              height={72}
+              className="mx-auto h-16 w-16 rounded-full object-contain"
+            />
+            <h2
+              id="wassana-heading"
+              className="font-display mt-6 text-[clamp(2.4rem,7vw,3.75rem)] leading-none text-[color:var(--red)]"
+            >
+              Wassana
+            </h2>
+            <p className="mt-4 text-sm tracking-[0.22em] text-[color:var(--gold)] uppercase">
+              Glück und gutes Schicksal
+            </p>
+            <div className="gold-rule mx-auto mt-8 max-w-xs" />
+            <p className="mt-8 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl">
+              {site.meaning}
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="border-b border-[color:var(--line)] bg-[color:var(--bg)]">
         <div className="mx-auto max-w-3xl px-5 py-14 text-center md:px-8 md:py-16">
           <Reveal>
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-              Unsere Küche
+              Die Küche bei Wassana
             </p>
             <p className="mt-5 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl">
               Authentische Gerichte wie Massaman oder Panaeng Curries,
@@ -89,17 +115,17 @@ export default function HomePage() {
           {[
             {
               title: "Speisekarte",
-              text: "Wochenkarte und Klassiker.",
+              text: "Wochenkarte und Klassiker bei Wassana.",
               href: "/speisekarte",
             },
             {
               title: "Catering",
-              text: "Events inkl. Geschirr.",
+              text: "Events inkl. Geschirr — von Wassana.",
               href: "/catering",
             },
             {
               title: "Kochkurs",
-              text: "Schritt für Schritt Thai kochen.",
+              text: "Schritt für Schritt Thai kochen mit Wassana.",
               href: "/kochkurs",
             },
           ].map((item, index) => (
@@ -121,6 +147,22 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
         <Wochenkarte compact />
+      </section>
+
+      <section className="border-t border-[color:var(--line)] bg-[color:var(--paper)]">
+        <div className="mx-auto max-w-2xl px-5 py-14 text-center md:px-8 md:py-16">
+          <Reveal>
+            <p className="font-display text-3xl text-[color:var(--red)] md:text-4xl">
+              Bis bald bei Wassana
+            </p>
+            <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
+              {site.hours.weekdaysLong}. {site.hours.weekend}.
+            </p>
+            <a href={site.phoneHref} className="btn-primary mt-8 inline-flex">
+              {site.phone}
+            </a>
+          </Reveal>
+        </div>
       </section>
 
       <LocationSection />
