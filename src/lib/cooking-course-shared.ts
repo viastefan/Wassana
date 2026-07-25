@@ -9,6 +9,13 @@ export const COURSE_IMAGE_OPTIONS = [
 
 export const DEFAULT_COURSE_IMAGE = COURSE_IMAGE_OPTIONS[0].src;
 
+/** Pick a second image so hero + mid section never show the same photo. */
+export function alternateCourseImage(primary: string): string {
+  const current = sanitizeCourseImage(primary);
+  const alternate = COURSE_IMAGE_OPTIONS.find((item) => item.src !== current);
+  return alternate?.src || "/images/curry.jpg";
+}
+
 export type CookingCourseData = {
   active: boolean;
   date: string;

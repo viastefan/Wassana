@@ -16,6 +16,7 @@ import {
   sanitizeCourseImage,
   splitCourseLines,
 } from "@/lib/cooking-course";
+import { alternateCourseImage } from "@/lib/cooking-course-shared";
 
 export const metadata: Metadata = {
   title: "Thai Kochkurs Landshut",
@@ -39,6 +40,7 @@ export default async function KochkursPage() {
   ]);
   const showNext = isPublicPromoVisible(course);
   const image = sanitizeCourseImage(course.image);
+  const midImage = alternateCourseImage(image);
   const pageTitle =
     course.pageTitle?.trim() || "Thai-Küche näher kennenlernen";
   const pageText =
@@ -140,8 +142,8 @@ export default async function KochkursPage() {
         <div className="mx-auto grid max-w-6xl items-stretch md:grid-cols-2">
           <div className="relative min-h-[240px] md:min-h-[320px]">
             <Image
-              src={image}
-              alt="Atmosphäre beim Thai Kochkurs bei Wassana"
+              src={midImage}
+              alt="Thai-Gerichte und Atmosphäre beim Kochkurs bei Wassana"
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
