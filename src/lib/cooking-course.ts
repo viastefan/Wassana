@@ -4,10 +4,13 @@ import path from "path";
 import { formatCourseDate } from "@/lib/cooking-course-format";
 import {
   createBlankCourse,
+  createCourseId,
   defaultCoursePageText,
   defaultCoursePageTitle,
   sanitizeCourseImage,
+  type CookingCourseArchiveEntry,
   type CookingCourseData,
+  type CookingCourseStoreData,
 } from "@/lib/cooking-course-shared";
 import {
   writeJsonWithFallback,
@@ -19,11 +22,19 @@ export type CookingCourse = CookingCourseData & {
   updatedAt: string;
 };
 
+export type CookingCourseStore = {
+  current: CookingCourse;
+  archive: CookingCourseArchiveEntry[];
+};
+
 export {
   COURSE_IMAGE_OPTIONS,
   createBlankCourse,
+  createCourseId,
   sanitizeCourseImage,
   suggestNewCourseDate,
+  type CookingCourseArchiveEntry,
+  type CookingCourseStoreData,
 } from "@/lib/cooking-course-shared";
 export { formatCourseDate };
 
@@ -79,7 +90,7 @@ export function isCourseUpcoming(isoDate: string): boolean {
 }
 
 function normalizeCourse(raw: Partial<CookingCourseData> | null): CookingCourse {
-  const base = createBlankCourse();
+  const base = createBlankCourse({ active: false });
   return {
     active: typeof raw?.active === "boolean" ? raw.active : base.active,
     date: String(raw?.date || base.date),
@@ -97,40 +108,114 @@ function normalizeCourse(raw: Partial<CookingCourseData> | null): CookingCourse 
   };
 }
 
-async function readJsonFile(filePath: string): Promise<CookingCourse | null> {
+function normalizeArchiveEntry(
+  raw: Partial<CookingCourseArchiveEntry> | null,
+): CookingCourseArchiveEntry | null {
+  if (!raw?.date || !raw?.title) return null;
+  const id =
+    sanitizeText(String(raw.id || ""), 80) ||
+    createCourseId(String(raw.date), String(raw.title));
+  return {
+    id,
+    date: String(raw.date),
+    title: sanitizeText(String(raw.title), 120) || "Thai Kochkurs",
+    teaser: sanitizeText(String(raw.teaser || ""), 200),
+    image: sanitizeCourseImage(raw.image),
+    pageTitle: sanitizeText(String(raw.pageTitle || ""), 160),
+    pageText: sanitizeText(String(raw.pageText || ""), 400),
+    fazit: sanitizeText(String(raw.fazit || ""), 2000),
+    notes: sanitizeText(String(raw.notes || ""), 2000),
+    completedAt: String(raw.completedAt || new Date().toISOString()),
+  };
+}
+
+function isLegacyCourseShape(raw: unknown): raw is Partial<CookingCourseData> {
+  if (!raw || typeof raw !== "object") return false;
+  const obj = raw as Record<string, unknown>;
+  return (
+    typeof obj.date === "string" &&
+    typeof obj.active === "boolean" &&
+    !("current" in obj)
+  );
+}
+
+function normalizeStore(raw: unknown): CookingCourseStore {
+  if (isLegacyCourseShape(raw)) {
+    return {
+      current: normalizeCourse(raw),
+      archive: [],
+    };
+  }
+
+  const obj = (raw && typeof raw === "object" ? raw : {}) as {
+    current?: Partial<CookingCourseData>;
+    archive?: Partial<CookingCourseArchiveEntry>[];
+  };
+
+  const archive = Array.isArray(obj.archive)
+    ? obj.archive
+        .map((entry) => normalizeArchiveEntry(entry))
+        .filter((entry): entry is CookingCourseArchiveEntry => Boolean(entry))
+        .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+    : [];
+
+  return {
+    current: normalizeCourse(obj.current || null),
+    archive,
+  };
+}
+
+async function readStoreFile(filePath: string): Promise<CookingCourseStore | null> {
   try {
     const raw = await fs.readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as Partial<CookingCourseData>;
-    if (!parsed?.date || typeof parsed.active !== "boolean") return null;
-    return normalizeCourse(parsed);
+    return normalizeStore(JSON.parse(raw));
   } catch {
     return null;
   }
 }
 
-export async function getCookingCourse(): Promise<CookingCourse> {
-  const fromTmp = await readJsonFile(TMP_PATH);
+async function writeStore(
+  store: CookingCourseStore,
+  commitMessage: string,
+): Promise<PersistResult> {
+  const payloadObj: CookingCourseStoreData = {
+    current: store.current,
+    archive: store.archive,
+  };
+  const payload = `${JSON.stringify(payloadObj, null, 2)}\n`;
+  return writeJsonWithFallback(
+    DATA_PATH,
+    TMP_PATH,
+    payload,
+    "data/cooking-course.json",
+    commitMessage,
+  );
+}
+
+export async function getCookingCourseStore(): Promise<CookingCourseStore> {
+  const fromTmp = await readStoreFile(TMP_PATH);
   if (fromTmp) return fromTmp;
-  const fromData = await readJsonFile(DATA_PATH);
+  const fromData = await readStoreFile(DATA_PATH);
   if (fromData) return fromData;
-  return fallbackCourse;
+  return { current: fallbackCourse, archive: [] };
+}
+
+export async function getCookingCourse(): Promise<CookingCourse> {
+  const store = await getCookingCourseStore();
+  return store.current;
 }
 
 export async function saveCookingCourse(
   input: Omit<CookingCourse, "updatedAt">,
 ): Promise<{ course: CookingCourse; persist: PersistResult }> {
+  const store = await getCookingCourseStore();
   const next = normalizeCourse({
     ...input,
     updatedAt: new Date().toISOString(),
   });
-
-  const payload = `${JSON.stringify(next, null, 2)}\n`;
-  const persist = await writeJsonWithFallback(
-    DATA_PATH,
-    TMP_PATH,
-    payload,
-    "data/cooking-course.json",
-    "chore: update next cooking course date",
+  const persist = await writeStore(
+    { current: next, archive: store.archive },
+    "chore: update next cooking course",
   );
 
   if (!persist.tmp && !persist.disk && !persist.github) {
@@ -138,6 +223,125 @@ export async function saveCookingCourse(
   }
 
   return { course: next, persist };
+}
+
+export async function completeCookingCourse(input: {
+  fazit?: string;
+  notes?: string;
+}): Promise<{ store: CookingCourseStore; persist: PersistResult }> {
+  const store = await getCookingCourseStore();
+  const current = store.current;
+  if (!current.date || !current.title) {
+    throw new Error("Kein Kurs zum Abhaken vorhanden.");
+  }
+
+  const entry = normalizeArchiveEntry({
+    id: createCourseId(current.date, current.title),
+    date: current.date,
+    title: current.title,
+    teaser: current.teaser,
+    image: current.image,
+    pageTitle: current.pageTitle,
+    pageText: current.pageText,
+    fazit: input.fazit || "",
+    notes: input.notes || "",
+    completedAt: new Date().toISOString(),
+  });
+
+  if (!entry) {
+    throw new Error("Kurs konnte nicht archiviert werden.");
+  }
+
+  const nextStore: CookingCourseStore = {
+    current: {
+      ...createBlankCourse({ active: false }),
+      updatedAt: new Date().toISOString(),
+    },
+    archive: [entry, ...store.archive.filter((item) => item.id !== entry.id)],
+  };
+
+  const persist = await writeStore(
+    nextStore,
+    `chore: archive cooking course ${entry.date}`,
+  );
+  if (!persist.tmp && !persist.disk && !persist.github) {
+    throw new Error(persist.error || "Abhaken fehlgeschlagen.");
+  }
+  return { store: nextStore, persist };
+}
+
+export async function deleteCurrentCookingCourse(): Promise<{
+  store: CookingCourseStore;
+  persist: PersistResult;
+}> {
+  const store = await getCookingCourseStore();
+  const nextStore: CookingCourseStore = {
+    current: {
+      ...createBlankCourse({ active: false }),
+      updatedAt: new Date().toISOString(),
+    },
+    archive: store.archive,
+  };
+  const persist = await writeStore(
+    nextStore,
+    "chore: clear current cooking course",
+  );
+  if (!persist.tmp && !persist.disk && !persist.github) {
+    throw new Error(persist.error || "Löschen fehlgeschlagen.");
+  }
+  return { store: nextStore, persist };
+}
+
+export async function deleteArchivedCookingCourse(id: string): Promise<{
+  store: CookingCourseStore;
+  persist: PersistResult;
+}> {
+  const store = await getCookingCourseStore();
+  const nextArchive = store.archive.filter((entry) => entry.id !== id);
+  if (nextArchive.length === store.archive.length) {
+    throw new Error("Archiv-Eintrag nicht gefunden.");
+  }
+  const nextStore = { current: store.current, archive: nextArchive };
+  const persist = await writeStore(
+    nextStore,
+    "chore: delete archived cooking course",
+  );
+  if (!persist.tmp && !persist.disk && !persist.github) {
+    throw new Error(persist.error || "Löschen fehlgeschlagen.");
+  }
+  return { store: nextStore, persist };
+}
+
+export async function updateArchivedCookingCourse(input: {
+  id: string;
+  fazit?: string;
+  notes?: string;
+}): Promise<{ store: CookingCourseStore; persist: PersistResult }> {
+  const store = await getCookingCourseStore();
+  const index = store.archive.findIndex((entry) => entry.id === input.id);
+  if (index < 0) {
+    throw new Error("Archiv-Eintrag nicht gefunden.");
+  }
+  const previous = store.archive[index];
+  const updated = normalizeArchiveEntry({
+    ...previous,
+    fazit: input.fazit ?? previous.fazit,
+    notes: input.notes ?? previous.notes,
+  });
+  if (!updated) {
+    throw new Error("Archiv-Eintrag ungültig.");
+  }
+  const archive = [...store.archive];
+  archive[index] = updated;
+  const nextStore = { current: store.current, archive };
+  const persist = await writeStore(
+    nextStore,
+    "chore: update cooking course fazit",
+  );
+  if (!persist.tmp && !persist.disk && !persist.github) {
+    throw new Error(persist.error || "Speichern fehlgeschlagen.");
+  }
+  return { store: nextStore, persist };
 }
 
 export function createAdminSessionToken(): string {

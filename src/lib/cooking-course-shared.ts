@@ -20,6 +20,27 @@ export type CookingCourseData = {
   updatedAt?: string;
 };
 
+/** Past course kept for the owner (Fazit + private notes). */
+export type CookingCourseArchiveEntry = {
+  id: string;
+  date: string;
+  title: string;
+  teaser: string;
+  image: string;
+  pageTitle: string;
+  pageText: string;
+  /** Was Gäste wollten / wie der Kurs lief */
+  fazit: string;
+  /** Nur für dich im Admin */
+  notes: string;
+  completedAt: string;
+};
+
+export type CookingCourseStoreData = {
+  current: CookingCourseData;
+  archive: CookingCourseArchiveEntry[];
+};
+
 export function sanitizeCourseImage(value: string | undefined | null): string {
   const next = String(value || "").trim();
   return COURSE_IMAGE_OPTIONS.some((item) => item.src === next)
@@ -62,4 +83,13 @@ export function createBlankCourse(
     pageText: defaultCoursePageText(),
     ...overrides,
   };
+}
+
+export function createCourseId(date: string, title: string): string {
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
+  return `${date}-${slug || "kurs"}-${Date.now().toString(36)}`;
 }

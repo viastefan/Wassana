@@ -16,6 +16,7 @@ import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
 import {
   COURSE_IMAGE_OPTIONS,
   createBlankCourse,
+  type CookingCourseArchiveEntry,
   type CookingCourseData,
 } from "@/lib/cooking-course-shared";
 import {
@@ -107,6 +108,14 @@ export function AdminClient() {
   const [installDismissed, setInstallDismissed] = useState(false);
 
   const [course, setCourse] = useState<Course>(() => createBlankCourse());
+  const [courseArchive, setCourseArchive] = useState<
+    CookingCourseArchiveEntry[]
+  >([]);
+  const [completeFazit, setCompleteFazit] = useState("");
+  const [completeNotes, setCompleteNotes] = useState("");
+  const [archiveDrafts, setArchiveDrafts] = useState<
+    Record<string, { fazit: string; notes: string }>
+  >({});
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [unread, setUnread] = useState(0);
   const [content, setContent] = useState<SiteContent | null>(null);
@@ -186,17 +195,55 @@ export function AdminClient() {
     }
   }, []);
 
+  const applyCourseStore = useCallback(
+    (store: { current: Course; archive?: CookingCourseArchiveEntry[] }) => {
+      setCourse(store.current);
+      const archive = store.archive || [];
+      setCourseArchive(archive);
+      setArchiveDrafts(
+        Object.fromEntries(
+          archive.map((entry) => [
+            entry.id,
+            { fazit: entry.fazit, notes: entry.notes },
+          ]),
+        ),
+      );
+    },
+    [],
+  );
+
+  const loadCourseStore = useCallback(async () => {
+    const res = await fetch("/api/admin/cooking-course", { cache: "no-store" });
+    if (res.status === 401) {
+      setAuthed(false);
+      return;
+    }
+    if (!res.ok) return;
+    applyCourseStore(
+      (await res.json()) as {
+        current: Course;
+        archive?: CookingCourseArchiveEntry[];
+      },
+    );
+  }, [applyCourseStore]);
+
   const loadAll = useCallback(async () => {
-    const courseRes = await fetch("/api/cooking-course", { cache: "no-store" });
-    if (courseRes.ok) setCourse((await courseRes.json()) as Course);
     await Promise.all([
+      loadCourseStore(),
       loadInbox(),
       loadContent(),
       loadWeekly(),
       loadBusiness(),
       checkRuntime(),
     ]);
-  }, [checkRuntime, loadBusiness, loadContent, loadInbox, loadWeekly]);
+  }, [
+    checkRuntime,
+    loadBusiness,
+    loadContent,
+    loadCourseStore,
+    loadInbox,
+    loadWeekly,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -205,13 +252,6 @@ export function AdminClient() {
       try {
         if ("serviceWorker" in navigator) {
           void navigator.serviceWorker.register("/admin-sw.js").catch(() => null);
-        }
-
-        const courseRes = await fetch("/api/cooking-course", {
-          cache: "no-store",
-        });
-        if (courseRes.ok && !cancelled) {
-          setCourse((await courseRes.json()) as Course);
         }
 
         const session = await fetch("/api/admin/session", {
@@ -470,6 +510,105 @@ export function AdminClient() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function runCourseAction(
+    body: Record<string, string>,
+    okMessage: string,
+  ) {
+    setSaving(true);
+    setError("");
+    setStatus("");
+    try {
+      const res = await fetch("/api/admin/cooking-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | ({
+            current?: Course;
+            archive?: CookingCourseArchiveEntry[];
+            error?: string;
+            warning?: string;
+          } & Record<string, unknown>)
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        setError(data?.error || "Aktion fehlgeschlagen.");
+        return;
+      }
+      if (data?.current) {
+        applyCourseStore({
+          current: data.current,
+          archive: data.archive,
+        });
+      }
+      if (body.action === "complete") {
+        setCompleteFazit("");
+        setCompleteNotes("");
+      }
+      setStatus(data?.warning || okMessage);
+    } catch {
+      setError("Netzwerkfehler bei der Kurs-Aktion.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function completeCourse() {
+    if (
+      !window.confirm(
+        `Kurs „${course.title || "Thai Kochkurs"}“ als erledigt abhaken und archivieren?`,
+      )
+    ) {
+      return;
+    }
+    await runCourseAction(
+      {
+        action: "complete",
+        fazit: completeFazit,
+        notes: completeNotes,
+      },
+      "Kurs abgehakt und archiviert. Neuen Termin kannst du jetzt anlegen.",
+    );
+  }
+
+  async function deleteCurrentCourse() {
+    if (
+      !window.confirm(
+        "Aktuellen Kurs wirklich löschen? Er erscheint nicht im Archiv.",
+      )
+    ) {
+      return;
+    }
+    await runCourseAction(
+      { action: "delete-current" },
+      "Aktueller Kurs gelöscht.",
+    );
+  }
+
+  async function deleteArchiveEntry(id: string, title: string) {
+    if (!window.confirm(`Archiv-Eintrag „${title}“ wirklich löschen?`)) {
+      return;
+    }
+    await runCourseAction(
+      { action: "delete-archive", id },
+      "Archiv-Eintrag gelöscht.",
+    );
+  }
+
+  async function saveArchiveEntry(id: string) {
+    const draft = archiveDrafts[id];
+    await runCourseAction(
+      {
+        action: "update-archive",
+        id,
+        fazit: draft?.fazit || "",
+        notes: draft?.notes || "",
+      },
+      "Fazit / Notizen gespeichert.",
+    );
   }
 
   async function saveContent(event: FormEvent) {
@@ -1114,7 +1253,7 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Kochkurs"
                   title="Nächster Termin"
-                  description="Neuen Kurs anlegen, Bild für die Unterseite wählen und live schalten."
+                  description="Anlegen, live schalten, nach dem Kurs abhaken mit Fazit — oder falsch Eingetragenes löschen."
                   action={
                     <button
                       type="button"
@@ -1264,6 +1403,146 @@ export function AdminClient() {
                 </Section>
 
                 <StickySave saving={saving} label="Kochkurs speichern" />
+
+                <Section title="Erledigt abhaken">
+                  <p className="text-sm text-[color:var(--admin-muted)]">
+                    Nach dem Kurs: abhaken, kurz Fazit schreiben (was gewünscht
+                    war) und private Notizen nur für dich. Der Termin kommt von
+                    der Website runter und landet im Archiv.
+                  </p>
+                  <Field
+                    label="Fazit — was war erwünscht / wie lief’s?"
+                    hint="Für dich zum Nachlesen (nicht öffentlich)."
+                  >
+                    <textarea
+                      value={completeFazit}
+                      onChange={(e) => setCompleteFazit(e.target.value)}
+                      className={fieldClass}
+                      rows={3}
+                      placeholder="z. B. Pad Thai gewünscht, 8 Gäste, viel Interesse an Tom Yam …"
+                    />
+                  </Field>
+                  <Field
+                    label="Notizen nur für dich"
+                    hint="Einkauf, Tipps, was du nächstes Mal ändern willst."
+                  >
+                    <textarea
+                      value={completeNotes}
+                      onChange={(e) => setCompleteNotes(e.target.value)}
+                      className={fieldClass}
+                      rows={3}
+                      placeholder="Interne Notizen …"
+                    />
+                  </Field>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      disabled={saving || !course.date}
+                      onClick={() => void completeCourse()}
+                    >
+                      Kurs abhaken & archivieren
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-gold"
+                      disabled={saving}
+                      onClick={() => void deleteCurrentCourse()}
+                    >
+                      Aktuellen Kurs löschen
+                    </button>
+                  </div>
+                </Section>
+
+                <Section title="Archiv / vergangene Kurse">
+                  {courseArchive.length === 0 ? (
+                    <p className="admin-empty">
+                      Noch keine abgehakten Kurse. Nach dem Abhaken erscheinen
+                      sie hier mit Fazit und Notizen.
+                    </p>
+                  ) : (
+                    <div className="admin-inbox-list">
+                      {courseArchive.map((entry) => {
+                        const draft = archiveDrafts[entry.id] || {
+                          fazit: entry.fazit,
+                          notes: entry.notes,
+                        };
+                        return (
+                          <article
+                            key={entry.id}
+                            className="admin-inbox-card space-y-3"
+                          >
+                            <div className="admin-inbox-top">
+                              <div>
+                                <p className="admin-kicker">
+                                  {formatCourseDate(entry.date)}
+                                </p>
+                                <p className="mt-1 font-display text-xl text-[color:var(--admin-burgundy)]">
+                                  {entry.title}
+                                </p>
+                                {entry.teaser ? (
+                                  <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
+                                    {entry.teaser}
+                                  </p>
+                                ) : null}
+                              </div>
+                              <button
+                                type="button"
+                                className="btn-gold !px-3 !py-2 text-sm"
+                                disabled={saving}
+                                onClick={() =>
+                                  void deleteArchiveEntry(entry.id, entry.title)
+                                }
+                              >
+                                Löschen
+                              </button>
+                            </div>
+                            <Field label="Fazit">
+                              <textarea
+                                value={draft.fazit}
+                                onChange={(e) =>
+                                  setArchiveDrafts((prev) => ({
+                                    ...prev,
+                                    [entry.id]: {
+                                      ...draft,
+                                      fazit: e.target.value,
+                                    },
+                                  }))
+                                }
+                                className={fieldClass}
+                                rows={2}
+                              />
+                            </Field>
+                            <Field label="Notizen für dich">
+                              <textarea
+                                value={draft.notes}
+                                onChange={(e) =>
+                                  setArchiveDrafts((prev) => ({
+                                    ...prev,
+                                    [entry.id]: {
+                                      ...draft,
+                                      notes: e.target.value,
+                                    },
+                                  }))
+                                }
+                                className={fieldClass}
+                                rows={2}
+                              />
+                            </Field>
+                            <button
+                              type="button"
+                              className="btn-primary !px-3 !py-2 text-sm"
+                              disabled={saving}
+                              onClick={() => void saveArchiveEntry(entry.id)}
+                            >
+                              Fazit speichern
+                            </button>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  )}
+                </Section>
               </form>
             ) : null}
 
