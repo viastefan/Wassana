@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CookieBanner } from "@/components/CookieBanner";
 import { CookingCoursePromo } from "@/components/CookingCoursePromo";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -18,26 +18,33 @@ export function PublicChrome({
 }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
-  const bannerOn =
+  const bannerConfigured =
     content.topBanner.active && Boolean(content.topBanner.text.trim());
   const bannerRef = useRef<HTMLDivElement>(null);
-  const [bannerH, setBannerH] = useState(bannerOn ? 40 : 0);
+  const [bannerVisible, setBannerVisible] = useState(bannerConfigured);
+  const [bannerH, setBannerH] = useState(bannerConfigured ? 40 : 0);
+
+  const onBannerVisibilityChange = useCallback((visible: boolean) => {
+    setBannerVisible(visible);
+    if (!visible) setBannerH(0);
+  }, []);
 
   useEffect(() => {
-    if (!bannerOn) {
+    if (!bannerVisible) {
       setBannerH(0);
       return;
     }
     const node = bannerRef.current;
     if (!node) return;
 
-    const update = () => setBannerH(Math.ceil(node.getBoundingClientRect().height));
+    const update = () =>
+      setBannerH(Math.ceil(node.getBoundingClientRect().height));
     update();
 
     const observer = new ResizeObserver(update);
     observer.observe(node);
     return () => observer.disconnect();
-  }, [bannerOn, content.topBanner]);
+  }, [bannerVisible, content.topBanner]);
 
   if (isAdmin) {
     return <>{children}</>;
@@ -45,7 +52,7 @@ export function PublicChrome({
 
   return (
     <div
-      className={`site-shell${bannerOn ? " has-top-banner" : ""}`}
+      className={`site-shell${bannerVisible ? " has-top-banner" : ""}`}
       style={
         {
           ["--banner-h" as string]: `${bannerH}px`,
@@ -56,9 +63,12 @@ export function PublicChrome({
         Zum Inhalt springen
       </a>
       <div className="site-top-chrome">
-        {bannerOn ? (
+        {bannerConfigured ? (
           <div ref={bannerRef}>
-            <TopOfferBanner banner={content.topBanner} />
+            <TopOfferBanner
+              banner={content.topBanner}
+              onVisibilityChange={onBannerVisibilityChange}
+            />
           </div>
         ) : null}
         <SiteHeader embedded />

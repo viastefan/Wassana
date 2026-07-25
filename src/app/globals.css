@@ -1075,6 +1075,62 @@ a.btn-ghost:hover {
   z-index: 50;
 }
 
+.top-offer-banner {
+  position: relative;
+}
+
+.top-offer-banner-inner {
+  display: flex;
+  max-width: 72rem;
+  margin-inline: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 0.75rem;
+  padding: 0.5rem 2.5rem;
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+}
+
+@media (min-width: 768px) {
+  .top-offer-banner-inner {
+    padding-inline: 3rem;
+    font-size: 0.875rem;
+  }
+}
+
+.top-offer-banner-close {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  z-index: 2;
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.78;
+  transition: opacity 0.2s var(--ease-out), background 0.2s var(--ease-out);
+}
+
+.top-offer-banner-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.top-offer-banner-close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 /* Non-hero pages: clear fixed banner + header */
 .site-shell.has-top-banner #main-content > main.pt-24 {
   padding-top: calc(6rem + var(--banner-h));

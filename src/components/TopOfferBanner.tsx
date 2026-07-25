@@ -1,15 +1,69 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import type { SiteContent } from "@/lib/site-content";
 
 type TopOfferBannerProps = {
   banner: SiteContent["topBanner"];
+  onVisibilityChange?: (visible: boolean) => void;
 };
 
-export function TopOfferBanner({ banner }: TopOfferBannerProps) {
-  if (!banner.active || !banner.text.trim()) return null;
+function bannerStorageKey(banner: SiteContent["topBanner"]) {
+  return `wassana-top-banner-dismissed:${[
+    banner.text,
+    banner.highlight,
+    banner.linkHref,
+    banner.linkLabel,
+  ].join("|")}`;
+}
 
-  const inner = (
-    <div className="mx-auto flex max-w-6xl items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-center text-[0.82rem] leading-snug tracking-wide md:px-8 md:text-sm">
+export function TopOfferBanner({
+  banner,
+  onVisibilityChange,
+}: TopOfferBannerProps) {
+  const storageKey = useMemo(() => bannerStorageKey(banner), [banner]);
+  const [dismissed, setDismissed] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      setDismissed(window.localStorage.getItem(storageKey) === "1");
+    } catch {
+      setDismissed(false);
+    }
+    setReady(true);
+  }, [storageKey]);
+
+  const configured = banner.active && Boolean(banner.text.trim());
+  // Until storage is read, keep the banner visible to avoid layout jump.
+  const visible = configured && !(ready && dismissed);
+
+  useEffect(() => {
+    onVisibilityChange?.(visible);
+  }, [visible, onVisibilityChange]);
+
+  if (!configured) return null;
+  if (ready && dismissed) return null;
+
+  function dismiss(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      window.localStorage.setItem(storageKey, "1");
+    } catch {
+      /* ignore quota / private mode */
+    }
+    setDismissed(true);
+  }
+
+  const style = {
+    backgroundColor: banner.backgroundColor,
+    color: banner.textColor,
+  } as const;
+
+  const copy = (
+    <>
       <span className="min-w-0">
         <span>{banner.text}</span>
         {banner.highlight.trim() ? (
@@ -32,31 +86,33 @@ export function TopOfferBanner({ banner }: TopOfferBannerProps) {
           {banner.linkLabel}
         </span>
       ) : null}
-    </div>
+    </>
   );
 
-  const style = {
-    backgroundColor: banner.backgroundColor,
-    color: banner.textColor,
-  } as const;
-
-  if (banner.linkHref.trim()) {
-    return (
-      <div className="top-offer-banner" style={style}>
+  return (
+    <div className="top-offer-banner relative" style={style} role="note">
+      {banner.linkHref.trim() ? (
         <Link
           href={banner.linkHref}
-          className="block transition hover:opacity-95"
+          className="top-offer-banner-copy block transition hover:opacity-95"
           aria-label={banner.text}
         >
-          {inner}
+          <div className="top-offer-banner-inner">{copy}</div>
         </Link>
-      </div>
-    );
-  }
+      ) : (
+        <div className="top-offer-banner-copy">
+          <div className="top-offer-banner-inner">{copy}</div>
+        </div>
+      )}
 
-  return (
-    <div className="top-offer-banner" style={style} role="note">
-      {inner}
+      <button
+        type="button"
+        className="top-offer-banner-close"
+        aria-label="Angebot ausblenden"
+        onClick={dismiss}
+      >
+        <span aria-hidden>×</span>
+      </button>
     </div>
   );
 }
