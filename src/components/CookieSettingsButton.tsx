@@ -5,7 +5,10 @@ export function CookieSettingsButton() {
     <button
       type="button"
       className="hover:text-[color:var(--red)]"
-      onClick={() => window.dispatchEvent(new Event("wassana-open-consent"))}
+      onClick={() => {
+        window.dispatchEvent(new Event("wassana-open-consent"));
+      }}
+      aria-haspopup="dialog"
     >
       Cookies
     </button>

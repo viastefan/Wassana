@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Special_Elite } from "next/font/google";
+import Script from "next/script";
 import {
   JsonLdLocalBusiness,
   JsonLdSiteNavigation,
@@ -7,6 +8,7 @@ import {
 } from "@/components/JsonLd";
 import { PublicChrome } from "@/components/PublicChrome";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { CONSENT_BOOTSTRAP_SCRIPT } from "@/lib/consent";
 import { getSiteContent } from "@/lib/site-content";
 import { CANONICAL_SITE_URL, site } from "@/lib/site";
 import "./globals.css";
@@ -138,6 +140,11 @@ export default async function RootLayout({
   return (
     <html lang="de">
       <body className={`${typewriter.variable} antialiased`}>
+        <Script
+          id="wassana-consent-bootstrap"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: CONSENT_BOOTSTRAP_SCRIPT }}
+        />
         <JsonLdLocalBusiness business={business} />
         <JsonLdWebSite business={business} />
         <JsonLdSiteNavigation />

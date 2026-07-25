@@ -4,7 +4,7 @@ import { DishInfoButton } from "@/components/DishInfoButton";
 import { MenuPdfDownload } from "@/components/MenuPdfDownload";
 import { allergens, type MenuSection } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
-import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
+import type { WeeklyMenuData } from "@/lib/weekly-menu-store-shared";
 
 function ItemRow({
   nr,
