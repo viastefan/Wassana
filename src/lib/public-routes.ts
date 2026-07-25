@@ -25,7 +25,6 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/": { changeFrequency: "weekly", priority: 1 },
   "/speisekarte": { changeFrequency: "daily", priority: 0.95 },
   "/mitnehmen": { changeFrequency: "weekly", priority: 0.9 },
-  "/schueler-mittagessen": { changeFrequency: "weekly", priority: 0.9 },
   "/kontakt": { changeFrequency: "monthly", priority: 0.9 },
   "/anfahrt": { changeFrequency: "monthly", priority: 0.88 },
   "/catering": { changeFrequency: "monthly", priority: 0.85 },
@@ -34,6 +33,9 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/impressum": { changeFrequency: "yearly", priority: 0.2 },
   "/datenschutz": { changeFrequency: "yearly", priority: 0.2 },
 };
+
+/** Soft-removed public URLs (redirect / noindex) — keep out of sitemap. */
+const HIDDEN_PATHS = new Set(["/schueler-mittagessen"]);
 
 const DEFAULT_META: RouteMeta = {
   changeFrequency: "monthly",
@@ -93,7 +95,9 @@ export async function discoverPublicPaths(
   await walk(appDir, []);
 
   const paths = found.size > 0 ? [...found] : [...FALLBACK_PATHS];
-  return paths.sort((a, b) => {
+  return paths
+    .filter((routePath) => !HIDDEN_PATHS.has(routePath))
+    .sort((a, b) => {
     const pa = ROUTE_META[a]?.priority ?? DEFAULT_META.priority;
     const pb = ROUTE_META[b]?.priority ?? DEFAULT_META.priority;
     if (pb !== pa) return pb - pa;

@@ -10,7 +10,6 @@ import { SplitMedia } from "@/components/Media";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
-import { StudentLunch } from "@/components/StudentLunch";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { landshutFaqs } from "@/lib/seo-faq";
 import { getSiteContent } from "@/lib/site-content";
@@ -175,8 +174,6 @@ export default async function HomePage() {
           </Link>
         </Reveal>
       </SplitMedia>
-
-      <StudentLunch offer={content.studentLunch} />
 
       <section className="offer-strip" aria-label="Angebot">
         <div className="offer-strip-rail">

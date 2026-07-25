@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
 import { useOfferPopupOptional } from "@/components/OfferPopupContext";
 import type { SiteContent } from "@/lib/site-content-shared";
@@ -76,9 +75,6 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
             >
               Mehr erfahren
             </button>
-            <Link href="/schueler-mittagessen" className="btn-gold inline-flex">
-              Zur Angebotsseite
-            </Link>
           </div>
         </Reveal>
       </div>

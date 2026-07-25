@@ -24,7 +24,7 @@ export const landshutFaqs: SeoFaqItem[] = [
   {
     question: "Gibt es eine Wochenkarte und Schüler-Mittagessen?",
     answer:
-      "Ja. Mo–Fr gibt es eine Wochenkarte. Für Schülerinnen, Schüler und Azubis gibt es mittags ein Angebot inkl. Softgetränk — gegen Vorlage eines Ausweises.",
+      "Ja. Mo–Fr gibt es eine Wochenkarte. Für Schülerinnen, Schüler und Azubis gibt es mittags ein Angebot inkl. Softgetränk — gegen Vorlage eines Ausweises. Details stehen im Angebot oben auf der Seite.",
   },
   {
     question: "Bietet Wassana Catering und Kochkurse in Landshut an?",

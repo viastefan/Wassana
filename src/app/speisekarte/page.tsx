@@ -3,7 +3,6 @@ import { JsonLdBreadcrumbs, JsonLdMenu } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { MenuPdfDownload } from "@/components/MenuPdfDownload";
 import { SpeisekarteFull } from "@/components/Speisekarte";
-import { StudentLunch } from "@/components/StudentLunch";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getPublicMenuSections } from "@/lib/menu-store";
 import { getSiteContent } from "@/lib/site-content";
@@ -26,8 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SpeisekartePage() {
-  const [content, weekly, sections, business] = await Promise.all([
-    getSiteContent(),
+  const [weekly, sections, business] = await Promise.all([
     getWeeklyMenuData(),
     getPublicMenuSections(),
     getResolvedBusiness(),
@@ -51,7 +49,6 @@ export default async function SpeisekartePage() {
         priority
         height="short"
       />
-      <StudentLunch compact offer={content.studentLunch} />
       <div className="menu-pdf-band">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 md:flex-row md:items-center md:justify-between md:px-8">
           <div>

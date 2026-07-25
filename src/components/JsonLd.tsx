@@ -30,7 +30,6 @@ const MAIN_NAV = [
   { name: "Mitnehmen", path: "/mitnehmen" },
   { name: "Catering", path: "/catering" },
   { name: "Kochkurs", path: "/kochkurs" },
-  { name: "Schüler-Mittagessen", path: "/schueler-mittagessen" },
   { name: "Anfahrt", path: "/anfahrt" },
   { name: "Über uns", path: "/ueber-uns" },
   { name: "Kontakt", path: "/kontakt" },

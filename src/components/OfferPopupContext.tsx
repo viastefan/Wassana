@@ -50,6 +50,18 @@ export function OfferPopupProvider({
       const hash = window.location.hash.toLowerCase();
       if (hash === STUDENT_LUNCH_POPUP_HREF || hash === "#schueler-mittag") {
         setOpen(true);
+        return;
+      }
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("mittag") === "1") {
+        setOpen(true);
+        params.delete("mittag");
+        const next = params.toString();
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}${next ? `?${next}` : ""}${window.location.hash}`,
+        );
       }
     }
     syncFromHash();
