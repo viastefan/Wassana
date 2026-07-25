@@ -41,6 +41,7 @@ import {
   type PublishPhase,
 } from "./ui";
 import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
+import { AdminContentVisualEditor } from "./AdminContentVisualEditor";
 import { ADMIN_TAB_ICONS } from "./icons";
 import { PublishFailDialog } from "./PublishFailDialog";
 import {
@@ -2959,262 +2960,13 @@ export function AdminClient() {
             ) : null}
 
             {tab === "content" && content ? (
-              <form onSubmit={saveContent} className="admin-form space-y-3">
-                <ScreenHeader
-                  kicker="Website"
-                  title="Texte"
-                  description="Öffentliche Texte ändern. Veröffentlichen geht sofort live (inkl. Banner-Daten)."
-                />
-                <Section title="Hero Startseite">
-                  <Field label="Begrüßung über Wassana">
-                    <input
-                      value={content.hero.eyebrow}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          hero: { ...content.hero, eyebrow: e.target.value },
-                        })
-                      }
-                      className={fieldClass}
-                    />
-                  </Field>
-                  <Field label="Text unter Wassana">
-                    <textarea
-                      rows={2}
-                      value={content.hero.lede}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          hero: { ...content.hero, lede: e.target.value },
-                        })
-                      }
-                      className={fieldClass}
-                    />
-                  </Field>
-                </Section>
-
-                <Section title="Bedeutung">
-                  <Field label="Bedeutung „Wassana“">
-                    <textarea
-                      rows={3}
-                      value={content.meaning}
-                      onChange={(e) =>
-                        setContent({ ...content, meaning: e.target.value })
-                      }
-                      className={fieldClass}
-                    />
-                  </Field>
-                </Section>
-
-                <Section title="Öffnungszeiten">
-                  <Field label="Kurz (z. B. Mo–Fr …)">
-                    <input
-                      value={content.hours.weekdays}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          hours: { ...content.hours, weekdays: e.target.value },
-                        })
-                      }
-                      className={fieldClass}
-                    />
-                  </Field>
-                  <Field label="Lang (Wochentage)">
-                    <input
-                      value={content.hours.weekdaysLong}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          hours: {
-                            ...content.hours,
-                            weekdaysLong: e.target.value,
-                          },
-                        })
-                      }
-                      className={fieldClass}
-                    />
-                  </Field>
-                  <Field label="Wochenende / Feiertage">
-                    <input
-                      value={content.hours.weekend}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          hours: { ...content.hours, weekend: e.target.value },
-                        })
-                      }
-                      className={fieldClass}
-                    />
-                  </Field>
-                </Section>
-
-                <Section title="Schüler-Mittag">
-                  {(
-                    [
-                      ["eyebrow", "Überschrift klein"],
-                      ["title", "Titel"],
-                      ["text", "Beschreibung"],
-                      ["price", "Preis"],
-                      ["note", "Hinweis"],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <Field key={key} label={label}>
-                      <input
-                        value={content.studentLunch[key]}
-                        onChange={(e) =>
-                          setContent({
-                            ...content,
-                            studentLunch: {
-                              ...content.studentLunch,
-                              [key]: e.target.value,
-                            },
-                          })
-                        }
-                        className={fieldClass}
-                      />
-                    </Field>
-                  ))}
-                </Section>
-
-                <Section title="Mittag-Popup">
-                  <p className="mb-2 text-sm text-[color:var(--admin-muted)]">
-                    Inhalt für Banner „Mehr“ und den Button auf der Startseite.
-                    Auf dem Handy als Sheet von unten.
-                  </p>
-                  {(
-                    [
-                      ["popupTitle", "Popup-Titel"],
-                      ["popupLead", "Kurztext oben"],
-                      ["popupPrice", "Preis im Popup"],
-                      ["popupNote", "Hinweis im Popup"],
-                      ["popupCtaLabel", "Button-Text"],
-                      ["popupCtaHref", "Button-Link"],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <Field key={key} label={label}>
-                      <input
-                        value={content.studentLunch[key]}
-                        onChange={(e) =>
-                          setContent({
-                            ...content,
-                            studentLunch: {
-                              ...content.studentLunch,
-                              [key]: e.target.value,
-                            },
-                          })
-                        }
-                        className={fieldClass}
-                      />
-                    </Field>
-                  ))}
-                  <Field
-                    label="Ausführlicher Text"
-                    hint="Längere Erklärung im Popup"
-                  >
-                    <textarea
-                      value={content.studentLunch.popupBody}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          studentLunch: {
-                            ...content.studentLunch,
-                            popupBody: e.target.value,
-                          },
-                        })
-                      }
-                      className={fieldClass}
-                      rows={4}
-                    />
-                  </Field>
-                  <Field
-                    label="Punkte (eine Zeile = ein Punkt)"
-                    hint="z. B. Softgetränk inklusive"
-                  >
-                    <textarea
-                      value={content.studentLunch.popupBullets}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          studentLunch: {
-                            ...content.studentLunch,
-                            popupBullets: e.target.value,
-                          },
-                        })
-                      }
-                      className={fieldClass}
-                      rows={5}
-                    />
-                  </Field>
-                </Section>
-
-                <Section title="Standort">
-                  {(
-                    [
-                      ["eyebrow", "Kleine Zeile"],
-                      ["title", "Titel"],
-                      ["text", "Beschreibung"],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <Field key={key} label={label}>
-                      <input
-                        value={content.location[key]}
-                        onChange={(e) =>
-                          setContent({
-                            ...content,
-                            location: {
-                              ...content.location,
-                              [key]: e.target.value,
-                            },
-                          })
-                        }
-                        className={fieldClass}
-                      />
-                    </Field>
-                  ))}
-                </Section>
-
-                <Section title="Abschluss">
-                  <Field label="Titel">
-                    <input
-                      value={content.closing.title}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          closing: {
-                            ...content.closing,
-                            title: e.target.value,
-                          },
-                        })
-                      }
-                      className={fieldClass}
-                    />
-                  </Field>
-                  <Field
-                    label="Text"
-                    hint="Leer = Adresse + Zeiten automatisch"
-                  >
-                    <textarea
-                      rows={2}
-                      value={content.closing.text}
-                      onChange={(e) =>
-                        setContent({
-                          ...content,
-                          closing: {
-                            ...content.closing,
-                            text: e.target.value,
-                          },
-                        })
-                      }
-                      className={fieldClass}
-                    />
-                  </Field>
-                </Section>
-                <StickySave
-                  saving={saving}
-                  phase={publishPhase}
-                  label="Texte veröffentlichen"
-                />
-              </form>
+              <AdminContentVisualEditor
+                content={content}
+                setContent={setContent}
+                saving={saving}
+                publishPhase={publishPhase}
+                onSave={saveContent}
+              />
             ) : null}
 
             {tab === "menu" ? (
@@ -3823,7 +3575,7 @@ export function AdminClient() {
             {status ? (
               <div className="admin-toast is-ok">
                 <p>{status}</p>
-                <PersistChips persist={lastPersist} />
+                <PersistChips persist={lastPersist} compact />
               </div>
             ) : null}
           </>

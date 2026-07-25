@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
+import { EditableText } from "@/components/EditableText";
 import { useBusiness } from "@/components/BusinessContext";
 import { site } from "@/lib/site";
 
@@ -87,8 +88,20 @@ export function SiteFooter({ hours }: SiteFooterProps) {
           <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
             Öffnungszeiten
           </p>
-          <p className="mt-3 text-[color:var(--ink)]">{weekdaysLong}</p>
-          <p className="mt-1 text-sm text-[color:var(--muted)]">{weekend}</p>
+          <EditableText
+            path="hours.weekdaysLong"
+            as="p"
+            className="mt-3 text-[color:var(--ink)]"
+          >
+            {weekdaysLong}
+          </EditableText>
+          <EditableText
+            path="hours.weekend"
+            as="p"
+            className="mt-1 text-sm text-[color:var(--muted)]"
+          >
+            {weekend}
+          </EditableText>
           <Link
             href="/anfahrt"
             className="mt-5 inline-block text-sm text-[color:var(--red)] underline-offset-4 hover:underline"

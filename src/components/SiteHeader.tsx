@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { EditableText } from "@/components/EditableText";
 import { useBusiness } from "@/components/BusinessContext";
 import { site } from "@/lib/site";
 
@@ -320,7 +321,9 @@ export function SiteHeader({
               </li>
             </ul>
             <p className="mobile-nav-meta">
-              {hoursLabel}
+              <EditableText path="hours.weekdays" as="span">
+                {hoursLabel}
+              </EditableText>
               <span aria-hidden> · </span>
               <a href={business.phoneHref}>{business.phone}</a>
             </p>

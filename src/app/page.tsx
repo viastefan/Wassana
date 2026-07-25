@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { EditableText } from "@/components/EditableText";
 import { FaqSection } from "@/components/FaqSection";
 import {
   JsonLdBreadcrumbs,
@@ -62,18 +63,26 @@ export default async function HomePage() {
           aria-hidden
         />
         <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
-          <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
+          <EditableText
+            path="hero.eyebrow"
+            as="p"
+            className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]"
+          >
             {content.hero.eyebrow.trim() ||
               "Thai Imbiss und Feinkost · Landshut"}
-          </p>
+          </EditableText>
           <h1 className="hero-copy-delay font-display mt-3 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
             Willkommen
             <br />
             bei Wassana
           </h1>
-          <p className="hero-copy-delay mt-5 max-w-md text-[clamp(1.05rem,2.1vw,1.3rem)] font-light leading-relaxed text-white/90">
+          <EditableText
+            path="hero.lede"
+            as="p"
+            className="hero-copy-delay mt-5 max-w-md text-[clamp(1.05rem,2.1vw,1.3rem)] font-light leading-relaxed text-white/90"
+          >
             {content.hero.lede}
-          </p>
+          </EditableText>
           <a
             href={business.maps.directions}
             target="_blank"
@@ -140,9 +149,13 @@ export default async function HomePage() {
               Glück und gutes Schicksal
             </p>
             <div className="gold-rule mx-auto mt-8 max-w-xs" />
-            <p className="mt-8 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl">
+            <EditableText
+              path="meaning"
+              as="p"
+              className="mt-8 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl"
+            >
               {content.meaning}
-            </p>
+            </EditableText>
           </Reveal>
         </div>
       </section>
@@ -274,12 +287,20 @@ export default async function HomePage() {
       <section className="closing-band border-t border-[color:var(--line)]">
         <div className="mx-auto max-w-2xl px-5 py-[var(--section-y)] text-center md:px-8">
           <Reveal>
-            <p className="font-display text-3xl text-[color:var(--red)] md:text-4xl">
+            <EditableText
+              path="closing.title"
+              as="p"
+              className="font-display text-3xl text-[color:var(--red)] md:text-4xl"
+            >
               {content.closing.title}
-            </p>
-            <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
+            </EditableText>
+            <EditableText
+              path="closing.text"
+              as="p"
+              className="mt-4 text-[color:var(--muted)] leading-relaxed"
+            >
               {closingText}
-            </p>
+            </EditableText>
             <a href={business.phoneHref} className="btn-primary mt-8 inline-flex">
               {business.phone}
             </a>
