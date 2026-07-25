@@ -19,6 +19,7 @@ import {
   StickySave,
   Toggle,
 } from "./ui";
+import { ADMIN_TAB_ICONS } from "./icons";
 
 type Course = {
   active: boolean;
@@ -43,6 +44,12 @@ type Inquiry = {
 };
 
 type Tab = "home" | "course" | "inbox" | "content" | "banner" | "menu";
+
+type SiteRuntime = {
+  online: boolean;
+  checkedAt: string;
+  latencyMs: number | null;
+};
 
 const BANNER_PRESETS = [
   { label: "Rot", backgroundColor: "#7a0c24", textColor: "#f7f3ea", highlightColor: "#cbb892" },
@@ -69,16 +76,13 @@ function formatWhen(iso: string) {
 
 const fieldClass = "admin-field";
 
-const NAV_META: Record<
-  Tab,
-  { label: string; glyph: string; title: string }
-> = {
-  home: { label: "Home", glyph: "HO", title: "Übersicht" },
-  course: { label: "Kurs", glyph: "KK", title: "Kochkurs" },
-  inbox: { label: "Post", glyph: "IN", title: "Anfragen" },
-  banner: { label: "Banner", glyph: "BN", title: "Top-Banner" },
-  content: { label: "Texte", glyph: "TX", title: "Website-Texte" },
-  menu: { label: "Menü", glyph: "WK", title: "Wochenkarte" },
+const NAV_META: Record<Tab, { label: string; title: string }> = {
+  home: { label: "Home", title: "Übersicht" },
+  course: { label: "Kurs", title: "Kochkurs" },
+  inbox: { label: "Post", title: "Anfragen" },
+  banner: { label: "Banner", title: "Top-Banner" },
+  content: { label: "Texte", title: "Website-Texte" },
+  menu: { label: "Menü", title: "Wochenkarte" },
 };
 
 export function AdminClient() {
@@ -104,6 +108,8 @@ export function AdminClient() {
   const [unread, setUnread] = useState(0);
   const [content, setContent] = useState<SiteContent | null>(null);
   const [weekly, setWeekly] = useState<WeeklyMenuData | null>(null);
+  const [runtime, setRuntime] = useState<SiteRuntime | null>(null);
+  const [liveBusy, setLiveBusy] = useState<"banner" | "course" | null>(null);
 
   const loadInbox = useCallback(async () => {
     const res = await fetch("/api/admin/inquiries", { cache: "no-store" });
@@ -140,11 +146,37 @@ export function AdminClient() {
     setWeekly((await res.json()) as WeeklyMenuData);
   }, []);
 
+  const checkRuntime = useCallback(async () => {
+    const started = performance.now();
+    try {
+      const res = await fetch("/", {
+        method: "HEAD",
+        cache: "no-store",
+      });
+      setRuntime({
+        online: res.ok || res.status === 405 || res.status === 301 || res.status === 308,
+        checkedAt: new Date().toISOString(),
+        latencyMs: Math.round(performance.now() - started),
+      });
+    } catch {
+      setRuntime({
+        online: false,
+        checkedAt: new Date().toISOString(),
+        latencyMs: null,
+      });
+    }
+  }, []);
+
   const loadAll = useCallback(async () => {
     const courseRes = await fetch("/api/cooking-course", { cache: "no-store" });
     if (courseRes.ok) setCourse((await courseRes.json()) as Course);
-    await Promise.all([loadInbox(), loadContent(), loadWeekly()]);
-  }, [loadContent, loadInbox, loadWeekly]);
+    await Promise.all([
+      loadInbox(),
+      loadContent(),
+      loadWeekly(),
+      checkRuntime(),
+    ]);
+  }, [checkRuntime, loadContent, loadInbox, loadWeekly]);
 
   useEffect(() => {
     let cancelled = false;
@@ -358,6 +390,102 @@ export function AdminClient() {
     }
   }
 
+  async function setBannerLive(active: boolean) {
+    if (!content || liveBusy) return;
+    const previous = content;
+    const next = {
+      ...content,
+      topBanner: { ...content.topBanner, active },
+    };
+    setContent(next);
+    setLiveBusy("banner");
+    setError("");
+    setStatus("");
+    try {
+      const res = await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(next),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | (SiteContent & { error?: string; warning?: string })
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        setContent(previous);
+        setError(data?.error || "Live-Schaltung Banner fehlgeschlagen.");
+        return;
+      }
+      if (data) {
+        setContent({
+          hero: data.hero,
+          meaning: data.meaning,
+          hours: data.hours,
+          studentLunch: data.studentLunch,
+          topBanner: data.topBanner,
+          location: data.location,
+          closing: data.closing,
+          updatedAt: data.updatedAt,
+        });
+      }
+      setStatus(
+        data?.warning ||
+          (active ? "Banner ist jetzt live." : "Banner ist ausgeschaltet."),
+      );
+    } catch {
+      setContent(previous);
+      setError("Netzwerkfehler bei der Live-Schaltung.");
+    } finally {
+      setLiveBusy(null);
+    }
+  }
+
+  async function setCourseLive(active: boolean) {
+    if (liveBusy) return;
+    const previous = course;
+    const next = { ...course, active };
+    setCourse(next);
+    setLiveBusy("course");
+    setError("");
+    setStatus("");
+    try {
+      const res = await fetch("/api/cooking-course", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(next),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | (Course & { error?: string; warning?: string })
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        setCourse(previous);
+        setError(data?.error || "Live-Schaltung Kochkurs fehlgeschlagen.");
+        return;
+      }
+      if (data) {
+        setCourse({
+          active: data.active,
+          date: data.date,
+          title: data.title,
+          teaser: data.teaser,
+          updatedAt: data.updatedAt,
+        });
+      }
+      setStatus(
+        data?.warning ||
+          (active
+            ? "Kochkurs-Widget ist live."
+            : "Kochkurs-Widget ist ausgeschaltet."),
+      );
+    } catch {
+      setCourse(previous);
+      setError("Netzwerkfehler bei der Live-Schaltung.");
+    } finally {
+      setLiveBusy(null);
+    }
+  }
+
   async function markRead(id: string) {
     const res = await fetch("/api/admin/inquiries", {
       method: "PATCH",
@@ -401,11 +529,30 @@ export function AdminClient() {
             id === "inbox" && unread > 0
               ? `${NAV_META[id].label} ${unread}`
               : NAV_META[id].label,
-          glyph: NAV_META[id].glyph,
+          Icon: ADMIN_TAB_ICONS[id],
         }),
       ),
     [unread],
   );
+
+  const analytics = useMemo(() => {
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const week = inquiries.filter(
+      (item) => now - new Date(item.createdAt).getTime() <= weekMs,
+    );
+    const bySource = week.reduce<Record<string, number>>((acc, item) => {
+      const key = item.source || "sonstige";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    return {
+      weekTotal: week.length,
+      unread,
+      total: inquiries.length,
+      bySource,
+    };
+  }, [inquiries, unread]);
 
   const installBlock = (
     <section className="admin-install-hero mb-5">
@@ -540,98 +687,174 @@ export function AdminClient() {
                       Übersicht
                     </h1>
                   </div>
-                  <span className="admin-chip is-live">
-                    {unread > 0 ? `${unread} neu` : "aktuell"}
-                  </span>
+                  <button
+                    type="button"
+                    className="admin-chip is-live"
+                    onClick={() => void checkRuntime()}
+                  >
+                    {runtime?.online ? "Online" : runtime ? "Offline" : "Check"}
+                  </button>
                 </div>
+
+                <Section title="Live-Schaltung">
+                  <Toggle
+                    checked={Boolean(content?.topBanner.active)}
+                    onChange={(active) => void setBannerLive(active)}
+                    label="Top-Banner live"
+                    hint={
+                      liveBusy === "banner"
+                        ? "Schaltet gerade …"
+                        : "Sofort auf der Website sichtbar"
+                    }
+                  />
+                  <Toggle
+                    checked={course.active}
+                    onChange={(active) => void setCourseLive(active)}
+                    label="Kochkurs-Widget live"
+                    hint={
+                      liveBusy === "course"
+                        ? "Schaltet gerade …"
+                        : course.date
+                          ? `Termin: ${formatCourseDate(course.date)}`
+                          : "Kein Datum gesetzt"
+                    }
+                  />
+                </Section>
+
+                <Section title="Runtime-Status">
+                  <div className="admin-status-grid">
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">Website</p>
+                      <p className="admin-status-value">
+                        {runtime
+                          ? runtime.online
+                            ? "Erreichbar"
+                            : "Nicht erreichbar"
+                          : "—"}
+                      </p>
+                      <p className="admin-status-meta">
+                        {runtime?.latencyMs != null
+                          ? `${runtime.latencyMs} ms`
+                          : "noch nicht geprüft"}
+                      </p>
+                    </div>
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">Banner</p>
+                      <p className="admin-status-value">
+                        {content?.topBanner.active ? "Live" : "Aus"}
+                      </p>
+                      <p className="admin-status-meta">
+                        {content?.topBanner.text
+                          ? content.topBanner.text.slice(0, 42)
+                          : "kein Text"}
+                      </p>
+                    </div>
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">Kochkurs</p>
+                      <p className="admin-status-value">
+                        {course.active ? "Live" : "Aus"}
+                      </p>
+                      <p className="admin-status-meta">
+                        {course.updatedAt
+                          ? `Stand ${formatWhen(course.updatedAt)}`
+                          : "noch nicht gespeichert"}
+                      </p>
+                    </div>
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">Inhalte</p>
+                      <p className="admin-status-value">
+                        {content?.updatedAt ? "Aktuell" : "—"}
+                      </p>
+                      <p className="admin-status-meta">
+                        {content?.updatedAt
+                          ? formatWhen(content.updatedAt)
+                          : "keine Daten"}
+                      </p>
+                    </div>
+                  </div>
+                </Section>
+
+                <Section title="Analytics">
+                  <div className="admin-status-grid">
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">7 Tage</p>
+                      <p className="admin-status-value">
+                        {analytics.weekTotal}
+                      </p>
+                      <p className="admin-status-meta">Anfragen</p>
+                    </div>
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">Ungelesen</p>
+                      <p className="admin-status-value">{analytics.unread}</p>
+                      <p className="admin-status-meta">
+                        von {analytics.total} gesamt
+                      </p>
+                    </div>
+                  </div>
+                  {Object.keys(analytics.bySource).length ? (
+                    <ul className="admin-source-list">
+                      {Object.entries(analytics.bySource)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([source, count]) => (
+                          <li key={source}>
+                            <span>{source}</span>
+                            <strong>{count}</strong>
+                          </li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-[color:var(--muted)]">
+                      In den letzten 7 Tagen keine Anfragen.
+                    </p>
+                  )}
+                </Section>
+
                 <div className="grid gap-3 sm:grid-cols-2">
+                  {(
+                    [
+                      ["course", "Kochkurs", course.title || "Termin", course.date ? formatCourseDate(course.date) : "Noch kein Datum"],
+                      ["inbox", "Anfragen", unread > 0 ? `${unread} neu` : "Posteingang", `${inquiries.length} insgesamt`],
+                      ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus", "Mittagsangebot über dem Menü"],
+                      ["content", "Website", "Texte ändern", "Hero, Zeiten, Schüler-Mittag …"],
+                      ["menu", "Speisekarte", "Wochenkarte pflegen", "Mo–Fr Gerichte & Preise"],
+                    ] as const
+                  ).map(([id, kicker, title, meta]) => {
+                    const Icon = ADMIN_TAB_ICONS[id];
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        className={`admin-card ${id === "menu" ? "sm:col-span-2" : ""}`}
+                        onClick={() => setTab(id)}
+                      >
+                        <span className="admin-card-icon">
+                          <Icon className="admin-icon" />
+                        </span>
+                        <p className="mt-3 text-sm text-[color:var(--gold)]">
+                          {kicker}
+                        </p>
+                        <p className="mt-1 font-display text-xl text-[color:var(--red)]">
+                          {title}
+                        </p>
+                        <p className="mt-1 text-sm text-[color:var(--muted)]">
+                          {meta}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/" className="btn-gold inline-flex" target="_blank">
+                    Website öffnen
+                  </Link>
                   <button
                     type="button"
-                    className="admin-card"
-                    onClick={() => setTab("course")}
+                    className="btn-primary inline-flex"
+                    onClick={() => void loadAll()}
                   >
-                    <span className="admin-card-icon">KK</span>
-                    <p className="mt-3 text-sm text-[color:var(--gold)]">
-                      Kochkurs
-                    </p>
-                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
-                      {course.title || "Termin"}
-                    </p>
-                    <p className="mt-1 text-sm text-[color:var(--muted)]">
-                      {course.date
-                        ? formatCourseDate(course.date)
-                        : "Noch kein Datum"}
-                      {course.active ? " · aktiv" : " · aus"}
-                    </p>
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-card"
-                    onClick={() => setTab("inbox")}
-                  >
-                    <span className="admin-card-icon">IN</span>
-                    <p className="mt-3 text-sm text-[color:var(--gold)]">
-                      Anfragen
-                    </p>
-                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
-                      {unread > 0 ? `${unread} neu` : "Posteingang"}
-                    </p>
-                    <p className="mt-1 text-sm text-[color:var(--muted)]">
-                      {inquiries.length} insgesamt
-                    </p>
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-card"
-                    onClick={() => setTab("banner")}
-                  >
-                    <span className="admin-card-icon">BN</span>
-                    <p className="mt-3 text-sm text-[color:var(--gold)]">
-                      Top-Banner
-                    </p>
-                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
-                      {content?.topBanner?.active ? "Sichtbar" : "Aus"}
-                    </p>
-                    <p className="mt-1 text-sm text-[color:var(--muted)]">
-                      Mittagsangebot über dem Menü
-                    </p>
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-card"
-                    onClick={() => setTab("content")}
-                  >
-                    <span className="admin-card-icon">TX</span>
-                    <p className="mt-3 text-sm text-[color:var(--gold)]">
-                      Website
-                    </p>
-                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
-                      Texte ändern
-                    </p>
-                    <p className="mt-1 text-sm text-[color:var(--muted)]">
-                      Hero, Zeiten, Schüler-Mittag …
-                    </p>
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-card sm:col-span-2"
-                    onClick={() => setTab("menu")}
-                  >
-                    <span className="admin-card-icon">WK</span>
-                    <p className="mt-3 text-sm text-[color:var(--gold)]">
-                      Speisekarte
-                    </p>
-                    <p className="mt-1 font-display text-xl text-[color:var(--red)]">
-                      Wochenkarte pflegen
-                    </p>
-                    <p className="mt-1 text-sm text-[color:var(--muted)]">
-                      Mo–Fr Gerichte & Preise aktualisieren
-                    </p>
+                    Status aktualisieren
                   </button>
                 </div>
-                <Link href="/" className="btn-gold inline-flex">
-                  Öffentliche Website ansehen
-                </Link>
               </section>
             ) : null}
 
@@ -1352,7 +1575,9 @@ export function AdminClient() {
                 className={`admin-tab ${tab === item.id ? "is-active" : ""}`}
                 aria-current={tab === item.id ? "page" : undefined}
               >
-                <span className="admin-tab-glyph">{item.glyph}</span>
+                <span className="admin-tab-glyph" aria-hidden>
+                  <item.Icon className="admin-tab-icon" />
+                </span>
                 <span className="admin-tab-label">{item.label}</span>
               </button>
             ))}

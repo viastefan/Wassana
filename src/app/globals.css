@@ -306,15 +306,84 @@ select:-webkit-autofill:focus {
 }
 
 .admin-tab-glyph {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  opacity: 0.9;
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  opacity: 0.95;
+}
+
+.admin-tab-icon {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .admin-tab-label {
   font-size: 0.58rem;
   line-height: 1.1;
+}
+
+.admin-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.admin-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.admin-status-item {
+  border: 1px solid color-mix(in srgb, var(--line) 88%, white);
+  background: #fffdf8;
+  padding: 0.75rem 0.8rem;
+}
+
+.admin-status-label {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.admin-status-value {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: 1.15rem;
+  color: var(--red);
+}
+
+.admin-status-meta {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.admin-source-list {
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.admin-source-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.4rem;
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+.admin-source-list strong {
+  color: var(--red);
+  font-weight: 600;
 }
 
 .admin-toast {
