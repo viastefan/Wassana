@@ -56,10 +56,7 @@ export default function HomePage() {
             <Link href="/speisekarte" className="btn-primary">
               Speisekarte
             </Link>
-            <a
-              href="#standort"
-              className="inline-flex items-center justify-center rounded-full border border-white/40 px-[1.35rem] py-3 text-[0.9rem] font-medium text-white transition hover:bg-white/10"
-            >
+            <a href="#standort" className="btn-ghost">
               Standort
             </a>
           </div>

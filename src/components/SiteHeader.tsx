@@ -13,6 +13,10 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
     if (!isHome) {
       setScrolled(true);
       return;
@@ -34,13 +38,17 @@ export function SiteHeader() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 md:px-8">
-        <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
+        <Link
+          href="/"
+          className="flex items-center gap-3"
+          onClick={() => setOpen(false)}
+        >
           <Image
             src="/images/logo.png"
             alt="Wassana Thai Imbiss"
             width={48}
             height={48}
-            className="h-11 w-11 rounded-full object-cover bg-[color:var(--paper)]"
+            className="h-11 w-11 rounded-full object-contain bg-[color:var(--paper)] p-0.5"
             priority
           />
           <span
@@ -58,22 +66,18 @@ export function SiteHeader() {
               key={link.href}
               href={link.href}
               className={`text-sm tracking-wide transition-opacity hover:opacity-70 ${
-                solid ? "text-[color:var(--ink)]" : "text-white/90"
+                solid ? "text-[color:var(--ink)]" : "text-white"
               }`}
             >
               {link.label}
             </Link>
           ))}
-          <a
+          <Link
             href="/kontakt"
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              solid
-                ? "bg-[color:var(--red)] text-white hover:bg-[color:var(--red-hover)]"
-                : "border border-white/40 text-white hover:bg-white/10"
-            }`}
+            className={solid ? "btn-primary px-4 py-2 text-sm" : "btn-ghost px-4 py-2 text-sm"}
           >
             Kontakt
-          </a>
+          </Link>
         </nav>
 
         <button
@@ -112,9 +116,13 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            <a href="/kontakt" className="btn-primary mt-2 w-fit">
+            <Link
+              href="/kontakt"
+              className="btn-primary mt-2 w-fit"
+              onClick={() => setOpen(false)}
+            >
               Kontakt
-            </a>
+            </Link>
           </div>
         </div>
       )}
