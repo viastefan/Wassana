@@ -54,15 +54,14 @@ export default async function HomePage() {
           aria-hidden
         />
         <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
-          <p className="hero-copy text-sm tracking-[0.28em] text-[color:var(--gold-soft)] uppercase">
-            {content.hero.eyebrow}
-          </p>
-          <h1 className="hero-copy-delay font-display mt-4 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
-            Wassana
-          </h1>
-          <p className="hero-copy-delay mt-3 text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
+          <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
             Thai Imbiss und Feinkost · Landshut
           </p>
+          <h1 className="hero-copy-delay font-display mt-4 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
+            Willkommen bei
+            <br />
+            Wassana
+          </h1>
           <p className="hero-copy-delay mt-5 max-w-md text-[clamp(1.05rem,2.1vw,1.3rem)] font-light leading-relaxed text-white/90">
             {content.hero.lede}
           </p>
