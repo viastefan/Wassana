@@ -124,7 +124,7 @@ export default async function CateringPage() {
               .
             </p>
           </Reveal>
-          <div className="catering-form-sticky">
+          <div className="side-form-sticky">
             <ContactForm
               subject="Catering Anfrage Landshut"
               title="Catering anfragen"

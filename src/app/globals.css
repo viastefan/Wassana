@@ -1797,12 +1797,12 @@ a.btn-ghost:hover {
   transition-delay: 0.22s;
 }
 
-.catering-form-sticky {
+.side-form-sticky {
   align-self: start;
 }
 
 @media (min-width: 768px) {
-  .catering-form-sticky {
+  .side-form-sticky {
     position: sticky;
     top: calc(var(--header-h) + var(--banner-h) + 1rem);
     z-index: 1;
