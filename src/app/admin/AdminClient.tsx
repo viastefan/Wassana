@@ -2965,7 +2965,10 @@ export function AdminClient() {
                   description="Öffentliche Texte ändern. Veröffentlichen geht sofort live (inkl. Banner-Daten)."
                 />
                 <Section title="Hero Startseite">
-                  <Field label="Begrüßung über Wassana">
+                  <Field
+                    label="Kleine Zeile über dem Titel"
+                    hint='z. B. „Thai Imbiss und Feinkost · Landshut“ — nicht „Willkommen“, das steht schon groß darunter'
+                  >
                     <input
                       value={content.hero.eyebrow}
                       onChange={(e) =>
@@ -2975,6 +2978,7 @@ export function AdminClient() {
                         })
                       }
                       className={fieldClass}
+                      placeholder="Thai Imbiss und Feinkost · Landshut"
                     />
                   </Field>
                   <Field label="Text unter Wassana">
