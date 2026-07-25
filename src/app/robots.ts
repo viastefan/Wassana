@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
-import { getSiteUrl } from "@/lib/site";
+import { CANONICAL_SITE_URL, getCanonicalSiteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = getSiteUrl();
+  const base = getCanonicalSiteUrl();
 
   return {
     rules: [
@@ -24,6 +24,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: `${base}/sitemap.xml`,
-    host: base.replace(/^https?:\/\//, ""),
+    host: CANONICAL_SITE_URL.replace(/^https?:\/\//, ""),
   };
 }

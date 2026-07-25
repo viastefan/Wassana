@@ -8,7 +8,7 @@ import {
 import { PublicChrome } from "@/components/PublicChrome";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
-import { getSiteUrl, site } from "@/lib/site";
+import { CANONICAL_SITE_URL, site } from "@/lib/site";
 import "./globals.css";
 
 /** CMS texts must refresh after admin saves (Vercel /tmp + GitHub). */
@@ -21,7 +21,8 @@ const typewriter = Special_Elite({
   display: "swap",
 });
 
-const siteUrl = getSiteUrl();
+/** www only — keeps link rel=canonical / OG URLs off apex and preview hosts. */
+const metadataBaseUrl = new URL(CANONICAL_SITE_URL);
 
 export const viewport: Viewport = {
   themeColor: [
@@ -36,7 +37,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: metadataBaseUrl,
   title: {
     default: "Wassana Thai Imbiss Landshut | Curry, Wok & Mitnehmen",
     template: "%s | Wassana Thai Imbiss Landshut",
@@ -60,7 +61,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: site.seo.locale,
-    url: siteUrl,
+    url: CANONICAL_SITE_URL,
     siteName: site.shortName,
     title: "Wassana Thai Imbiss Landshut | Authentisch & frisch",
     description:

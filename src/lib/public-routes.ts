@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { MetadataRoute } from "next";
+import { canonicalUrl } from "@/lib/site";
 
 /** Segments that must never appear in the public sitemap. */
 const BLOCKED_SEGMENTS = new Set([
@@ -38,6 +39,9 @@ const DEFAULT_META: RouteMeta = {
   changeFrequency: "monthly",
   priority: 0.7,
 };
+
+/** Known public routes — used if filesystem discovery is empty (e.g. odd runtimes). */
+const FALLBACK_PATHS = Object.keys(ROUTE_META);
 
 function isBlockedSegment(segment: string) {
   if (!segment) return false;
@@ -87,7 +91,9 @@ export async function discoverPublicPaths(
   }
 
   await walk(appDir, []);
-  return [...found].sort((a, b) => {
+
+  const paths = found.size > 0 ? [...found] : [...FALLBACK_PATHS];
+  return paths.sort((a, b) => {
     const pa = ROUTE_META[a]?.priority ?? DEFAULT_META.priority;
     const pb = ROUTE_META[b]?.priority ?? DEFAULT_META.priority;
     if (pb !== pa) return pb - pa;
@@ -95,17 +101,18 @@ export async function discoverPublicPaths(
   });
 }
 
-export async function buildAutoSitemap(
-  baseUrl: string,
-): Promise<MetadataRoute.Sitemap> {
-  const base = baseUrl.replace(/\/$/, "");
+/**
+ * Build sitemap entries using the same absolute URLs as link rel=canonical
+ * (www host, no trailing slash).
+ */
+export async function buildAutoSitemap(): Promise<MetadataRoute.Sitemap> {
   const paths = await discoverPublicPaths();
   const now = new Date();
 
   return paths.map((routePath) => {
     const meta = ROUTE_META[routePath] ?? DEFAULT_META;
     return {
-      url: routePath === "/" ? `${base}/` : `${base}${routePath}`,
+      url: canonicalUrl(routePath),
       lastModified: now,
       changeFrequency: meta.changeFrequency,
       priority: meta.priority,

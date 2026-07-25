@@ -94,19 +94,39 @@ export const site = {
   },
 } as const;
 
-const PRODUCTION_SITE_URL = "https://www.wassana-thai-imbiss.de";
+/** Always-www production origin — sole host for sitemap, robots, and link rel=canonical. */
+export const CANONICAL_SITE_URL = "https://www.wassana-thai-imbiss.de";
 
 /**
- * Canonical site origin for SEO (sitemap, OG, JSON-LD).
+ * Absolute canonical URL for a path (no trailing slash, except bare origin for `/`).
+ * Matches Next metadataBase + alternates.canonical output.
+ */
+export function canonicalUrl(pathname = "/"): string {
+  const base = CANONICAL_SITE_URL.replace(/\/$/, "");
+  if (!pathname || pathname === "/") return base;
+  const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
+  return `${base}${path.replace(/\/$/, "")}`;
+}
+
+/** Hard-locked www origin for crawl surfaces (sitemap.xml, robots.txt). */
+export function getCanonicalSiteUrl() {
+  return CANONICAL_SITE_URL;
+}
+
+/**
+ * Site origin for OG / JSON-LD / metadataBase.
  * Prefer NEXT_PUBLIC_SITE_URL; never let preview hosts pollute production metadata
- * when VERCEL_ENV is production.
+ * when VERCEL_ENV is production. Apex host is normalized to www.
  */
 export function getSiteUrl() {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  if (fromEnv) return fromEnv;
+  if (fromEnv) {
+    if (fromEnv === "https://wassana-thai-imbiss.de") return CANONICAL_SITE_URL;
+    return fromEnv;
+  }
 
   if (process.env.VERCEL_ENV === "production") {
-    return PRODUCTION_SITE_URL;
+    return CANONICAL_SITE_URL;
   }
 
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
@@ -115,7 +135,7 @@ export function getSiteUrl() {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
   }
-  return PRODUCTION_SITE_URL;
+  return CANONICAL_SITE_URL;
 }
 
 export const navLinks = [

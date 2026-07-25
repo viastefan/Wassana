@@ -65,7 +65,7 @@ In Vercel: Variable `GITHUB_TOKEN` = Token, optional `GITHUB_REPO=viastefan/Wass
 2. Eigentum bestätigen (DNS-TXT bei IONOS **oder** HTML-Meta):
    - Meta: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel setzen → Redeploy
 3. **Sitemap** einreichen: `https://www.wassana-thai-imbiss.de/sitemap.xml`  
-   (wird automatisch aus allen öffentlichen `page.tsx` erzeugt — neue Unterseiten erscheinen von selbst)
+   (Build-Zeit aus allen öffentlichen `page.tsx`; Locs = Canonical-URLs, nur www, ohne trailing slash)
 4. **URL-Prüfung** → Indexierung beantragen für:
    - `/` · `/speisekarte` · `/mitnehmen` · `/schueler-mittagessen`
    - `/kontakt` · `/anfahrt` · `/catering` · `/kochkurs` · `/ueber-uns`
