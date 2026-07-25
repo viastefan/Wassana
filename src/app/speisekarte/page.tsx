@@ -4,7 +4,7 @@ import { MediaBand } from "@/components/Media";
 import { SpeisekarteFull } from "@/components/Speisekarte";
 import { StudentLunch } from "@/components/StudentLunch";
 import { getResolvedBusiness } from "@/lib/business-profile";
-import { menuSections } from "@/lib/menu";
+import { getPublicMenuSections } from "@/lib/menu-store";
 import { getSiteContent } from "@/lib/site-content";
 import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 
@@ -25,9 +25,10 @@ export const metadata: Metadata = {
 };
 
 export default async function SpeisekartePage() {
-  const [content, weekly, business] = await Promise.all([
+  const [content, weekly, sections, business] = await Promise.all([
     getSiteContent(),
     getWeeklyMenuData(),
+    getPublicMenuSections(),
     getResolvedBusiness(),
   ]);
 
@@ -39,7 +40,7 @@ export default async function SpeisekartePage() {
           { name: "Speisekarte", path: "/speisekarte" },
         ]}
       />
-      <JsonLdMenu sections={menuSections} businessName={business.shortName} />
+      <JsonLdMenu sections={sections} businessName={business.shortName} />
       <MediaBand
         src="/images/curry.jpg"
         alt="Curry-Gerichte auf der Speisekarte bei Wassana Thai Imbiss in Landshut"
@@ -50,7 +51,7 @@ export default async function SpeisekartePage() {
         height="short"
       />
       <StudentLunch compact offer={content.studentLunch} />
-      <SpeisekarteFull menu={weekly} />
+      <SpeisekarteFull menu={weekly} sections={sections} />
     </main>
   );
 }

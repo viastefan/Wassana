@@ -13,6 +13,7 @@ import { formatCourseDate } from "@/lib/cooking-course-format";
 import type { BusinessProfile } from "@/lib/business-profile-shared";
 import type { SiteContent } from "@/lib/site-content";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
+import type { FullMenuData } from "@/lib/menu-store-shared";
 import {
   COURSE_IMAGE_OPTIONS,
   createBlankCourse,
@@ -36,6 +37,7 @@ import {
   Toggle,
   type PublishPhase,
 } from "./ui";
+import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
 import { ADMIN_TAB_ICONS } from "./icons";
 import { PublishFailDialog } from "./PublishFailDialog";
 import {
@@ -94,7 +96,7 @@ const NAV_META: Record<Tab, { label: string; title: string }> = {
   inbox: { label: "Post", title: "Anfragen-DB" },
   banner: { label: "Banner", title: "Top-Banner" },
   content: { label: "Texte", title: "Website-Texte" },
-  menu: { label: "Menü", title: "Wochenkarte" },
+  menu: { label: "Menü", title: "Speisekarte" },
   settings: { label: "Betrieb", title: "Einstellungen" },
 };
 
@@ -137,6 +139,8 @@ export function AdminClient() {
   );
   const [content, setContent] = useState<SiteContent | null>(null);
   const [weekly, setWeekly] = useState<WeeklyMenuData | null>(null);
+  const [fullMenu, setFullMenu] = useState<FullMenuData | null>(null);
+  const [menuPanel, setMenuPanel] = useState<"weekly" | "full">("weekly");
   const [business, setBusiness] = useState<BusinessProfile | null>(null);
   const [runtime, setRuntime] = useState<SiteRuntime | null>(null);
   const [liveBusy, setLiveBusy] = useState<"banner" | "course" | null>(null);
@@ -213,6 +217,16 @@ export function AdminClient() {
     setWeekly((await res.json()) as WeeklyMenuData);
   }, []);
 
+  const loadFullMenu = useCallback(async () => {
+    const res = await fetch("/api/admin/menu-sections", { cache: "no-store" });
+    if (res.status === 401) {
+      setAuthed(false);
+      return;
+    }
+    if (!res.ok) return;
+    setFullMenu((await res.json()) as FullMenuData);
+  }, []);
+
   const checkRuntime = useCallback(async () => {
     const started = performance.now();
     try {
@@ -271,6 +285,7 @@ export function AdminClient() {
       loadInbox(),
       loadContent(),
       loadWeekly(),
+      loadFullMenu(),
       loadBusiness(),
       checkRuntime(),
     ]);
@@ -279,6 +294,7 @@ export function AdminClient() {
     loadBusiness,
     loadContent,
     loadCourseStore,
+    loadFullMenu,
     loadInbox,
     loadWeekly,
   ]);
@@ -962,6 +978,51 @@ export function AdminClient() {
     });
   }
 
+  async function saveFullMenu(event: FormEvent) {
+    event.preventDefault();
+    if (!fullMenu) return;
+    await runPublish("Speisekarte veröffentlichen", async () => {
+      const res = await fetch("/api/admin/menu-sections", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fullMenu),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | (FullMenuData & {
+            error?: string;
+            warning?: string;
+            persist?: {
+              disk?: boolean;
+              tmp?: boolean;
+              blob?: boolean;
+              github?: boolean;
+              durable?: boolean;
+            };
+          })
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        return {
+          ok: false,
+          error: data?.error || "Speisekarte speichern fehlgeschlagen.",
+          persist: data?.persist,
+        };
+      }
+      if (data?.sections) {
+        setFullMenu({
+          sections: data.sections,
+          updatedAt: data.updatedAt,
+        });
+      }
+      return {
+        ok: true,
+        warning: data?.warning,
+        persist: data?.persist,
+        successMessage: "Online — gesamte Speisekarte live",
+      };
+    });
+  }
+
   async function setBannerLive(active: boolean) {
     if (!content || liveBusy) return;
     const previous = content;
@@ -1625,7 +1686,7 @@ export function AdminClient() {
                       ["inbox", "Anfragen-DB", unread > 0 ? `${unread} neu` : "Datenbank", `${analytics.total} aktiv · ${analytics.archived} Archiv`],
                       ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus", "Mittagsangebot über dem Menü"],
                       ["content", "Website", "Texte ändern", "Hero, Zeiten, Schüler-Mittag …"],
-                      ["menu", "Speisekarte", "Wochenkarte pflegen", "Mo–Fr Gerichte & Preise"],
+                      ["menu", "Speisekarte", "Wochenkarte & alle Gerichte", "Texte, Preise, Reihenfolge"],
                     ] as const
                   ).map(([id, kicker, title, meta]) => {
                     const Icon = ADMIN_TAB_ICONS[id];
@@ -2877,7 +2938,36 @@ export function AdminClient() {
               </form>
             ) : null}
 
-            {tab === "menu" && weekly ? (
+            {tab === "menu" ? (
+              <div className="space-y-3">
+                <div className="admin-menu-switch" role="tablist" aria-label="Menübereich">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={menuPanel === "weekly"}
+                    className={`admin-menu-switch-btn ${menuPanel === "weekly" ? "is-active" : ""}`}
+                    onClick={() => {
+                      setMenuPanel("weekly");
+                      void loadWeekly();
+                    }}
+                  >
+                    Wochenkarte
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={menuPanel === "full"}
+                    className={`admin-menu-switch-btn ${menuPanel === "full" ? "is-active" : ""}`}
+                    onClick={() => {
+                      setMenuPanel("full");
+                      void loadFullMenu();
+                    }}
+                  >
+                    Alle Gerichte
+                  </button>
+                </div>
+
+                {menuPanel === "weekly" && weekly ? (
               <form onSubmit={saveWeekly} className="admin-form space-y-3">
                 <ScreenHeader
                   kicker="Speisekarte"
@@ -3117,6 +3207,25 @@ export function AdminClient() {
                   label="Wochenkarte veröffentlichen"
                 />
               </form>
+                ) : null}
+
+                {menuPanel === "full" && fullMenu ? (
+                  <AdminFullMenuEditor
+                    menu={fullMenu}
+                    setMenu={setFullMenu}
+                    saving={saving}
+                    publishPhase={publishPhase}
+                    onSave={saveFullMenu}
+                  />
+                ) : null}
+
+                {menuPanel === "weekly" && !weekly ? (
+                  <p className="admin-empty">Wochenkarte wird geladen …</p>
+                ) : null}
+                {menuPanel === "full" && !fullMenu ? (
+                  <p className="admin-empty">Speisekarte wird geladen …</p>
+                ) : null}
+              </div>
             ) : null}
 
 
@@ -3359,7 +3468,10 @@ export function AdminClient() {
                   if (item.id === "content" || item.id === "banner") {
                     void loadContent();
                   }
-                  if (item.id === "menu") void loadWeekly();
+                  if (item.id === "menu") {
+                    void loadWeekly();
+                    void loadFullMenu();
+                  }
                   if (item.id === "settings") void loadBusiness();
                 }}
                 className={`admin-tab ${tab === item.id ? "is-active" : ""}`}

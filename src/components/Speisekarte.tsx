@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AllergenLegend, AllergenMarks } from "@/components/AllergenLegend";
-import { allergens, menuSections } from "@/lib/menu";
+import { allergens, type MenuSection } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
 
@@ -117,7 +117,13 @@ export function Wochenkarte({
   );
 }
 
-export function SpeisekarteFull({ menu }: { menu: WeeklyMenuData }) {
+export function SpeisekarteFull({
+  menu,
+  sections,
+}: {
+  menu: WeeklyMenuData;
+  sections: MenuSection[];
+}) {
   return (
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
@@ -126,7 +132,7 @@ export function SpeisekarteFull({ menu }: { menu: WeeklyMenuData }) {
             <a href="#wochenkarte" className="chip">
               Wochenkarte
             </a>
-            {menuSections.map((section) => (
+            {sections.map((section) => (
               <a key={section.id} href={`#${section.id}`} className="chip">
                 {section.title}
               </a>
@@ -138,7 +144,7 @@ export function SpeisekarteFull({ menu }: { menu: WeeklyMenuData }) {
         <Wochenkarte menu={menu} />
 
         <div className="mt-8 space-y-16">
-          {menuSections.map((section) => (
+          {sections.map((section) => (
             <Reveal key={section.id}>
               <div id={section.id}>
                 <h3 className="font-display text-3xl text-[color:var(--ink)]">

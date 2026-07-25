@@ -922,7 +922,53 @@ button.admin-install-cta:hover {
   }
 }
 
-.allergen-marks {
+.admin-full-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+}
+
+.admin-full-item-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.admin-full-item-desc {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+  .admin-full-item-fields {
+    grid-template-columns: 4.5rem 1fr 5.5rem 5rem;
+  }
+}
+
+.admin-menu-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.2rem 0 0.35rem;
+}
+
+.admin-menu-switch-btn {
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 35%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-surface) 90%, white);
+  color: var(--admin-burgundy);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.admin-menu-switch-btn.is-active {
+  border-color: color-mix(in srgb, var(--admin-burgundy) 45%, var(--admin-gold));
+  background: color-mix(in srgb, var(--admin-burgundy) 10%, white);
+  color: var(--admin-burgundy);
+  font-weight: 600;
+}
   margin-left: 0.2rem;
   font-size: 0.68em;
   letter-spacing: 0.02em;
