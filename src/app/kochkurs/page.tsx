@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
 import { Reveal } from "@/components/Reveal";
+import {
+  formatCourseDate,
+  getCookingCourse,
+  isPublicPromoVisible,
+} from "@/lib/cooking-course";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -16,7 +21,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function KochkursPage() {
+export const dynamic = "force-dynamic";
+
+export default async function KochkursPage() {
+  const course = await getCookingCourse();
+  const showNext = isPublicPromoVisible(course);
+
   return (
     <main className="pt-24">
       <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
@@ -27,6 +37,15 @@ export default function KochkursPage() {
           <h1 className="font-display mt-3 max-w-3xl text-4xl leading-tight text-[color:var(--red)] md:text-5xl">
             Die thailändische Küche näher kennenlernen
           </h1>
+          {showNext ? (
+            <p className="mt-5 inline-block border border-[color:var(--gold-soft)] bg-[color:var(--paper)] px-4 py-2 text-[color:var(--ink)]">
+              Nächster Termin:{" "}
+              <strong className="text-[color:var(--red)]">
+                {formatCourseDate(course.date)}
+              </strong>
+              {course.teaser ? ` — ${course.teaser}` : null}
+            </p>
+          ) : null}
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[color:var(--muted)]">
             An bestimmten Tagen zeigen wir Ihnen Schritt für Schritt, wie
             berühmte Gerichte wie Pad Thai oder Tom Yam zubereitet werden — und

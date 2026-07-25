@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Special_Elite } from "next/font/google";
+import { CookingCoursePromo } from "@/components/CookingCoursePromo";
 import { JsonLdLocalBusiness, JsonLdWebSite } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -88,6 +89,7 @@ export default function RootLayout({
           <SiteHeader />
           {children}
           <SiteFooter />
+          <CookingCoursePromo />
         </div>
       </body>
     </html>
