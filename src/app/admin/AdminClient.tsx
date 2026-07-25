@@ -149,12 +149,11 @@ export function AdminClient() {
   const checkRuntime = useCallback(async () => {
     const started = performance.now();
     try {
-      const res = await fetch("/", {
-        method: "HEAD",
+      const res = await fetch("/robots.txt", {
         cache: "no-store",
       });
       setRuntime({
-        online: res.ok || res.status === 405 || res.status === 301 || res.status === 308,
+        online: res.ok,
         checkedAt: new Date().toISOString(),
         latencyMs: Math.round(performance.now() - started),
       });
@@ -442,6 +441,11 @@ export function AdminClient() {
 
   async function setCourseLive(active: boolean) {
     if (liveBusy) return;
+    if (!course.date) {
+      setError("Bitte zuerst unter Kurs ein Datum setzen.");
+      setTab("course");
+      return;
+    }
     const previous = course;
     const next = { ...course, active };
     setCourse(next);
