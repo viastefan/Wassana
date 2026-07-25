@@ -3,19 +3,28 @@ import { promises as fs } from "fs";
 import path from "path";
 import { formatCourseDate } from "@/lib/cooking-course-format";
 import {
+  createBlankCourse,
+  defaultCoursePageText,
+  defaultCoursePageTitle,
+  sanitizeCourseImage,
+  type CookingCourseData,
+} from "@/lib/cooking-course-shared";
+import {
   writeJsonWithFallback,
   type PersistResult,
 } from "@/lib/persist-json";
 import { sanitizeText } from "@/lib/security";
 
-export type CookingCourse = {
-  active: boolean;
-  date: string; // YYYY-MM-DD
-  title: string;
-  teaser: string;
+export type CookingCourse = CookingCourseData & {
   updatedAt: string;
 };
 
+export {
+  COURSE_IMAGE_OPTIONS,
+  createBlankCourse,
+  sanitizeCourseImage,
+  suggestNewCourseDate,
+} from "@/lib/cooking-course-shared";
 export { formatCourseDate };
 
 export const COOKING_COURSE_COOKIE = "wassana_admin";
@@ -24,10 +33,11 @@ const DATA_PATH = path.join(process.cwd(), "data", "cooking-course.json");
 const TMP_PATH = path.join("/tmp", "wassana-cooking-course.json");
 
 const fallbackCourse: CookingCourse = {
-  active: true,
-  date: "2027-01-24",
-  title: "Thai Kochkurs",
-  teaser: "Noch Plätze frei",
+  ...createBlankCourse({
+    date: "2027-01-24",
+    title: "Thai Kochkurs",
+    teaser: "Noch Plätze frei",
+  }),
   updatedAt: new Date().toISOString(),
 };
 
@@ -68,18 +78,31 @@ export function isCourseUpcoming(isoDate: string): boolean {
   return end.getTime() >= Date.now();
 }
 
+function normalizeCourse(raw: Partial<CookingCourseData> | null): CookingCourse {
+  const base = createBlankCourse();
+  return {
+    active: typeof raw?.active === "boolean" ? raw.active : base.active,
+    date: String(raw?.date || base.date),
+    title:
+      sanitizeText(String(raw?.title || base.title), 120) || "Thai Kochkurs",
+    teaser: sanitizeText(String(raw?.teaser || ""), 200),
+    image: sanitizeCourseImage(raw?.image),
+    pageTitle:
+      sanitizeText(String(raw?.pageTitle || defaultCoursePageTitle()), 160) ||
+      defaultCoursePageTitle(),
+    pageText:
+      sanitizeText(String(raw?.pageText || defaultCoursePageText()), 400) ||
+      defaultCoursePageText(),
+    updatedAt: String(raw?.updatedAt || new Date().toISOString()),
+  };
+}
+
 async function readJsonFile(filePath: string): Promise<CookingCourse | null> {
   try {
     const raw = await fs.readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as CookingCourse;
+    const parsed = JSON.parse(raw) as Partial<CookingCourseData>;
     if (!parsed?.date || typeof parsed.active !== "boolean") return null;
-    return {
-      active: Boolean(parsed.active),
-      date: String(parsed.date),
-      title: String(parsed.title || "Thai Kochkurs"),
-      teaser: String(parsed.teaser || ""),
-      updatedAt: String(parsed.updatedAt || new Date().toISOString()),
-    };
+    return normalizeCourse(parsed);
   } catch {
     return null;
   }
@@ -96,15 +119,10 @@ export async function getCookingCourse(): Promise<CookingCourse> {
 export async function saveCookingCourse(
   input: Omit<CookingCourse, "updatedAt">,
 ): Promise<{ course: CookingCourse; persist: PersistResult }> {
-  const next: CookingCourse = {
-    active: Boolean(input.active),
-    date: String(input.date),
-    title:
-      sanitizeText(String(input.title || "Thai Kochkurs"), 120) ||
-      "Thai Kochkurs",
-    teaser: sanitizeText(String(input.teaser || ""), 200),
+  const next = normalizeCourse({
+    ...input,
     updatedAt: new Date().toISOString(),
-  };
+  });
 
   const payload = `${JSON.stringify(next, null, 2)}\n`;
   const persist = await writeJsonWithFallback(

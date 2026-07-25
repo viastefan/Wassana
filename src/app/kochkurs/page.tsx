@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
 import { JsonLdBreadcrumbs } from "@/components/JsonLd";
@@ -8,6 +9,7 @@ import {
   formatCourseDate,
   getCookingCourse,
   isPublicPromoVisible,
+  sanitizeCourseImage,
 } from "@/lib/cooking-course";
 import { site } from "@/lib/site";
 
@@ -29,6 +31,12 @@ export const dynamic = "force-dynamic";
 export default async function KochkursPage() {
   const course = await getCookingCourse();
   const showNext = isPublicPromoVisible(course);
+  const image = sanitizeCourseImage(course.image);
+  const pageTitle =
+    course.pageTitle?.trim() || "Thai-Küche näher kennenlernen";
+  const pageText =
+    course.pageText?.trim() ||
+    "Schritt für Schritt Pad Thai oder Tom Yam — inkl. Tipps, wo Sie die Zutaten finden.";
 
   return (
     <main>
@@ -39,28 +47,56 @@ export default async function KochkursPage() {
         ]}
       />
       <MediaBand
-        src="/images/ingredients.jpg"
-        alt="Frische Zutaten für den Thai Kochkurs bei Wassana"
+        src={image}
+        alt={`${course.title || "Thai Kochkurs"} bei Wassana in Landshut`}
         eyebrow="Kochkurs Landshut"
-        title="Thai-Küche näher kennenlernen"
-        text="Schritt für Schritt Pad Thai oder Tom Yam — inkl. Tipps, wo Sie die Zutaten finden."
+        title={pageTitle}
+        text={pageText}
         priority
         height="short"
       />
 
       {showNext ? (
         <div className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
-          <div className="mx-auto max-w-6xl px-5 py-6 md:px-8">
+          <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-6 md:flex-row md:items-baseline md:justify-between md:px-8">
             <p className="text-[color:var(--ink)]">
               Nächster Termin:{" "}
               <strong className="text-[color:var(--red)]">
                 {formatCourseDate(course.date)}
               </strong>
-              {course.teaser ? ` — ${course.teaser}` : null}
+              {course.title ? ` — ${course.title}` : null}
+              {course.teaser ? ` · ${course.teaser}` : null}
             </p>
           </div>
         </div>
       ) : null}
+
+      <section className="border-b border-[color:var(--line)]">
+        <div className="mx-auto grid max-w-6xl items-stretch md:grid-cols-2">
+          <div className="relative min-h-[240px] md:min-h-[320px]">
+            <Image
+              src={image}
+              alt="Atmosphäre beim Thai Kochkurs bei Wassana"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+          <div className="flex flex-col justify-center bg-[color:var(--paper)] px-5 py-12 md:px-10 md:py-16">
+            <Reveal>
+              <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+                Bei Wassana
+              </p>
+              <h2 className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl">
+                {course.title || "Thai Kochkurs"}
+              </h2>
+              <p className="mt-4 max-w-md text-[color:var(--muted)] leading-relaxed">
+                {pageText}
+              </p>
+            </Reveal>
+          </div>
+        </div>
+      </section>
 
       <section className="offer-strip">
         <div className="mx-auto grid max-w-6xl gap-12 px-5 py-[var(--section-y)] md:grid-cols-2 md:px-8">
@@ -70,7 +106,10 @@ export default async function KochkursPage() {
             </p>
             <div className="mt-6 space-y-6">
               {[
-                { label: "Ablauf", value: "Schritt für Schritt gemeinsam kochen" },
+                {
+                  label: "Ablauf",
+                  value: "Schritt für Schritt gemeinsam kochen",
+                },
                 { label: "Gerichte", value: "z. B. Pad Thai oder Tom Yam" },
                 {
                   label: "Extra",

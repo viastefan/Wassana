@@ -13,6 +13,11 @@ import { formatCourseDate } from "@/lib/cooking-course-format";
 import type { SiteContent } from "@/lib/site-content";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
 import {
+  COURSE_IMAGE_OPTIONS,
+  createBlankCourse,
+  type CookingCourseData,
+} from "@/lib/cooking-course-shared";
+import {
   Field,
   ScreenHeader,
   Section,
@@ -21,13 +26,7 @@ import {
 } from "./ui";
 import { ADMIN_TAB_ICONS } from "./icons";
 
-type Course = {
-  active: boolean;
-  date: string;
-  title: string;
-  teaser: string;
-  updatedAt?: string;
-};
+type Course = CookingCourseData;
 
 type Inquiry = {
   id: string;
@@ -99,12 +98,7 @@ export function AdminClient() {
   const [installed, setInstalled] = useState(false);
   const [installDismissed, setInstallDismissed] = useState(false);
 
-  const [course, setCourse] = useState<Course>({
-    active: true,
-    date: "",
-    title: "Thai Kochkurs",
-    teaser: "Noch Plätze frei",
-  });
+  const [course, setCourse] = useState<Course>(() => createBlankCourse());
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [unread, setUnread] = useState(0);
   const [content, setContent] = useState<SiteContent | null>(null);
@@ -346,6 +340,9 @@ export function AdminClient() {
           date: data.date,
           title: data.title,
           teaser: data.teaser,
+          image: data.image,
+          pageTitle: data.pageTitle,
+          pageText: data.pageText,
           updatedAt: data.updatedAt,
         });
       }
@@ -519,6 +516,9 @@ export function AdminClient() {
           date: data.date,
           title: data.title,
           teaser: data.teaser,
+          image: data.image,
+          pageTitle: data.pageTitle,
+          pageText: data.pageText,
           updatedAt: data.updatedAt,
         });
       }
@@ -895,12 +895,26 @@ export function AdminClient() {
                   })}
                 </div>
                 <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="btn-primary inline-flex"
+                    onClick={() => {
+                      setCourse(createBlankCourse());
+                      setTab("course");
+                      setError("");
+                      setStatus(
+                        "Neuer Kochkurs vorbereitet — Datum prüfen und speichern.",
+                      );
+                    }}
+                  >
+                    + Neuer Kochkurs
+                  </button>
                   <Link href="/" className="btn-gold inline-flex" target="_blank">
                     Website öffnen
                   </Link>
                   <button
                     type="button"
-                    className="btn-primary inline-flex"
+                    className="btn-gold inline-flex"
                     onClick={() => void loadAll()}
                   >
                     Status aktualisieren
@@ -912,10 +926,52 @@ export function AdminClient() {
             {tab === "course" ? (
               <form onSubmit={saveCourse} className="admin-form space-y-3">
                 <ScreenHeader
-                  kicker="Website-Widget"
-                  title="Thai Kochkurs"
-                  description="Termin und Texte für den Hinweis unten rechts auf der Website."
+                  kicker="Kochkurs"
+                  title="Nächster Termin"
+                  description="Neuen Kurs anlegen, Bild für die Unterseite wählen und live schalten."
+                  action={
+                    <button
+                      type="button"
+                      className="btn-primary !px-3 !py-2 text-sm"
+                      onClick={() => {
+                        setCourse(createBlankCourse());
+                        setError("");
+                        setStatus(
+                          "Neuer Kochkurs vorbereitet — Datum prüfen und speichern.",
+                        );
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    >
+                      + Neuer Kurs
+                    </button>
+                  }
                 />
+
+                <Section title="Aktueller Stand">
+                  <div className="admin-status-grid">
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">Status</p>
+                      <p className="admin-status-value">
+                        {course.active ? "Live" : "Entwurf"}
+                      </p>
+                      <p className="admin-status-meta">
+                        {course.date
+                          ? formatCourseDate(course.date)
+                          : "kein Datum"}
+                      </p>
+                    </div>
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">Titel</p>
+                      <p className="admin-status-value">
+                        {(course.title || "Thai Kochkurs").slice(0, 18)}
+                      </p>
+                      <p className="admin-status-meta">
+                        {course.teaser || "kein Kurztext"}
+                      </p>
+                    </div>
+                  </div>
+                </Section>
+
                 <Section title="Steuerung">
                   <Toggle
                     checked={course.active}
@@ -923,7 +979,7 @@ export function AdminClient() {
                       setCourse((c) => ({ ...c, active }))
                     }
                     label="Auf der Website anzeigen"
-                    hint="Aus = Widget ausgeblendet"
+                    hint="Live = Widget + Termin-Hinweis auf /kochkurs"
                   />
                   <Field label="Datum">
                     <input
@@ -936,7 +992,7 @@ export function AdminClient() {
                       required
                     />
                   </Field>
-                  <Field label="Titel">
+                  <Field label="Titel (Widget & Seite)">
                     <input
                       type="text"
                       value={course.title}
@@ -959,6 +1015,68 @@ export function AdminClient() {
                     />
                   </Field>
                 </Section>
+
+                <Section title="Bild für Unterseite">
+                  <p className="mb-2 text-sm text-[color:var(--muted)]">
+                    Schmückt den Hero auf /kochkurs.
+                  </p>
+                  <div className="admin-image-grid">
+                    {COURSE_IMAGE_OPTIONS.map((option) => {
+                      const selected = course.image === option.src;
+                      return (
+                        <button
+                          key={option.src}
+                          type="button"
+                          className={`admin-image-option ${selected ? "is-selected" : ""}`}
+                          onClick={() =>
+                            setCourse((c) => ({ ...c, image: option.src }))
+                          }
+                          aria-pressed={selected}
+                        >
+                          <Image
+                            src={option.src}
+                            alt={option.label}
+                            width={160}
+                            height={100}
+                            className="admin-image-option-img"
+                          />
+                          <span>{option.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Section>
+
+                <Section title="Texte auf /kochkurs">
+                  <Field label="Hero-Titel">
+                    <input
+                      type="text"
+                      value={course.pageTitle}
+                      onChange={(e) =>
+                        setCourse((c) => ({
+                          ...c,
+                          pageTitle: e.target.value,
+                        }))
+                      }
+                      className={fieldClass}
+                      placeholder="Thai-Küche näher kennenlernen"
+                    />
+                  </Field>
+                  <Field label="Hero-Text">
+                    <textarea
+                      value={course.pageText}
+                      onChange={(e) =>
+                        setCourse((c) => ({
+                          ...c,
+                          pageText: e.target.value,
+                        }))
+                      }
+                      className={fieldClass}
+                      rows={3}
+                    />
+                  </Field>
+                </Section>
+
                 <StickySave saving={saving} label="Kochkurs speichern" />
               </form>
             ) : null}

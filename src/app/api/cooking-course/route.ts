@@ -4,6 +4,7 @@ import {
   COOKING_COURSE_COOKIE,
   getCookingCourse,
   saveCookingCourse,
+  sanitizeCourseImage,
   verifyAdminSessionToken,
 } from "@/lib/cooking-course";
 import { assertSameOrigin, readJsonLimited } from "@/lib/security";
@@ -33,7 +34,10 @@ export async function PUT(request: Request) {
     date?: string;
     title?: string;
     teaser?: string;
-  }>(request, 8_000);
+    image?: string;
+    pageTitle?: string;
+    pageText?: string;
+  }>(request, 12_000);
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
@@ -52,6 +56,9 @@ export async function PUT(request: Request) {
       date: body.date,
       title: body.title || "Thai Kochkurs",
       teaser: body.teaser || "",
+      image: sanitizeCourseImage(body.image),
+      pageTitle: body.pageTitle || "",
+      pageText: body.pageText || "",
     });
 
     return NextResponse.json({
