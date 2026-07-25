@@ -12,6 +12,7 @@
   --red-hover: #5f091c;
   --gold: #b59551;
   --gold-soft: #cbb892;
+  --header-h: 4.25rem;
   --hero-overlay: linear-gradient(
     120deg,
     rgba(30, 33, 41, 0.82) 0%,
@@ -295,6 +296,27 @@ a.btn-ghost:hover {
   border-color: var(--gold);
   color: var(--red);
   background: var(--paper);
+}
+
+.site-header-bar {
+  height: var(--header-h);
+}
+
+.menu-sticky {
+  top: var(--header-h);
+  position: sticky;
+  background: var(--bg);
+}
+
+/* Schließt die Naht zum Header — kein Durchscheinen beim Scrollen */
+.menu-sticky::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -3px;
+  height: 4px;
+  background: var(--bg);
 }
 
 /* Dezent: Karte in Markenfarben einbinden, ohne laut zu wirken */

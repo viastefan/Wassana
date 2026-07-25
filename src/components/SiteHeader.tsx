@@ -56,7 +56,7 @@ export function SiteHeader() {
           : ""
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 md:px-8">
+      <div className="site-header-bar mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 md:px-8">
         <Link
           href="/"
           className="flex items-center gap-3"
