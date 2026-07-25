@@ -2440,6 +2440,34 @@ a.btn-ghost:hover {
   animation: hero-zoom 18s ease-out forwards;
 }
 
+/* Hero text/CTAs — image height stays; padding lifts copy above fixed bars */
+.hero-copy-block {
+  padding-bottom: 4.5rem;
+}
+
+@media (min-width: 768px) {
+  .hero-copy-block {
+    padding-bottom: 6rem;
+  }
+}
+
+html.has-course-promo .hero-copy-block {
+  /* Compact Kochkurs bar (~3rem) + gap above it */
+  padding-bottom: 8.75rem;
+}
+
+html.has-course-promo.has-cookie-banner .hero-copy-block {
+  padding-bottom: 15.5rem;
+}
+
+@media (min-width: 768px) {
+  html.has-course-promo .hero-copy-block,
+  html.has-course-promo.has-cookie-banner .hero-copy-block {
+    /* Desktop card sits bottom-right — CTAs stay left */
+    padding-bottom: 6rem;
+  }
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(28px);
