@@ -18,6 +18,7 @@ function bannerStorageKey(banner: SiteContent["topBanner"]) {
     banner.highlight,
     banner.linkHref,
     banner.linkLabel,
+    banner.suffix,
   ].join("|")}`;
 }
 
@@ -69,6 +70,7 @@ export function TopOfferBanner({
   const hasAction =
     Boolean(banner.linkLabel.trim()) &&
     (opensPopup || Boolean(banner.linkHref.trim()));
+  const suffix = banner.suffix?.trim() || "";
 
   const copy = (
     <>
@@ -94,16 +96,21 @@ export function TopOfferBanner({
           {banner.linkLabel}
         </span>
       ) : null}
+      {suffix ? (
+        <span className="top-offer-banner-suffix min-w-0 opacity-95">
+          {suffix}
+        </span>
+      ) : null}
     </>
   );
 
   return (
-    <div className="top-offer-banner relative" style={style} role="note">
+    <div className="top-offer-banner" style={style} role="note">
       {opensPopup ? (
         <button
           type="button"
           className="top-offer-banner-copy block w-full transition hover:opacity-95"
-          aria-label={banner.text}
+          aria-label={`${banner.text}${suffix ? ` ${suffix}` : ""}`}
           onClick={() => offerPopup?.openOffer()}
         >
           <div className="top-offer-banner-inner">{copy}</div>
@@ -112,7 +119,7 @@ export function TopOfferBanner({
         <a
           href={banner.linkHref}
           className="top-offer-banner-copy block transition hover:opacity-95"
-          aria-label={banner.text}
+          aria-label={`${banner.text}${suffix ? ` ${suffix}` : ""}`}
         >
           <div className="top-offer-banner-inner">{copy}</div>
         </a>

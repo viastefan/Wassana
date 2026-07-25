@@ -2512,7 +2512,7 @@ export function AdminClient() {
                         })
                       }
                       className={fieldClass}
-                      placeholder="Schüler & Azubis in Landshut: mittags Gericht inkl. Getränk"
+                      placeholder="Schüler & Azubis mittags: Gericht inkl. Getränk"
                     />
                   </Field>
                   <Field label="Hervorhebung (z. B. Preis)">
@@ -2564,6 +2564,25 @@ export function AdminClient() {
                       }
                       className={fieldClass}
                       placeholder="Mehr"
+                    />
+                  </Field>
+                  <Field
+                    label="Text nach dem Link"
+                    hint="Steht hinter „Mehr“, z. B. Ortshinweis"
+                  >
+                    <input
+                      value={content.topBanner.suffix || ""}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          topBanner: {
+                            ...content.topBanner,
+                            suffix: e.target.value,
+                          },
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder=". Wo? In Landshut am Regierungsplatz"
                     />
                   </Field>
                 </Section>
@@ -2649,6 +2668,11 @@ export function AdminClient() {
                         {content.topBanner.linkLabel}
                       </span>
                     ) : null}
+                    {content.topBanner.suffix ? (
+                      <span className="ml-1 opacity-95">
+                        {content.topBanner.suffix}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
 
@@ -2661,10 +2685,11 @@ export function AdminClient() {
                       topBanner: {
                         ...content.topBanner,
                         active: true,
-                        text: `${content.studentLunch.eyebrow}: ${content.studentLunch.title}`,
+                        text: "Schüler & Azubis mittags: Gericht inkl. Getränk",
                         highlight: content.studentLunch.price,
                         linkHref: "#mittag",
                         linkLabel: "Mehr",
+                        suffix: ". Wo? In Landshut am Regierungsplatz",
                       },
                     })
                   }

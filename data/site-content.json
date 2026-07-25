@@ -26,10 +26,11 @@
   },
   "topBanner": {
     "active": true,
-    "text": "Schüler & Azubis in Landshut: mittags Gericht inkl. Getränk",
+    "text": "Schüler & Azubis mittags: Gericht inkl. Getränk",
     "highlight": "ab 8,90 €",
     "linkHref": "#mittag",
     "linkLabel": "Mehr",
+    "suffix": ". Wo? In Landshut am Regierungsplatz",
     "backgroundColor": "#7a0c24",
     "textColor": "#f7f3ea",
     "highlightColor": "#cbb892"

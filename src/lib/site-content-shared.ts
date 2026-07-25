@@ -7,6 +7,8 @@ export type TopBanner = {
   highlight: string;
   linkHref: string;
   linkLabel: string;
+  /** Optional text after the link, e.g. ". Wo? In Landshut …" */
+  suffix: string;
   backgroundColor: string;
   textColor: string;
   highlightColor: string;
@@ -84,10 +86,11 @@ export function sanitizeHref(value: string, fallback: string): string {
 export function defaultTopBanner(): TopBanner {
   return {
     active: true,
-    text: "Schüler & Azubis in Landshut: mittags Gericht inkl. Getränk",
+    text: "Schüler & Azubis mittags: Gericht inkl. Getränk",
     highlight: site.studentLunch.price,
     linkHref: STUDENT_LUNCH_POPUP_HREF,
     linkLabel: "Mehr",
+    suffix: ". Wo? In Landshut am Regierungsplatz",
     backgroundColor: "#7a0c24",
     textColor: "#f7f3ea",
     highlightColor: "#cbb892",

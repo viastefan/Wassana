@@ -181,6 +181,10 @@ function normalize(raw: Partial<SiteContent> | null): SiteContent {
         String(bannerRaw.linkLabel ?? base.topBanner.linkLabel),
         40,
       ),
+      suffix: sanitizeText(
+        String(bannerRaw.suffix ?? base.topBanner.suffix),
+        120,
+      ),
       backgroundColor: sanitizeColor(
         String(bannerRaw.backgroundColor ?? base.topBanner.backgroundColor),
         base.topBanner.backgroundColor,

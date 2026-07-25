@@ -90,6 +90,7 @@ export async function PUT(request: Request) {
         highlight: body.topBanner?.highlight || "",
         linkHref: body.topBanner?.linkHref || fallbackBanner.linkHref,
         linkLabel: body.topBanner?.linkLabel || "",
+        suffix: body.topBanner?.suffix || "",
         backgroundColor:
           body.topBanner?.backgroundColor || fallbackBanner.backgroundColor,
         textColor: body.topBanner?.textColor || fallbackBanner.textColor,
