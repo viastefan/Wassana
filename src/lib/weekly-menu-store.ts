@@ -19,6 +19,12 @@ export type WeeklyMenuDay = {
   dish: string;
   description?: string;
   allergens?: string;
+  /** Extra allergy / ingredient notes for the info popup */
+  info?: string;
+  kcal?: string;
+  protein?: string;
+  fat?: string;
+  carbs?: string;
   items: WeeklyMenuItem[];
 };
 
@@ -30,6 +36,23 @@ export type WeeklyMenuData = {
 
 const DATA_PATH = path.join(process.cwd(), "data", "weekly-menu.json");
 const TMP_PATH = path.join("/tmp", "wassana-weekly-menu.json");
+
+function optionalField(value: unknown, max: number) {
+  const next = sanitizeText(String(value || ""), max);
+  return next || undefined;
+}
+
+export function dayHasExtraInfo(day: WeeklyMenuDay) {
+  return Boolean(
+    day.info ||
+      day.kcal ||
+      day.protein ||
+      day.fat ||
+      day.carbs ||
+      day.allergens ||
+      day.description,
+  );
+}
 
 export function defaultWeeklyMenu(): WeeklyMenuData {
   return {
@@ -60,17 +83,21 @@ function normalize(raw: Partial<WeeklyMenuData> | null): WeeklyMenuData {
     ),
     dish: sanitizeText(String(day.dish || ""), 200),
     description: sanitizeText(String(day.description || ""), 600),
-    allergens: day.allergens
-      ? sanitizeText(String(day.allergens), 120)
-      : undefined,
+    allergens: optionalField(day.allergens, 120),
+    info: optionalField(
+      (day as WeeklyMenuDay).info,
+      800,
+    ),
+    kcal: optionalField((day as WeeklyMenuDay).kcal, 40),
+    protein: optionalField((day as WeeklyMenuDay).protein, 40),
+    fat: optionalField((day as WeeklyMenuDay).fat, 40),
+    carbs: optionalField((day as WeeklyMenuDay).carbs, 40),
     items: Array.isArray(day.items)
       ? day.items.slice(0, 40).map((item) => ({
           nr: sanitizeText(String(item.nr || "–"), 12),
           name: sanitizeText(String(item.name || ""), 160),
           price: sanitizeText(String(item.price || ""), 40),
-          allergens: item.allergens
-            ? sanitizeText(String(item.allergens), 120)
-            : undefined,
+          allergens: optionalField(item.allergens, 120),
         }))
       : [],
   }));

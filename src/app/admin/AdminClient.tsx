@@ -152,6 +152,7 @@ export function AdminClient() {
   const [weekly, setWeekly] = useState<WeeklyMenuData | null>(null);
   const [fullMenu, setFullMenu] = useState<FullMenuData | null>(null);
   const [menuPanel, setMenuPanel] = useState<"weekly" | "full">("weekly");
+  const [weeklySearch, setWeeklySearch] = useState("");
   const [business, setBusiness] = useState<BusinessProfile | null>(null);
   const [runtime, setRuntime] = useState<SiteRuntime | null>(null);
   const [liveBusy, setLiveBusy] = useState<"banner" | "course" | null>(null);
@@ -1351,6 +1352,38 @@ export function AdminClient() {
       ),
     [unread],
   );
+
+  const filteredWeeklyDays = useMemo(() => {
+    if (!weekly) return [];
+    const q = weeklySearch.trim().toLowerCase();
+    if (!q) {
+      return weekly.days.map((day, index) => ({ day, index }));
+    }
+    return weekly.days
+      .map((day, index) => ({ day, index }))
+      .filter(({ day }) => {
+        const hay = [
+          day.day,
+          day.dish,
+          day.description,
+          day.allergens,
+          day.info,
+          day.kcal,
+          day.protein,
+          day.fat,
+          day.carbs,
+          ...day.items.flatMap((item) => [
+            item.nr,
+            item.name,
+            item.price,
+            item.allergens,
+          ]),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return hay.includes(q);
+      });
+  }, [weekly, weeklySearch]);
 
   const filteredInquiries = useMemo(() => {
     const q = inboxQuery.trim().toLowerCase();
@@ -3196,9 +3229,19 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Speisekarte"
                   title="Beliebte Gerichte der Woche"
-                  description="Tage und Varianten sortieren — Veröffentlichen macht die Reihenfolge sofort live."
+                  description="Suchen, Allergene & Nährwerte pflegen — Veröffentlichen geht sofort live."
                 />
                 <Section title="Allgemein">
+                  <Field label="Gericht suchen">
+                    <input
+                      type="search"
+                      value={weeklySearch}
+                      onChange={(e) => setWeeklySearch(e.target.value)}
+                      className="admin-menu-search"
+                      placeholder="z. B. Curry, Montag, Huhn, A,B …"
+                      autoComplete="off"
+                    />
+                  </Field>
                   <Field label="Hinweis unter dem Titel">
                     <input
                       value={weekly.note}
@@ -3210,13 +3253,19 @@ export function AdminClient() {
                   </Field>
                   <p className="text-sm text-[color:var(--admin-muted)]">
                     Kennzeichnung z. B. <strong>A,B,C</strong> oder{" "}
-                    <strong>E</strong> — siehe Legende auf der Speisekarte
-                    (Weizen, Soja, Austernsauce, Fischsauce …). Mit ↑ ↓
-                    verschiebst du Tage und Preisvarianten.
+                    <strong>E</strong> — siehe Legende auf der Speisekarte.
+                    Infos und Nährwerte erscheinen per <strong>i</strong> am
+                    Gericht. Mit ↑ ↓ verschiebst du Tage und Varianten.
                   </p>
                 </Section>
 
-                {weekly.days.map((day, dayIndex) => (
+                {filteredWeeklyDays.length === 0 ? (
+                  <p className="admin-empty">
+                    Kein Gericht gefunden für „{weeklySearch.trim()}“.
+                  </p>
+                ) : null}
+
+                {filteredWeeklyDays.map(({ day, index: dayIndex }) => (
                   <Section
                     key={`${day.day}-${dayIndex}`}
                     title={day.day}
@@ -3298,6 +3347,75 @@ export function AdminClient() {
                         placeholder="A,B,C"
                       />
                     </Field>
+                    <Field
+                      label="Zusatzinfo / Allergie-Hinweise"
+                      hint="Erscheint im Info-Popup auf der Website"
+                    >
+                      <textarea
+                        value={day.info || ""}
+                        onChange={(e) => {
+                          const days = [...weekly.days];
+                          days[dayIndex] = { ...day, info: e.target.value };
+                          setWeekly({ ...weekly, days });
+                        }}
+                        className={fieldClass}
+                        rows={3}
+                        placeholder="z. B. enthält Fischsauce, auf Wunsch ohne Erdnüsse …"
+                      />
+                    </Field>
+                    <div className="admin-nutrition-grid">
+                      <Field label="kcal" hint="optional">
+                        <input
+                          value={day.kcal || ""}
+                          onChange={(e) => {
+                            const days = [...weekly.days];
+                            days[dayIndex] = { ...day, kcal: e.target.value };
+                            setWeekly({ ...weekly, days });
+                          }}
+                          className={fieldClass}
+                          placeholder="z. B. 520"
+                        />
+                      </Field>
+                      <Field label="Eiweiß" hint="optional">
+                        <input
+                          value={day.protein || ""}
+                          onChange={(e) => {
+                            const days = [...weekly.days];
+                            days[dayIndex] = {
+                              ...day,
+                              protein: e.target.value,
+                            };
+                            setWeekly({ ...weekly, days });
+                          }}
+                          className={fieldClass}
+                          placeholder="z. B. 28 g"
+                        />
+                      </Field>
+                      <Field label="Fett" hint="optional">
+                        <input
+                          value={day.fat || ""}
+                          onChange={(e) => {
+                            const days = [...weekly.days];
+                            days[dayIndex] = { ...day, fat: e.target.value };
+                            setWeekly({ ...weekly, days });
+                          }}
+                          className={fieldClass}
+                          placeholder="z. B. 18 g"
+                        />
+                      </Field>
+                      <Field label="Kohlenhydrate" hint="optional">
+                        <input
+                          value={day.carbs || ""}
+                          onChange={(e) => {
+                            const days = [...weekly.days];
+                            days[dayIndex] = { ...day, carbs: e.target.value };
+                            setWeekly({ ...weekly, days });
+                          }}
+                          className={fieldClass}
+                          placeholder="z. B. 55 g"
+                        />
+                      </Field>
+                    </div>
                     <div className="admin-day-grid">
                       <div className="admin-day-grid-head">
                         <p className="admin-day-grid-label">

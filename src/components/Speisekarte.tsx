@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AllergenLegend, AllergenMarks } from "@/components/AllergenLegend";
+import { DishInfoButton } from "@/components/DishInfoButton";
 import { MenuPdfDownload } from "@/components/MenuPdfDownload";
 import { allergens, type MenuSection } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
@@ -72,13 +73,28 @@ export function Wochenkarte({
                 <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
                   {day.day}
                 </p>
-                <h3 className="font-display mt-2 text-2xl text-[color:var(--ink)]">
-                  {day.dish}
-                  <AllergenMarks codes={day.allergens} />
-                </h3>
+                <div className="mt-2 flex items-start justify-between gap-3">
+                  <h3 className="font-display text-2xl text-[color:var(--ink)]">
+                    {day.dish}
+                    <AllergenMarks codes={day.allergens} />
+                  </h3>
+                  <DishInfoButton day={day} />
+                </div>
                 {day.description ? (
                   <p className="mt-2 text-sm text-[color:var(--muted)]">
                     {day.description}
+                  </p>
+                ) : null}
+                {day.kcal || day.protein || day.fat || day.carbs ? (
+                  <p className="dish-nutrition-inline mt-2">
+                    {[
+                      day.kcal ? `${day.kcal} kcal` : null,
+                      day.protein ? `E ${day.protein}` : null,
+                      day.fat ? `F ${day.fat}` : null,
+                      day.carbs ? `KH ${day.carbs}` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </p>
                 ) : null}
                 <div className="mt-4 space-y-2">
