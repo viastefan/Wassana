@@ -97,6 +97,7 @@ export function AdminClient() {
   const [installEvent, setInstallEvent] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [installDismissed, setInstallDismissed] = useState(false);
 
   const [course, setCourse] = useState<Course>({
     active: true,
@@ -212,30 +213,75 @@ export function AdminClient() {
   }, [loadAll]);
 
   useEffect(() => {
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      // iOS Safari
-      ("standalone" in navigator &&
-        Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
-    setInstalled(standalone);
+    const DISMISS_KEY = "wassana-admin-install-dismissed";
+
+    try {
+      setInstallDismissed(window.localStorage.getItem(DISMISS_KEY) === "1");
+    } catch {
+      setInstallDismissed(false);
+    }
+
+    function readInstalled() {
+      return (
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.matchMedia("(display-mode: minimal-ui)").matches ||
+        // iOS Safari
+        ("standalone" in navigator &&
+          Boolean(
+            (navigator as Navigator & { standalone?: boolean }).standalone,
+          ))
+      );
+    }
+
+    setInstalled(readInstalled());
 
     const onPrompt = (event: Event) => {
       event.preventDefault();
       setInstallEvent(event as BeforeInstallPromptEvent);
     };
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    window.addEventListener("appinstalled", () => {
+    const onInstalled = () => {
       setInstalled(true);
       setInstallEvent(null);
-    });
-    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
+      try {
+        window.localStorage.setItem(DISMISS_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+      setInstallDismissed(true);
+    };
+    const onDisplayChange = () => {
+      if (readInstalled()) onInstalled();
+    };
+
+    const standaloneMq = window.matchMedia("(display-mode: standalone)");
+    standaloneMq.addEventListener?.("change", onDisplayChange);
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      standaloneMq.removeEventListener?.("change", onDisplayChange);
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
   }, []);
+
+  function dismissInstallBanner() {
+    try {
+      window.localStorage.setItem("wassana-admin-install-dismissed", "1");
+    } catch {
+      /* ignore */
+    }
+    setInstallDismissed(true);
+  }
 
   async function onInstall() {
     if (!installEvent) return;
     await installEvent.prompt();
-    await installEvent.userChoice;
+    const choice = await installEvent.userChoice;
     setInstallEvent(null);
+    if (choice.outcome === "accepted") {
+      setInstalled(true);
+      dismissInstallBanner();
+    }
   }
 
   async function onLogin(event: FormEvent) {
@@ -558,48 +604,49 @@ export function AdminClient() {
     };
   }, [inquiries, unread]);
 
-  const installBlock = (
+  const showInstallBanner = !installed && !installDismissed;
+
+  const installBlock = showInstallBanner ? (
     <section className="admin-install-hero mb-5">
+      <button
+        type="button"
+        className="admin-install-close"
+        aria-label="Installationshinweis schließen"
+        onClick={dismissInstallBanner}
+      >
+        ×
+      </button>
       <p className="admin-kicker !text-[color:var(--gold-soft)]">Web-App</p>
       <h2 className="font-display mt-2 text-2xl text-white md:text-[1.7rem]">
-        {installed ? "App ist installiert" : "App jetzt herunterladen"}
+        App jetzt herunterladen
       </h2>
-      {installed ? (
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
-          Wassana Verwaltung läuft als App auf diesem Gerät — schnell öffnen,
-          wie eine echte Laden-App.
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
+        Speichere die Verwaltung auf dem Homescreen. Danach startet sie ohne
+        Browser-Leiste — ideal fürs Handy im Laden.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {installEvent ? (
+          <button
+            type="button"
+            className="btn-primary !bg-white !text-[color:var(--red)] hover:!bg-[color:var(--bg)]"
+            onClick={() => void onInstall()}
+          >
+            App installieren
+          </button>
+        ) : (
+          <span className="admin-chip !bg-white/12 !text-white">
+            Bereit zum Speichern
+          </span>
+        )}
+      </div>
+      {!installEvent ? (
+        <p className="mt-3 text-xs leading-relaxed text-white/70">
+          iPhone: Teilen → „Zum Home-Bildschirm“. Android: Menü → „App
+          installieren“ / „Zum Startbildschirm“.
         </p>
-      ) : (
-        <>
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
-            Speichere die Verwaltung auf dem Homescreen. Danach startet sie
-            ohne Browser-Leiste — ideal fürs Handy im Laden.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {installEvent ? (
-              <button
-                type="button"
-                className="btn-primary !bg-white !text-[color:var(--red)] hover:!bg-[color:var(--bg)]"
-                onClick={() => void onInstall()}
-              >
-                App installieren
-              </button>
-            ) : (
-              <span className="admin-chip !bg-white/12 !text-white">
-                Bereit zum Speichern
-              </span>
-            )}
-          </div>
-          {!installEvent ? (
-            <p className="mt-3 text-xs leading-relaxed text-white/70">
-              iPhone: Teilen → „Zum Home-Bildschirm“. Android: Menü → „App
-              installieren“ / „Zum Startbildschirm“.
-            </p>
-          ) : null}
-        </>
-      )}
+      ) : null}
     </section>
-  );
+  ) : null;
 
   return (
     <div className="admin-shell min-h-[100svh] text-[color:var(--ink)]">
@@ -680,7 +727,7 @@ export function AdminClient() {
           </div>
         ) : (
           <>
-            {!installed ? installBlock : null}
+            {installBlock}
 
             {tab === "home" ? (
               <section className="space-y-4">

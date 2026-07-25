@@ -179,6 +179,29 @@ select:-webkit-autofill:focus {
   box-shadow: 0 18px 40px color-mix(in srgb, var(--red) 22%, transparent);
 }
 
+.admin-install-close {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 2;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f7f3ea;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.18s ease, opacity 0.18s ease;
+}
+
+.admin-install-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .admin-install-hero::after {
   content: "";
   position: absolute;
