@@ -3,7 +3,12 @@ import {
   addInquiry,
   updateInquiryMailFlags,
 } from "@/lib/inquiries";
-import { getOwnerInbox, isMailConfigured, sendMail } from "@/lib/mail";
+import {
+  getOwnerInboxes,
+  isMailConfigured,
+  sendMail,
+} from "@/lib/mail";
+import { isPushConfigured, sendPushToAll } from "@/lib/push";
 import {
   assertSameOrigin,
   getClientIp,
@@ -115,7 +120,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const owner = getOwnerInbox();
+  const owners = getOwnerInboxes();
   let mailOwnerSent = false;
   let mailGuestSent = false;
   let mailWarning: string | undefined;
@@ -133,7 +138,7 @@ export async function POST(request: Request) {
     message,
     "",
     "—",
-    "Diese Anfrage liegt auch im Admin-Bereich unter Anfragen.",
+    "Im Admin unter Anfragen öffnen: /admin",
   ]
     .filter(Boolean)
     .join("\n");
@@ -157,7 +162,7 @@ export async function POST(request: Request) {
   if (isMailConfigured()) {
     try {
       await sendMail({
-        to: owner,
+        to: owners.join(", "),
         subject: `[Website] ${subject} — ${name}`,
         text: ownerText,
         replyTo: email,
@@ -184,6 +189,18 @@ export async function POST(request: Request) {
       "Anfrage gespeichert. E-Mail-Versand ist noch nicht konfiguriert (SMTP_*).";
   }
 
+  // Admin PWA push (devices that allowed notifications) — non-blocking
+  if (isPushConfigured()) {
+    void sendPushToAll({
+      title: "Neue Anfrage",
+      body: `${name}: ${subject}`,
+      url: "/admin",
+      tag: `inquiry-${inquiry.id}`,
+    }).catch(() => {
+      /* ignore push failures */
+    });
+  }
+
   if (mailOwnerSent || mailGuestSent) {
     try {
       await updateInquiryMailFlags(inquiry.id, {
@@ -200,6 +217,7 @@ export async function POST(request: Request) {
     id: inquiry.id,
     mailOwnerSent,
     mailGuestSent,
+    ownersNotified: mailOwnerSent ? owners : [],
     warning: mailWarning,
   });
 }

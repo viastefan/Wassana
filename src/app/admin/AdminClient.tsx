@@ -1714,8 +1714,8 @@ export function AdminClient() {
                 {notifPermission === "default" || notifPermission === "unknown" ? (
                   <Section title="Mitteilungen">
                     <p className="text-sm text-[color:var(--admin-muted)]">
-                      App-Benachrichtigungen für Kochkurse und News aktivieren —
-                      erscheint wie bei einer echten Handy-App.
+                      App-Benachrichtigungen für neue Anfragen, Kochkurse und
+                      News aktivieren — erscheint wie bei einer echten Handy-App.
                     </p>
                     <button
                       type="button"
@@ -3737,20 +3737,22 @@ export function AdminClient() {
                   </Field>
                 </Section>
 
-                <Section title="E-Mail bei Admin-Änderungen">
+                <Section title="E-Mail bei Anfragen & Admin">
                   <p className="text-sm text-[color:var(--admin-muted)]">
-                    Bei jeder Veröffentlichung (Banner, Texte, Menü, Betrieb,
-                    Kochkurs) geht automatisch eine Info-Mail an{" "}
-                    <strong>stefandirnberger@viawen.com</strong> — sofern SMTP
-                    auf Vercel gesetzt ist.
+                    Website-Anfragen gehen per SMTP an{" "}
+                    <strong>stefandirnberger@viawen.com</strong> und{" "}
+                    <strong>wassanathaiimbiss@icloud.de</strong> (zusätzlich
+                    App-Push, wenn Benachrichtigungen erlaubt sind). Bei jeder
+                    Veröffentlichung im Admin geht eine Info-Mail an Stefan —
+                    sofern <code>SMTP_*</code> auf Vercel gesetzt ist.
                   </p>
                 </Section>
 
                 <Section title="App-Benachrichtigungen">
                   <p className="text-sm text-[color:var(--admin-muted)]">
-                    Wie bei einer echten App: Nachrichten zu Kochkursen und News
-                    auf dem Homescreen. Am besten in der installierten App
-                    erlauben.
+                    Wie bei einer echten App: neue Anfragen, Kochkurse und News
+                    auf dem Homescreen. Am besten in der installierten Admin-App
+                    auf „Benachrichtigungen erlauben“ tippen.
                   </p>
                   <div className="admin-status-grid mt-2">
                     <div className="admin-status-item">
