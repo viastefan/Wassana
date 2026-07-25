@@ -77,6 +77,31 @@ img {
   display: block;
 }
 
+/* Chrome/Safari Autofill: kein hellblaues Highlight */
+input,
+textarea,
+select {
+  color: var(--ink);
+  caret-color: var(--ink);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink) !important;
+  caret-color: var(--ink);
+  box-shadow: 0 0 0 1000px var(--bg) inset !important;
+  transition: background-color 99999s ease-out 0s;
+  border-radius: inherit;
+}
+
 .font-display {
   font-family: var(--font-typewriter), "Courier New", Courier, monospace;
   letter-spacing: 0.02em;
