@@ -3172,6 +3172,171 @@ a.btn-ghost:hover {
     var(--paper);
 }
 
+/* Reviews — editorial social proof (not card spam) */
+.reviews-section {
+  position: relative;
+  isolation: isolate;
+  border-block: 1px solid color-mix(in srgb, var(--gold) 24%, var(--line));
+  background:
+    radial-gradient(720px 280px at 0% 0%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 62%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 94%, white),
+      var(--bg-soft)
+    );
+}
+
+.review-platforms {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .review-platforms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+}
+
+.review-platform {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--line));
+  background: color-mix(in srgb, var(--paper) 88%, white);
+  color: var(--ink) !important;
+  text-decoration: none;
+  transition:
+    border-color 0.22s var(--ease-out),
+    transform 0.22s var(--ease-out),
+    box-shadow 0.22s var(--ease-out);
+}
+
+.review-platform:hover {
+  border-color: color-mix(in srgb, var(--gold) 55%, var(--line));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(30, 33, 41, 0.08);
+}
+
+.review-platform-mark {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, var(--gold));
+  background: var(--paper);
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--red);
+}
+
+.review-platform-mark--ta {
+  color: #34e0a1;
+  background: #004f32;
+  border-color: #004f32;
+}
+
+.review-platform-mark--google {
+  color: #4285f4;
+  border-color: color-mix(in srgb, #4285f4 35%, var(--line));
+}
+
+.review-platform-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.review-platform-name {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.review-platform-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.review-platform-score strong {
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: 1.15rem;
+  color: var(--red);
+  font-weight: 400;
+}
+
+.review-platform-go {
+  color: var(--red);
+  font-size: 1.05rem;
+}
+
+.review-stars {
+  display: inline-flex;
+  gap: 0.08rem;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--line) 40%, var(--muted));
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.review-stars .is-on {
+  color: var(--gold);
+}
+
+.review-quotes {
+  display: grid;
+  gap: 0;
+}
+
+@media (min-width: 768px) {
+  .review-quotes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+}
+
+.review-quote {
+  margin: 0;
+  padding: 1.35rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--line) 88%, var(--gold));
+}
+
+.review-quote-text {
+  margin: 0.75rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.review-quote-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.review-quote-author {
+  font-style: normal;
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  color: var(--red);
+}
+
+.review-quote-source {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
 .site-footer {
   position: relative;
   overflow: hidden;

@@ -57,6 +57,8 @@ export const site = {
       "https://www.facebook.com/pages/Wassanas-Thai-Imbiss-Feinkost/156423611044359",
     instagram: "https://www.instagram.com/wassanathaiimbiss/",
     instagramHandle: "@wassanathaiimbiss",
+    tripadvisor:
+      "https://www.tripadvisor.de/Restaurant_Review-g229466-d5520934-Reviews-Wassana_s_Thai_Imbiss-Landshut_Lower_Bavaria_Bavaria.html",
   },
   maps: {
     query:

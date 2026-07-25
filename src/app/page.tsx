@@ -9,6 +9,7 @@ import {
 import { SplitMedia } from "@/components/Media";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
+import { ReviewsSection } from "@/components/ReviewsSection";
 import { Wochenkarte } from "@/components/Speisekarte";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { landshutFaqs } from "@/lib/seo-faq";
@@ -262,6 +263,8 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      <ReviewsSection />
 
       <LocationSection location={content.location} hours={content.hours} />
 

@@ -41,7 +41,11 @@ export function JsonLdLocalBusiness({
   business: ResolvedBusiness;
 }) {
   const url = getSiteUrl();
-  const sameAs = [business.facebook, business.instagram].filter(Boolean);
+  const sameAs = [
+    business.facebook,
+    business.instagram,
+    site.social.tripadvisor,
+  ].filter(Boolean);
 
   const data = {
     "@context": "https://schema.org",
