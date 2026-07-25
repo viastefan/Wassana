@@ -83,7 +83,20 @@ async function maybeCommitToGitHub(
     process.env.VERCEL_GIT_COMMIT_REF ||
     "main";
 
-  if (!token || !repo) return { ok: false };
+  if (!token) {
+    return {
+      ok: false,
+      error:
+        "GITHUB_TOKEN fehlt in Vercel — Änderungen werden nicht dauerhaft auf .de veröffentlicht.",
+    };
+  }
+  if (!repo) {
+    return {
+      ok: false,
+      error:
+        "GITHUB_REPO fehlt (oder Git-Metadaten). Bitte GITHUB_REPO=viastefan/Wassana setzen.",
+    };
+  }
 
   const apiFile = `https://api.github.com/repos/${repo}/contents/${filePath}`;
   const headers = {

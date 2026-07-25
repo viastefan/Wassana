@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
   }
 
-  if (!isAdminConfigured()) {
+  if (!(await isAdminConfigured())) {
     return NextResponse.json(
       {
         error:
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
   }
 
   const password = sanitizeHeader(String(parsed.data.password || ""), 200);
-  if (!verifyAdminPassword(password)) {
+  if (!(await verifyAdminPassword(password))) {
     return NextResponse.json(
       { error: "Falsches Passwort." },
       { status: 401 },

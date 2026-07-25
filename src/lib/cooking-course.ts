@@ -375,20 +375,20 @@ export function verifyAdminSessionToken(token: string | undefined): boolean {
   }
 }
 
-export function verifyAdminPassword(password: string): boolean {
-  const expected = getAdminPassword();
-  if (!expected || !password) return false;
-  try {
-    const a = Buffer.from(password);
-    const b = Buffer.from(expected);
-    return a.length === b.length && timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
+export async function verifyAdminPassword(password: string): Promise<boolean> {
+  const { verifyPasswordAgainstStore } = await import(
+    "@/lib/admin-password-store"
+  );
+  const result = await verifyPasswordAgainstStore(password);
+  return result === "override" || result === "env";
 }
 
-export function isAdminConfigured(): boolean {
-  return Boolean(getAdminPassword());
+export async function isAdminConfigured(): Promise<boolean> {
+  if (getAdminPassword()) return true;
+  const { getAdminPasswordOverrideHash } = await import(
+    "@/lib/admin-password-store"
+  );
+  return Boolean(await getAdminPasswordOverrideHash());
 }
 
 export function isPublicPromoVisible(course: CookingCourse): boolean {

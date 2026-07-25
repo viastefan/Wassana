@@ -25,19 +25,29 @@ import {
   inquiryStatusLabel,
 } from "@/lib/inquiries-shared";
 import {
+  buildPublishDiagnostic,
+  type DiagnosticReport,
+} from "@/lib/admin-support";
+import {
   Field,
   ScreenHeader,
   Section,
   StickySave,
   Toggle,
+  type PublishPhase,
 } from "./ui";
 import { ADMIN_TAB_ICONS } from "./icons";
+import { PublishFailDialog } from "./PublishFailDialog";
 import {
   enableAdminPushNotifications,
   getNotificationPermission,
   sendAdminPush,
   showLocalAdminNotification,
 } from "./push-client";
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 type Course = CookingCourseData;
 
@@ -99,6 +109,8 @@ export function AdminClient() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [publishPhase, setPublishPhase] = useState<PublishPhase>("idle");
+  const [failReport, setFailReport] = useState<DiagnosticReport | null>(null);
   const [installEvent, setInstallEvent] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
@@ -449,6 +461,99 @@ export function AdminClient() {
     }
   }
 
+  async function runPublish(
+    action: string,
+    execute: () => Promise<{
+      ok: boolean;
+      error?: string;
+      warning?: string;
+      persist?: {
+        disk?: boolean;
+        tmp?: boolean;
+        github?: boolean;
+        durable?: boolean;
+      };
+      successMessage?: string;
+    }>,
+  ) {
+    setSaving(true);
+    setError("");
+    setStatus("");
+    setPublishPhase("publishing");
+    const started = Date.now();
+    try {
+      const result = await execute();
+      const wait = Math.max(0, 3000 - (Date.now() - started));
+      if (wait) await sleep(wait);
+
+      if (!result.ok || result.persist?.durable === false) {
+        const report = await finalizeFailReport({
+          action,
+          error: result.error || result.warning,
+          persist: result.persist,
+        });
+        setFailReport(report);
+        setPublishPhase("error");
+        setError(report.summary);
+        return false;
+      }
+
+      setPublishPhase("online");
+      setStatus(result.successMessage || result.warning || "Online — live.");
+      window.setTimeout(() => {
+        setPublishPhase((prev) => (prev === "online" ? "idle" : prev));
+      }, 2500);
+      return true;
+    } catch (error) {
+      const wait = Math.max(0, 3000 - (Date.now() - started));
+      if (wait) await sleep(wait);
+      const report = await finalizeFailReport({
+        action,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Netzwerkfehler beim Veröffentlichen.",
+      });
+      setFailReport(report);
+      setPublishPhase("error");
+      setError(report.summary);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function finalizeFailReport(input: {
+    action: string;
+    error?: string;
+    persist?: {
+      disk?: boolean;
+      tmp?: boolean;
+      github?: boolean;
+      durable?: boolean;
+    };
+  }) {
+    let env: DiagnosticReport["env"] | undefined;
+    try {
+      const res = await fetch("/api/admin/diagnostics", { cache: "no-store" });
+      if (res.ok) {
+        const data = (await res.json()) as {
+          env?: DiagnosticReport["env"];
+        };
+        env = data.env;
+      }
+    } catch {
+      // keep client fallback
+    }
+    return buildPublishDiagnostic({
+      action: input.action,
+      ok: false,
+      error: input.error,
+      persist: input.persist,
+      env,
+    });
+  }
+
   async function storeLoginCredentials(user: string, pass: string) {
     if (typeof window === "undefined") return;
     try {
@@ -536,22 +641,31 @@ export function AdminClient() {
 
   async function saveCourse(event: FormEvent) {
     event.preventDefault();
-    setSaving(true);
-    setError("");
-    setStatus("");
-    try {
+    await runPublish("Kochkurs veröffentlichen", async () => {
       const res = await fetch("/api/cooking-course", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(course),
       });
       const data = (await res.json().catch(() => null)) as
-        | (Course & { error?: string; warning?: string })
+        | (Course & {
+            error?: string;
+            warning?: string;
+            persist?: {
+              disk?: boolean;
+              tmp?: boolean;
+              github?: boolean;
+              durable?: boolean;
+            };
+          })
         | null;
       if (!res.ok) {
         if (res.status === 401) setAuthed(false);
-        setError(data?.error || "Speichern fehlgeschlagen.");
-        return;
+        return {
+          ok: false,
+          error: data?.error || "Speichern fehlgeschlagen.",
+          persist: data?.persist,
+        };
       }
       if (data) {
         setCourse({
@@ -564,32 +678,30 @@ export function AdminClient() {
           pageText: data.pageText,
           updatedAt: data.updatedAt,
         });
+        if (data.active) {
+          const title = "Neuer Kochkurs";
+          const body = `${data.title || "Thai Kochkurs"} am ${formatCourseDate(data.date)}`;
+          void showLocalAdminNotification({
+            title,
+            body,
+            url: "/admin",
+            tag: "course",
+          });
+          void sendAdminPush({
+            title,
+            body,
+            url: "/admin",
+            tag: "course",
+          });
+        }
       }
-      setStatus(
-        data?.warning ||
-          `Kochkurs gespeichert — Widget: ${course.title} am ${formatCourseDate(course.date)}`,
-      );
-      if (data?.active) {
-        const title = "Neuer Kochkurs";
-        const body = `${data.title || "Thai Kochkurs"} am ${formatCourseDate(data.date)}`;
-        void showLocalAdminNotification({
-          title,
-          body,
-          url: "/admin",
-          tag: "course",
-        });
-        void sendAdminPush({
-          title,
-          body,
-          url: "/admin",
-          tag: "course",
-        });
-      }
-    } catch {
-      setError("Netzwerkfehler beim Speichern.");
-    } finally {
-      setSaving(false);
-    }
+      return {
+        ok: true,
+        warning: data?.warning,
+        persist: data?.persist,
+        successMessage: `Kochkurs online — ${course.title} am ${formatCourseDate(course.date)}`,
+      };
+    });
   }
 
   async function runCourseAction(
@@ -694,22 +806,31 @@ export function AdminClient() {
   async function saveContent(event: FormEvent) {
     event.preventDefault();
     if (!content) return;
-    setSaving(true);
-    setError("");
-    setStatus("");
-    try {
+    await runPublish("Banner / Website-Texte veröffentlichen", async () => {
       const res = await fetch("/api/admin/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(content),
       });
       const data = (await res.json().catch(() => null)) as
-        | (SiteContent & { error?: string; warning?: string })
+        | (SiteContent & {
+            error?: string;
+            warning?: string;
+            persist?: {
+              disk?: boolean;
+              tmp?: boolean;
+              github?: boolean;
+              durable?: boolean;
+            };
+          })
         | null;
       if (!res.ok) {
         if (res.status === 401) setAuthed(false);
-        setError(data?.error || "Website-Texte speichern fehlgeschlagen.");
-        return;
+        return {
+          ok: false,
+          error: data?.error || "Website-Texte speichern fehlgeschlagen.",
+          persist: data?.persist,
+        };
       }
       if (data) {
         setContent({
@@ -723,33 +844,43 @@ export function AdminClient() {
           updatedAt: data.updatedAt,
         });
       }
-      setStatus(data?.warning || "Website-Texte aktualisiert.");
-    } catch {
-      setError("Netzwerkfehler beim Speichern.");
-    } finally {
-      setSaving(false);
-    }
+      return {
+        ok: true,
+        warning: data?.warning,
+        persist: data?.persist,
+        successMessage: "Online — Texte/Banner live auf .de",
+      };
+    });
   }
 
   async function saveWeekly(event: FormEvent) {
     event.preventDefault();
     if (!weekly) return;
-    setSaving(true);
-    setError("");
-    setStatus("");
-    try {
+    await runPublish("Wochenkarte veröffentlichen", async () => {
       const res = await fetch("/api/admin/weekly-menu", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(weekly),
       });
       const data = (await res.json().catch(() => null)) as
-        | (WeeklyMenuData & { error?: string; warning?: string })
+        | (WeeklyMenuData & {
+            error?: string;
+            warning?: string;
+            persist?: {
+              disk?: boolean;
+              tmp?: boolean;
+              github?: boolean;
+              durable?: boolean;
+            };
+          })
         | null;
       if (!res.ok) {
         if (res.status === 401) setAuthed(false);
-        setError(data?.error || "Wochenkarte speichern fehlgeschlagen.");
-        return;
+        return {
+          ok: false,
+          error: data?.error || "Wochenkarte speichern fehlgeschlagen.",
+          persist: data?.persist,
+        };
       }
       if (data) {
         setWeekly({
@@ -758,12 +889,13 @@ export function AdminClient() {
           updatedAt: data.updatedAt,
         });
       }
-      setStatus(data?.warning || "Wochenkarte aktualisiert.");
-    } catch {
-      setError("Netzwerkfehler beim Speichern.");
-    } finally {
-      setSaving(false);
-    }
+      return {
+        ok: true,
+        warning: data?.warning,
+        persist: data?.persist,
+        successMessage: "Online — Wochenkarte live",
+      };
+    });
   }
 
   async function setBannerLive(active: boolean) {
@@ -873,22 +1005,31 @@ export function AdminClient() {
   async function saveBusiness(event: FormEvent) {
     event.preventDefault();
     if (!business) return;
-    setSaving(true);
-    setError("");
-    setStatus("");
-    try {
+    await runPublish("Betriebsdaten veröffentlichen", async () => {
       const res = await fetch("/api/admin/business", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(business),
       });
       const data = (await res.json().catch(() => null)) as
-        | (BusinessProfile & { error?: string; warning?: string })
+        | (BusinessProfile & {
+            error?: string;
+            warning?: string;
+            persist?: {
+              disk?: boolean;
+              tmp?: boolean;
+              github?: boolean;
+              durable?: boolean;
+            };
+          })
         | null;
       if (!res.ok) {
         if (res.status === 401) setAuthed(false);
-        setError(data?.error || "Betriebsdaten speichern fehlgeschlagen.");
-        return;
+        return {
+          ok: false,
+          error: data?.error || "Betriebsdaten speichern fehlgeschlagen.",
+          persist: data?.persist,
+        };
       }
       if (data) {
         setBusiness({
@@ -909,12 +1050,13 @@ export function AdminClient() {
           updatedAt: data.updatedAt,
         });
       }
-      setStatus(data?.warning || "Betriebsdaten aktualisiert.");
-    } catch {
-      setError("Netzwerkfehler beim Speichern.");
-    } finally {
-      setSaving(false);
-    }
+      return {
+        ok: true,
+        warning: data?.warning,
+        persist: data?.persist,
+        successMessage: "Online — Betriebsdaten live",
+      };
+    });
   }
 
   async function patchInquiry(
@@ -1133,6 +1275,15 @@ export function AdminClient() {
 
   return (
     <div className="admin-shell min-h-[100svh] text-[color:var(--admin-ink)]">
+      {failReport ? (
+        <PublishFailDialog
+          report={failReport}
+          onClose={() => {
+            setFailReport(null);
+            setPublishPhase((prev) => (prev === "error" ? "idle" : prev));
+          }}
+        />
+      ) : null}
       <header className="admin-topbar">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3.5">
           <div className="admin-brand-mark">
@@ -1634,7 +1785,11 @@ export function AdminClient() {
                   </Field>
                 </Section>
 
-                <StickySave saving={saving} label="Kochkurs speichern" />
+                <StickySave
+                  saving={saving}
+                  phase={publishPhase}
+                  label="Kochkurs veröffentlichen"
+                />
 
                 <Section title="Erledigt abhaken">
                   <p className="text-sm text-[color:var(--admin-muted)]">
@@ -2252,7 +2407,11 @@ export function AdminClient() {
                 >
                   Aus Schüler-Mittag übernehmen
                 </button>
-                <StickySave saving={saving} label="Banner speichern" />
+                <StickySave
+                  saving={saving}
+                  phase={publishPhase}
+                  label="Banner veröffentlichen"
+                />
               </form>
             ) : null}
 
@@ -2507,7 +2666,11 @@ export function AdminClient() {
                     />
                   </Field>
                 </Section>
-                <StickySave saving={saving} label="Texte speichern" />
+                <StickySave
+                  saving={saving}
+                  phase={publishPhase}
+                  label="Texte veröffentlichen"
+                />
               </form>
             ) : null}
 
@@ -2655,7 +2818,11 @@ export function AdminClient() {
                     </div>
                   </Section>
                 ))}
-                <StickySave saving={saving} label="Wochenkarte speichern" />
+                <StickySave
+                  saving={saving}
+                  phase={publishPhase}
+                  label="Wochenkarte veröffentlichen"
+                />
               </form>
             ) : null}
 
@@ -2867,7 +3034,11 @@ export function AdminClient() {
                   </button>
                 </Section>
 
-                <StickySave saving={saving} label="Betriebsdaten speichern" />
+                <StickySave
+                  saving={saving}
+                  phase={publishPhase}
+                  label="Betrieb veröffentlichen"
+                />
               </form>
             ) : null}
 

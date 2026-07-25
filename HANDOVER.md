@@ -28,7 +28,8 @@ Project **wassana** → Settings → Environment Variables:
 | `NEXT_PUBLIC_SITE_URL` | `https://www.wassana-thai-imbiss.de` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | E-Mail-Versand Kontaktformular |
 | `CONTACT_TO` | Empfänger (Inhaber-Mail) |
-| `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | **Pflicht auf Vercel** — sonst gehen Admin-Änderungen nach Redeploy verloren |
+| `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | **Pflicht auf Vercel** — ohne Token gehen Banner/Texte/Menü **nicht live** auf `.de` |
+| SMTP_* / `CONTACT_TO` | Für Kontaktmails + Admin-Support/Passwort-Reset an `stefandirnberger@viawen.com` |
 | `BLOB_READ_WRITE_TOKEN` | **Empfohlen** — speichert Kontaktanfragen dauerhaft (verschlüsselt, nicht in GitHub) |
 | `INQUIRIES_SECRET` | Optional — eigener Schlüssel für Anfragen-Verschlüsselung |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional Search-Console Meta |

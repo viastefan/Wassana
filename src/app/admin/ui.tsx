@@ -90,23 +90,41 @@ export function Toggle({
   );
 }
 
+export type PublishPhase = "idle" | "publishing" | "online" | "error";
+
 export function StickySave({
   saving,
   label,
   disabled,
+  phase = "idle",
 }: {
   saving: boolean;
   label: string;
   disabled?: boolean;
+  phase?: PublishPhase;
 }) {
+  const busy = saving || phase === "publishing";
+  const text =
+    phase === "publishing"
+      ? "Veröffentlichen …"
+      : phase === "online"
+        ? "Online — live"
+        : phase === "error"
+          ? "Fehler — siehe Hinweis"
+          : busy
+            ? "Speichern …"
+            : label;
+
   return (
     <div className="admin-sticky-save">
       <button
         type="submit"
-        className="btn-primary admin-sticky-save-btn"
-        disabled={saving || disabled}
+        className={`btn-primary admin-sticky-save-btn ${
+          phase === "online" ? "is-online" : ""
+        } ${phase === "error" ? "is-error" : ""}`}
+        disabled={busy || disabled || phase === "online"}
       >
-        {saving ? "Speichern …" : label}
+        {text}
       </button>
     </div>
   );
