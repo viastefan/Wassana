@@ -20,7 +20,7 @@ export function CookingCoursePromo() {
   const [hidden, setHidden] = useState(true);
 
   useEffect(() => {
-    if (pathname?.startsWith("/admin")) {
+    if (pathname?.startsWith("/admin") || pathname !== "/") {
       setHidden(true);
       return;
     }
@@ -54,7 +54,15 @@ export function CookingCoursePromo() {
     };
   }, [pathname]);
 
-  if (hidden || !course || pathname?.startsWith("/admin")) return null;
+  useEffect(() => {
+    const visible = !hidden && Boolean(course) && pathname === "/";
+    document.documentElement.classList.toggle("has-course-promo", visible);
+    return () => {
+      document.documentElement.classList.remove("has-course-promo");
+    };
+  }, [hidden, course, pathname]);
+
+  if (hidden || !course || pathname !== "/") return null;
 
   const dateLabel = formatCourseDate(course.date);
 

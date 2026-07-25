@@ -61,7 +61,7 @@ export default async function HomePage() {
           style={{ background: "var(--hero-overlay)" }}
           aria-hidden
         />
-        <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
+        <div className="hero-copy-block relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pt-28 md:px-8">
           <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
             {content.hero.eyebrow.trim() ||
               "Thai Imbiss und Feinkost · Landshut"}
