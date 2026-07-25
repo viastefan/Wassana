@@ -161,16 +161,30 @@ export default function ImpressumPage() {
           <Reveal>
             <section>
               <h2 className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                Urheberrecht
+                Urheberrecht / Bilder
               </h2>
               <p className="mt-3 text-[color:var(--muted)]">
                 Die durch die Seitenbetreiber erstellten Inhalte und Werke auf
-                diesen Seiten unterliegen dem deutschen Urheberrecht. Die
+                diesen Seiten — einschließlich Texte, Gestaltung, Logo sowie
+                Fotos und Grafiken — unterliegen dem deutschen Urheberrecht bzw.
+                den Nutzungsrechten der jeweiligen Rechteinhaber. Die
                 Vervielfältigung, Bearbeitung, Verbreitung und jede Art der
-                Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der
+                Verwertung außerhalb der Grenzen des Urheberrechts bedürfen der
                 schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
                 Downloads und Kopien dieser Seite sind nur für den privaten,
                 nicht kommerziellen Gebrauch gestattet.
+              </p>
+              <p className="mt-3 text-[color:var(--muted)]">
+                Soweit auf Bildern Personen erkennbar abgebildet sind, erfolgt
+                die Nutzung nur im gesetzlich zulässigen Rahmen. Hinweise dazu
+                finden Sie in der{" "}
+                <Link
+                  href="/datenschutz"
+                  className="text-[color:var(--red)] underline-offset-2 hover:underline"
+                >
+                  Datenschutzerklärung
+                </Link>
+                .
               </p>
             </section>
           </Reveal>
