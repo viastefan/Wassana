@@ -67,7 +67,10 @@ export async function PUT(request: Request) {
       facebook: body.facebook || "",
       taxNote: body.taxNote || "",
     });
-    return persistWarningOrFail({ ...profile }, persist);
+    return persistWarningOrFail({ ...profile }, persist, {
+      action: "Betriebsdaten veröffentlicht",
+      detail: `${profile.fullName}\n${profile.street}, ${profile.zip} ${profile.city}\n${profile.email} · ${profile.phone}`,
+    });
   } catch (error) {
     return NextResponse.json(
       {

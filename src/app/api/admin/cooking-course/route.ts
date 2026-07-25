@@ -55,12 +55,19 @@ export async function POST(request: Request) {
         fazit: parsed.data.fazit || "",
         notes: parsed.data.notes || "",
       });
-      return persistWarningOrFail({ ...store }, persist);
+      return persistWarningOrFail({ ...store }, persist, {
+        action: "Kochkurs abgehakt & archiviert",
+        detail: store.archive?.[0]
+          ? `${store.archive[0].title} · ${store.archive[0].date}`
+          : undefined,
+      });
     }
 
     if (action === "delete-current") {
       const { store, persist } = await deleteCurrentCookingCourse();
-      return persistWarningOrFail({ ...store }, persist);
+      return persistWarningOrFail({ ...store }, persist, {
+        action: "Aktuellen Kochkurs gelöscht",
+      });
     }
 
     if (action === "delete-archive") {
@@ -72,7 +79,10 @@ export async function POST(request: Request) {
         );
       }
       const { store, persist } = await deleteArchivedCookingCourse(id);
-      return persistWarningOrFail({ ...store }, persist);
+      return persistWarningOrFail({ ...store }, persist, {
+        action: "Kochkurs-Archiv-Eintrag gelöscht",
+        detail: `ID: ${id}`,
+      });
     }
 
     if (action === "update-archive") {
@@ -88,7 +98,10 @@ export async function POST(request: Request) {
         fazit: parsed.data.fazit,
         notes: parsed.data.notes,
       });
-      return persistWarningOrFail({ ...store }, persist);
+      return persistWarningOrFail({ ...store }, persist, {
+        action: "Kochkurs-Archiv aktualisiert",
+        detail: `ID: ${id}`,
+      });
     }
 
     return NextResponse.json(

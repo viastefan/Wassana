@@ -3716,6 +3716,15 @@ export function AdminClient() {
                   </Field>
                 </Section>
 
+                <Section title="E-Mail bei Admin-Änderungen">
+                  <p className="text-sm text-[color:var(--admin-muted)]">
+                    Bei jeder Veröffentlichung (Banner, Texte, Menü, Betrieb,
+                    Kochkurs) geht automatisch eine Info-Mail an{" "}
+                    <strong>stefandirnberger@viawen.com</strong> — sofern SMTP
+                    auf Vercel gesetzt ist.
+                  </p>
+                </Section>
+
                 <Section title="App-Benachrichtigungen">
                   <p className="text-sm text-[color:var(--admin-muted)]">
                     Wie bei einer echten App: Nachrichten zu Kochkursen und News

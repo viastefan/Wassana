@@ -55,7 +55,10 @@ export async function PUT(request: Request) {
     const { menu, persist } = await saveFullMenuData({
       sections: body.sections,
     });
-    return persistWarningOrFail({ ...menu }, persist);
+    return persistWarningOrFail({ ...menu }, persist, {
+      action: "Speisekarte (alle Gerichte) veröffentlicht",
+      detail: `${menu.sections.length} Kategorien · ${menu.sections.reduce((n, s) => n + s.items.length, 0)} Gerichte`,
+    });
   } catch (error) {
     return NextResponse.json(
       {

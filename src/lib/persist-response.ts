@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import {
+  queueAdminChangeNotify,
+  type AdminChangeNotify,
+} from "@/lib/admin-change-notify";
 import type { PersistResult } from "@/lib/persist-json";
 
 /** On Vercel, /tmp alone is not enough — CMS must hit Blob, disk, or GitHub. */
@@ -9,10 +13,12 @@ export function isEphemeralHosting() {
 /**
  * Returns a 503 JSON response when a save is not durable on Vercel.
  * Callers should spread their payload fields into `body`.
+ * On durable success, optionally e-mails the admin notify address.
  */
 export function persistWarningOrFail<T extends Record<string, unknown>>(
   body: T,
   persist: PersistResult,
+  notify?: AdminChangeNotify,
 ) {
   const persistView = {
     disk: persist.disk,
@@ -34,6 +40,10 @@ export function persistWarningOrFail<T extends Record<string, unknown>>(
       },
       { status: 503 },
     );
+  }
+
+  if (persist.durable && notify?.action) {
+    queueAdminChangeNotify(notify, persist);
   }
 
   return NextResponse.json({

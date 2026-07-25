@@ -80,7 +80,12 @@ export async function PUT(request: Request) {
       dishFocus: body.dishFocus || "",
     });
 
-    return persistWarningOrFail({ ...course }, persist);
+    return persistWarningOrFail({ ...course }, persist, {
+      action: course.active
+        ? "Kochkurs live veröffentlicht"
+        : "Kochkurs gespeichert",
+      detail: `${course.title || "Kochkurs"} · ${course.date}${course.active ? " · Widget live" : " · Widget aus"}`,
+    });
   } catch (error) {
     return NextResponse.json(
       {

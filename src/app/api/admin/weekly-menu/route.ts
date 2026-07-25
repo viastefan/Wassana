@@ -60,7 +60,10 @@ export async function PUT(request: Request) {
       days: body.days,
     });
 
-    return persistWarningOrFail({ ...menu }, persist);
+    return persistWarningOrFail({ ...menu }, persist, {
+      action: "Wochen-Favoriten veröffentlicht",
+      detail: `${menu.days.length} Tage · Hinweis: ${menu.note || "—"}`,
+    });
   } catch (error) {
     return NextResponse.json(
       {

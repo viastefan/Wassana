@@ -108,7 +108,10 @@ export async function PUT(request: Request) {
       },
     });
 
-    return persistWarningOrFail({ ...content }, persist);
+    return persistWarningOrFail({ ...content }, persist, {
+      action: "Banner / Website-Texte veröffentlicht",
+      detail: `Banner aktiv: ${content.topBanner.active ? "ja" : "nein"}\nBanner-Text: ${content.topBanner.text || "—"}`,
+    });
   } catch (error) {
     return NextResponse.json(
       {
