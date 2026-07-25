@@ -232,7 +232,7 @@ export default async function HomePage() {
 
       <section className="takeaway-band" aria-labelledby="takeaway-heading">
         <Image
-          src="/images/soup.jpg"
+          src="/images/hero.jpg"
           alt="Frisch zubereitetes Thai-Gericht zum Mitnehmen bei Wassana"
           fill
           className="takeaway-band-image object-cover"
