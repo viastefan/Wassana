@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { site } from "@/lib/site";
 
 const navItems = [
@@ -11,7 +11,26 @@ const navItems = [
   { href: "/speisekarte", label: "Speisekarte" },
   { href: "/catering", label: "Catering" },
   { href: "/kochkurs", label: "Kochkurs" },
-  { href: "/kontakt", label: "Kontakt" },
+] as const;
+
+const contactActions = [
+  {
+    href: "/kontakt",
+    label: "Kontaktanfrage",
+    hint: "Formular schreiben",
+  },
+  {
+    href: site.emailHref,
+    label: "E-Mail",
+    hint: site.email,
+    external: true,
+  },
+  {
+    href: site.phoneHref,
+    label: "Anrufen",
+    hint: site.phone,
+    external: true,
+  },
 ] as const;
 
 export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
@@ -19,9 +38,15 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(!isHome);
   const [open, setOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [mobileContactOpen, setMobileContactOpen] = useState(false);
+  const contactRef = useRef<HTMLDivElement>(null);
+  const contactMenuId = useId();
 
   useEffect(() => {
     setOpen(false);
+    setContactOpen(false);
+    setMobileContactOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -41,6 +66,26 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!contactOpen) return;
+
+    function onPointerDown(event: MouseEvent) {
+      if (!contactRef.current?.contains(event.target as Node)) {
+        setContactOpen(false);
+      }
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setContactOpen(false);
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [contactOpen]);
 
   // Auf der Startseite oben: transparent + weiße Schrift
   const onHero = isHome && !scrolled && !open;
@@ -82,31 +127,68 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
         </Link>
 
         <nav className="hidden items-center gap-7 md:flex">
-          {navItems.map((link) =>
-            link.href === "/kontakt" ? (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={
-                  solid
-                    ? "btn-primary px-4 py-2 text-sm"
-                    : "btn-ghost px-4 py-2 text-sm"
-                }
-              >
-                {link.label}
-              </Link>
-            ) : (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`nav-link text-sm tracking-wide transition-opacity hover:opacity-70 ${
-                  solid ? "text-[color:var(--ink)]" : ""
-                }`}
-              >
-                {link.label}
-              </Link>
-            ),
-          )}
+          {navItems.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`nav-link text-sm tracking-wide transition-opacity hover:opacity-70 ${
+                solid ? "text-[color:var(--ink)]" : ""
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+
+          <div className="contact-menu" ref={contactRef}>
+            <button
+              type="button"
+              className={`${
+                solid ? "btn-primary" : "btn-ghost"
+              } contact-menu-trigger px-4 py-2 text-sm`}
+              aria-expanded={contactOpen}
+              aria-controls={contactMenuId}
+              aria-haspopup="menu"
+              onClick={() => setContactOpen((v) => !v)}
+            >
+              Kontakt
+              <span className="contact-menu-caret" aria-hidden>
+                ▾
+              </span>
+            </button>
+
+            <div
+              id={contactMenuId}
+              role="menu"
+              aria-label="Kontaktoptionen"
+              className={`contact-menu-panel ${contactOpen ? "is-open" : ""}`}
+            >
+              {contactActions.map((action) =>
+                "external" in action && action.external ? (
+                  <a
+                    key={action.label}
+                    href={action.href}
+                    role="menuitem"
+                    className="contact-menu-item"
+                    onClick={() => setContactOpen(false)}
+                  >
+                    <span className="contact-menu-item-label">{action.label}</span>
+                    <span className="contact-menu-item-hint">{action.hint}</span>
+                  </a>
+                ) : (
+                  <Link
+                    key={action.label}
+                    href={action.href}
+                    role="menuitem"
+                    className="contact-menu-item"
+                    onClick={() => setContactOpen(false)}
+                  >
+                    <span className="contact-menu-item-label">{action.label}</span>
+                    <span className="contact-menu-item-hint">{action.hint}</span>
+                  </Link>
+                ),
+              )}
+            </div>
+          </div>
         </nav>
 
         <button
@@ -161,6 +243,66 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
                   </Link>
                 </li>
               ))}
+              <li
+                style={{
+                  transitionDelay: open
+                    ? `${80 + navItems.length * 45}ms`
+                    : "0ms",
+                }}
+              >
+                <button
+                  type="button"
+                  className={`mobile-nav-link mobile-nav-contact-toggle ${
+                    pathname === "/kontakt" || mobileContactOpen
+                      ? "is-active"
+                      : ""
+                  }`}
+                  tabIndex={open ? 0 : -1}
+                  aria-expanded={mobileContactOpen}
+                  onClick={() => setMobileContactOpen((v) => !v)}
+                >
+                  <span className="mobile-nav-index">
+                    0{navItems.length + 1}
+                  </span>
+                  <span>Kontakt</span>
+                  <span className="mobile-nav-caret" aria-hidden>
+                    {mobileContactOpen ? "▴" : "▾"}
+                  </span>
+                </button>
+                <div
+                  className={`mobile-contact-panel ${
+                    mobileContactOpen ? "is-open" : ""
+                  }`}
+                >
+                  <div className="mobile-contact-panel-inner">
+                    {contactActions.map((action) =>
+                      "external" in action && action.external ? (
+                        <a
+                          key={action.label}
+                          href={action.href}
+                          className="mobile-contact-item"
+                          tabIndex={open && mobileContactOpen ? 0 : -1}
+                          onClick={() => setOpen(false)}
+                        >
+                          <span>{action.label}</span>
+                          <span>{action.hint}</span>
+                        </a>
+                      ) : (
+                        <Link
+                          key={action.label}
+                          href={action.href}
+                          className="mobile-contact-item"
+                          tabIndex={open && mobileContactOpen ? 0 : -1}
+                          onClick={() => setOpen(false)}
+                        >
+                          <span>{action.label}</span>
+                          <span>{action.hint}</span>
+                        </Link>
+                      ),
+                    )}
+                  </div>
+                </div>
+              </li>
             </ul>
             <p className="mobile-nav-meta">
               {site.hours.weekdays}
