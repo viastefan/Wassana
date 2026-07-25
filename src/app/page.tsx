@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { FaqSection } from "@/components/FaqSection";
+import { HeroBackdrop } from "@/components/HeroBackdrop";
 import {
   JsonLdBreadcrumbs,
   JsonLdFaqPage,
@@ -48,13 +49,9 @@ export default async function HomePage() {
       <JsonLdBreadcrumbs items={[{ name: "Start", path: "/" }]} />
       <JsonLdFaqPage items={landshutFaqs} />
       <section className="relative min-h-[100svh] overflow-hidden">
-        <Image
+        <HeroBackdrop
           src="/images/hero.jpg"
           alt="Thai-Gericht zum Mitnehmen bei Wassana Thai Imbiss in Landshut"
-          fill
-          priority
-          className="hero-media object-cover"
-          sizes="100vw"
         />
         <div
           className="absolute inset-0"
