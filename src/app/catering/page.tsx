@@ -9,15 +9,43 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Thai Catering Landshut",
   description:
-    "Thai Catering in Landshut von Wassana: individueller Menüplan inkl. Geschirr für Geburtstage, Firmenfeiern und Hochzeiten.",
+    "Thai Catering in Landshut von Wassana: individueller Menüplan, Geschirr und frische Gerichte für Geburtstage, Firmenfeiern und Hochzeiten.",
   alternates: { canonical: "/catering" },
   openGraph: {
     title: "Thai Catering Landshut | Wassana",
-    description: "Catering-Service mit Thai-Atmosphäre für Ihr Event.",
+    description:
+      "Catering mit Thai-Küche für Events in Landshut — Menüplanung, Geschirr und frische Zubereitung.",
     url: "/catering",
   },
   robots: { index: true, follow: true },
 };
+
+const offerings = [
+  {
+    title: "Individueller Menüplan",
+    text: "Wir stellen Curries, Wok-Gerichte und Beilagen passend zu Anlass, Gästezahl und Vorlieben zusammen — auch vegetarisch möglich.",
+  },
+  {
+    title: "Frisch zubereitet",
+    text: "Die Gerichte kommen frisch aus unserer Küche am Regierungsplatz — authentisch gewürzt, zum Buffet oder zum Portionieren.",
+  },
+  {
+    title: "Passendes Geschirr",
+    text: "Auf Wunsch liefern wir Geschirr und Servierbedarf mit, damit bei dir vor Ort weniger Organisation nötig ist.",
+  },
+  {
+    title: "Geburtstage & private Feiern",
+    text: "Vom kleinen Familienessen bis zur größeren Feier — wir stimmen Menge und Menü vorher klar mit dir ab.",
+  },
+  {
+    title: "Firmenfeiern & Meetings",
+    text: "Für Teams und Kundentermine in Landshut: zuverlässig, zeitlich planbar und mit klarer Absprache zu Lieferung oder Abholung.",
+  },
+  {
+    title: "Hochzeiten & besondere Anlässe",
+    text: "Thai-Küche als besonderer Akzent — wir planen Vorlauf, Mengen und Ablauf gemeinsam mit euch.",
+  },
+] as const;
 
 export default function CateringPage() {
   return (
@@ -39,27 +67,41 @@ export default function CateringPage() {
       />
 
       <section className="bg-[color:var(--bg-soft)]">
-        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-14 md:grid-cols-2 md:px-8 md:py-20">
+        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-14 md:grid-cols-2 md:gap-16 md:px-8 md:py-20">
           <Reveal>
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
               Unser Service
             </p>
-            <h2 className="font-display mt-3 text-3xl text-[color:var(--ink)]">
+            <h2 className="font-display mt-3 text-3xl text-[color:var(--ink)] md:text-4xl">
               Was wir übernehmen
             </h2>
-            <ul className="mt-6 space-y-3 text-[color:var(--muted)]">
-              {[
-                "Individueller Menüplan",
-                "Passendes Geschirr",
-                "Geburtstage, Firmenfeiern & Hochzeiten",
-              ].map((item) => (
-                <li key={item} className="flex gap-3">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--gold)]" />
-                  <span>{item}</span>
+            <p className="mt-4 max-w-md text-[color:var(--muted)] leading-relaxed">
+              Du sagst uns Anlass, Personenzahl und Termin — wir kümmern uns um
+              Menü, Mengen und die praktische Umsetzung.
+            </p>
+
+            <ul className="mt-9 space-y-6">
+              {offerings.map((item, index) => (
+                <li key={item.title} className="flex gap-4">
+                  <span
+                    className="font-display mt-0.5 w-8 shrink-0 text-sm tracking-[0.12em] text-[color:var(--gold)]"
+                    aria-hidden
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-display text-lg leading-snug text-[color:var(--red)]">
+                      {item.title}
+                    </p>
+                    <p className="mt-1.5 text-[0.95rem] leading-relaxed text-[color:var(--muted)]">
+                      {item.text}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
-            <div className="mt-8 flex flex-wrap gap-3">
+
+            <div className="mt-10 flex flex-wrap gap-3">
               <a href={site.cateringEmailHref} className="btn-primary">
                 Per E-Mail anfragen
               </a>
@@ -67,8 +109,8 @@ export default function CateringPage() {
                 Anrufen
               </a>
             </div>
-            <p className="mt-8 text-sm text-[color:var(--muted)]">
-              Oder nutze unser{" "}
+            <p className="mt-6 text-sm text-[color:var(--muted)]">
+              Oder nutze das Formular hier — oder unser{" "}
               <Link
                 href="/kontakt"
                 className="text-[color:var(--red)] underline-offset-2 hover:underline"
