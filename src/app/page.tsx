@@ -178,34 +178,53 @@ export default async function HomePage() {
 
       <StudentLunch offer={content.studentLunch} />
 
-      <section className="offer-strip border-y border-[color:var(--line)]" aria-label="Angebot">
-        <div className="mx-auto grid max-w-6xl gap-3 px-5 py-8 md:grid-cols-3 md:gap-4 md:px-8 md:py-10">
+      <section className="offer-strip" aria-label="Angebot">
+        <div className="offer-strip-rail">
           {[
             {
               title: "Speisekarte",
-              text: "Wochenkarte und Klassiker bei Wassana.",
+              text: "Wochenkarte und Klassiker — frisch bei Wassana.",
               href: "/speisekarte",
+              image: "/images/curry.jpg",
             },
             {
               title: "Catering",
-              text: "Events inkl. Geschirr — von Wassana.",
+              text: "Events inkl. Geschirr — Menüplan von Wassana.",
               href: "/catering",
+              image: "/images/ingredients.jpg",
             },
             {
               title: "Kochkurs",
               text: "Schritt für Schritt Thai kochen mit Wassana.",
               href: "/kochkurs",
+              image: "/images/soup.jpg",
             },
           ].map((item, index) => (
-            <Reveal key={item.title} delay={(index % 3) as 0 | 1 | 2}>
-              <Link href={item.href} className="offer-link group">
-                <p className="offer-link-index">0{index + 1}</p>
-                <h2 className="offer-link-title">{item.title}</h2>
-                <p className="offer-link-text">{item.text}</p>
-                <span className="offer-link-cta">
-                  Entdecken
-                  <span aria-hidden className="offer-link-arrow">
-                    →
+            <Reveal
+              key={item.title}
+              delay={(index % 3) as 0 | 1 | 2}
+              className="offer-strip-cell"
+            >
+              <Link href={item.href} className="offer-link">
+                <span className="offer-link-media" aria-hidden>
+                  <Image
+                    src={item.image}
+                    alt=""
+                    fill
+                    className="offer-link-image object-cover"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                  <span className="offer-link-media-veil" />
+                </span>
+                <span className="offer-link-body">
+                  <span className="offer-link-index">0{index + 1}</span>
+                  <h2 className="offer-link-title">{item.title}</h2>
+                  <p className="offer-link-text">{item.text}</p>
+                  <span className="offer-link-cta">
+                    Entdecken
+                    <span aria-hidden className="offer-link-arrow">
+                      →
+                    </span>
                   </span>
                 </span>
               </Link>

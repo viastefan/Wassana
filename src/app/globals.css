@@ -1637,120 +1637,219 @@ a.btn-ghost:hover {
 
 .offer-strip {
   position: relative;
+  isolation: isolate;
+  border-block: 1px solid color-mix(in srgb, var(--gold) 28%, var(--line));
   background:
-    radial-gradient(520px 220px at 10% 0%, color-mix(in srgb, var(--gold) 14%, transparent), transparent 70%),
-    radial-gradient(480px 200px at 90% 100%, color-mix(in srgb, var(--red) 7%, transparent), transparent 65%),
-    var(--bg-soft);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 88%, var(--gold)) 0%,
+      var(--bg-soft) 42%,
+      var(--bg-soft) 100%
+    );
+}
+
+.offer-strip::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--gold) 70%, var(--red)) 20%,
+    var(--gold) 50%,
+    color-mix(in srgb, var(--gold) 70%, var(--red)) 80%,
+    transparent 100%
+  );
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.offer-strip-rail {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1.1rem, 3vw, 2rem);
+}
+
+.offer-strip-cell {
+  height: 100%;
+  min-height: 100%;
+}
+
+.offer-strip-cell .offer-link {
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .offer-strip-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    padding-block: clamp(1.6rem, 3.5vw, 2.4rem);
+  }
 }
 
 .offer-link {
   position: relative;
   isolation: isolate;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 9.5rem 1fr;
   min-height: 100%;
-  padding: 1.55rem 1.4rem 1.65rem;
+  overflow: hidden;
   color: inherit;
   text-decoration: none;
+  background: color-mix(in srgb, var(--paper) 92%, white);
+  border: 1px solid color-mix(in srgb, var(--gold) 22%, var(--line));
   transition:
-    transform 0.28s var(--ease-out),
-    box-shadow 0.28s var(--ease-out);
+    border-color 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out);
 }
 
-.offer-link::before {
-  content: "";
+@media (min-width: 768px) {
+  .offer-link {
+    grid-template-rows: 11rem 1fr;
+  }
+}
+
+.offer-link-media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+.offer-link-image {
+  transform: scale(1.02);
+  transition: transform 0.7s var(--ease-out);
+}
+
+.offer-link-media-veil {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  border: 1px solid transparent;
-  background: transparent;
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--gold) 40%, transparent);
-  transition:
-    background 0.28s var(--ease-out),
-    border-color 0.28s var(--ease-out),
-    box-shadow 0.28s var(--ease-out);
+  background:
+    linear-gradient(
+      180deg,
+      transparent 35%,
+      color-mix(in srgb, var(--ink) 28%, transparent) 100%
+    ),
+    linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--red) 18%, transparent),
+      transparent 55%
+    );
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-out);
 }
 
-.offer-link:hover,
-.offer-link:focus-visible {
-  transform: translateY(-3px);
-}
-
-.offer-link:hover::before,
-.offer-link:focus-visible::before {
-  background: color-mix(in srgb, var(--paper) 90%, white);
-  border-color: color-mix(in srgb, var(--gold) 40%, var(--line));
-  box-shadow:
-    inset 3px 0 0 var(--gold),
-    0 14px 28px rgba(30, 33, 41, 0.06);
-}
-
-.offer-link:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--red) 45%, transparent);
-  outline-offset: 3px;
+.offer-link-body {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.2rem 1.35rem;
 }
 
 .offer-link-index {
   margin: 0;
-  font-size: 0.82rem;
-  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
   color: var(--gold);
 }
 
 .offer-link-title {
-  margin: 0.7rem 0 0;
+  margin: 0.55rem 0 0;
   font-family: var(--font-typewriter), "Courier New", Courier, monospace;
-  font-size: clamp(1.45rem, 3.2vw, 1.7rem);
-  line-height: 1.15;
+  font-size: clamp(1.55rem, 3.4vw, 1.85rem);
+  line-height: 1.1;
   color: var(--red);
-  transition: transform 0.28s var(--ease-out);
-}
-
-.offer-link:hover .offer-link-title,
-.offer-link:focus-visible .offer-link-title {
-  transform: translateX(2px);
+  transition: transform 0.35s var(--ease-out);
 }
 
 .offer-link-text {
   margin: 0.55rem 0 0;
   max-width: 18rem;
-  font-size: 0.98rem;
+  font-size: 0.96rem;
   line-height: 1.55;
   color: var(--muted);
 }
 
 .offer-link-cta {
   margin-top: auto;
-  padding-top: 1.25rem;
+  padding-top: 1.15rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
+  width: fit-content;
   font-size: 0.88rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: var(--red);
-  opacity: 0.72;
-  transition: opacity 0.28s var(--ease-out), gap 0.28s var(--ease-out);
-}
-
-.offer-link:hover .offer-link-cta,
-.offer-link:focus-visible .offer-link-cta {
-  opacity: 1;
-  gap: 0.55rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+  padding-bottom: 0.15rem;
+  transition:
+    gap 0.35s var(--ease-out),
+    border-color 0.35s var(--ease-out),
+    color 0.35s var(--ease-out);
 }
 
 .offer-link-arrow {
   display: inline-block;
-  transition: transform 0.28s var(--ease-out);
+  transition: transform 0.35s var(--ease-out);
+}
+
+.offer-link:hover,
+.offer-link:focus-visible {
+  border-color: color-mix(in srgb, var(--gold) 55%, var(--red));
+  transform: translateY(-4px);
+}
+
+.offer-link:hover .offer-link-image,
+.offer-link:focus-visible .offer-link-image {
+  transform: scale(1.08);
+}
+
+.offer-link:hover .offer-link-media-veil,
+.offer-link:focus-visible .offer-link-media-veil {
+  opacity: 0.75;
+}
+
+.offer-link:hover .offer-link-title,
+.offer-link:focus-visible .offer-link-title {
+  transform: translateX(3px);
+}
+
+.offer-link:hover .offer-link-cta,
+.offer-link:focus-visible .offer-link-cta {
+  gap: 0.65rem;
+  border-color: var(--gold);
+  color: var(--ink);
 }
 
 .offer-link:hover .offer-link-arrow,
 .offer-link:focus-visible .offer-link-arrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
+}
+
+.offer-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--red) 50%, transparent);
+  outline-offset: 3px;
 }
 
 @media (hover: none) {
   .offer-link:hover {
     transform: none;
+  }
+
+  .offer-link:hover .offer-link-image {
+    transform: scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offer-link,
+  .offer-link-image,
+  .offer-link-title,
+  .offer-link-cta,
+  .offer-link-arrow {
+    transition: none;
   }
 }
 
