@@ -2,35 +2,33 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { FaqSection } from "@/components/FaqSection";
-import {
-  JsonLdBreadcrumbs,
-  JsonLdFaqPage,
-} from "@/components/JsonLd";
+import { JsonLdFaqPage, JsonLdWebPage } from "@/components/JsonLd";
 import { SplitMedia } from "@/components/Media";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { landshutFaqs } from "@/lib/seo-faq";
+import { pageMetadata } from "@/lib/seo-metadata";
 import { getSiteContent } from "@/lib/site-content";
 import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Wassana Thai Imbiss Landshut | Curry, Wok & Mitnehmen",
-  },
+export const metadata: Metadata = pageMetadata({
+  title: "Wassana Thai Imbiss Landshut | Curry, Wok & Mitnehmen",
+  absoluteTitle: true,
   description:
     "Thai Imbiss Wassana in Landshut: Massaman, Panaeng, Pad kra pao und mehr am Regierungsplatz. Mo–Fr 11–18 Uhr — frisch und zum Mitnehmen.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "Wassana Thai Imbiss Landshut",
-    description:
-      "Glück und gutes Schicksal — authentische Thai-Küche in Landshut.",
-    url: "/",
-  },
-};
+  path: "/",
+  keywords: [
+    "Thai Imbiss Landshut",
+    "Thai Restaurant Landshut",
+    "Thai Essen Landshut",
+    "Wassana Landshut",
+    "Thai Curry Landshut",
+  ],
+});
 
 export default async function HomePage() {
   const [content, weekly, business] = await Promise.all([
@@ -45,7 +43,11 @@ export default async function HomePage() {
 
   return (
     <main>
-      <JsonLdBreadcrumbs items={[{ name: "Start", path: "/" }]} />
+      <JsonLdWebPage
+        name="Wassana Thai Imbiss Landshut"
+        description="Authentischer Thai Imbiss in Landshut am Regierungsplatz — Curries, Wok, Mitnehmen, Catering und Kochkurs."
+        path="/"
+      />
       <JsonLdFaqPage items={landshutFaqs} />
       <section className="relative min-h-[100svh] overflow-hidden">
         <Image
@@ -66,10 +68,11 @@ export default async function HomePage() {
             {content.hero.eyebrow.trim() ||
               "Thai Imbiss und Feinkost · Landshut"}
           </p>
-          <h1 className="hero-copy-delay font-display mt-3 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
-            Willkommen
-            <br />
-            bei Wassana
+          <h1 className="hero-copy-delay font-display mt-3 text-[clamp(3.2rem,10.5vw,6.5rem)] leading-[0.92] text-white">
+            Wassana
+            <span className="mt-2 block text-[clamp(1.2rem,3.4vw,1.95rem)] font-normal tracking-[0.06em] text-white/92">
+              Thai Imbiss Landshut
+            </span>
           </h1>
           <p className="hero-copy-delay mt-5 max-w-md text-[clamp(1.05rem,2.1vw,1.3rem)] font-light leading-relaxed text-white/90">
             {content.hero.lede}

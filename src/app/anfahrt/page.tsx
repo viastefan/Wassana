@@ -3,23 +3,22 @@ import Link from "next/link";
 import { ContentBlock, ContentPage } from "@/components/ContentPage";
 import { LocationSection } from "@/components/LocationSection";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { pageMetadata } from "@/lib/seo-metadata";
 import { getSiteContent } from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Anfahrt Thai Imbiss Landshut",
   description:
     "Anfahrt zu Wassana Thai Imbiss in Landshut: Regierungsplatz 542, zentral in der Altstadt. Route, Öffnungszeiten und Kontakt.",
-  alternates: { canonical: "/anfahrt" },
-  openGraph: {
-    title: "Anfahrt | Wassana Thai Imbiss Landshut",
-    description:
-      "Regierungsplatz 542, 84028 Landshut — so findet ihr uns.",
-    url: "/anfahrt",
-  },
-  robots: { index: true, follow: true },
-};
+  path: "/anfahrt",
+  keywords: [
+    "Anfahrt Thai Imbiss Landshut",
+    "Thai Imbiss Regierungsplatz",
+    "Wassana Adresse Landshut",
+  ],
+});
 
 export default async function AnfahrtPage() {
   const [business, content] = await Promise.all([
@@ -35,10 +34,11 @@ export default async function AnfahrtPage() {
           { name: "Anfahrt", path: "/anfahrt" },
         ]}
         eyebrow="Standort Landshut"
-        title="So findet ihr uns"
+        title="Anfahrt Thai Imbiss Landshut"
         lead={`${business.street}, ${business.zip} ${business.city} — im Gewerbehaus am Regierungsplatz.`}
         image="/images/hero.jpg"
         imageAlt="Wassana Thai Imbiss am Regierungsplatz in Landshut"
+        description="Anfahrt zu Wassana Thai Imbiss in Landshut am Regierungsplatz 542."
       >
         <ContentBlock title="Adresse">
           <p className="text-[color:var(--ink)]">

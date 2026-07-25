@@ -1,24 +1,30 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
-import { JsonLdBreadcrumbs } from "@/components/JsonLd";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { JsonLdBreadcrumbs, JsonLdWebPage } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { getSiteContent } from "@/lib/site-content";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { pageMetadata } from "@/lib/seo-metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Kontakt Thai Imbiss Landshut",
   description:
     "Kontakt zu Wassana Thai Imbiss in Landshut: Telefon, E-Mail, Adresse Regierungsplatz 542 und Öffnungszeiten Mo–Fr 11–18 Uhr.",
-  alternates: { canonical: "/kontakt" },
-  openGraph: {
-    title: "Kontakt | Wassana Thai Imbiss Landshut",
-    description: "So erreichst du uns in Landshut am Regierungsplatz.",
-    url: "/kontakt",
-  },
-  robots: { index: true, follow: true },
-};
+  path: "/kontakt",
+  keywords: [
+    "Kontakt Thai Landshut",
+    "Wassana Telefon",
+    "Thai Imbiss Landshut Kontakt",
+  ],
+});
+
+const crumbs = [
+  { name: "Start", path: "/" },
+  { name: "Kontakt", path: "/kontakt" },
+];
 
 export default async function KontaktPage() {
   const [content, business] = await Promise.all([
@@ -29,19 +35,20 @@ export default async function KontaktPage() {
 
   return (
     <main className="pt-24">
-      <JsonLdBreadcrumbs
-        items={[
-          { name: "Start", path: "/" },
-          { name: "Kontakt", path: "/kontakt" },
-        ]}
+      <JsonLdBreadcrumbs items={crumbs} />
+      <JsonLdWebPage
+        name="Kontakt Thai Imbiss Landshut"
+        description="Kontakt, Telefon und Adresse von Wassana Thai Imbiss in Landshut."
+        path="/kontakt"
       />
       <section className="mx-auto grid max-w-6xl gap-14 px-5 py-[var(--section-y)] md:grid-cols-2 md:gap-20 md:px-8">
         <Reveal>
+          <Breadcrumbs items={crumbs} />
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
             Kontakt Landshut
           </p>
           <h1 className="font-display mt-3 text-4xl text-[color:var(--red)] md:text-5xl">
-            Schreib uns oder ruf an
+            Kontakt Thai Imbiss Landshut
           </h1>
           <p className="mt-5 max-w-md text-lg text-[color:var(--muted)]">
             Für Bestellungen, Catering oder den Kochkurs sind wir gerne für dich

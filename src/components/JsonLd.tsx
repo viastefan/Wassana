@@ -2,6 +2,7 @@ import type { ResolvedBusiness } from "@/lib/business-profile-shared";
 import type { CookingCourseData } from "@/lib/cooking-course-shared";
 import type { MenuSection } from "@/lib/menu";
 import type { SeoFaqItem } from "@/lib/seo-faq";
+import { berlinDateTime } from "@/lib/seo-metadata";
 import { getSiteUrl, site } from "@/lib/site";
 
 function JsonScript({ data }: { data: Record<string, unknown> | object }) {
@@ -28,6 +29,7 @@ const MAIN_NAV = [
   { name: "Start", path: "/" },
   { name: "Speisekarte", path: "/speisekarte" },
   { name: "Mitnehmen", path: "/mitnehmen" },
+  { name: "Schüler Mittagessen", path: "/schueler-mittagessen" },
   { name: "Catering", path: "/catering" },
   { name: "Kochkurs", path: "/kochkurs" },
   { name: "Anfahrt", path: "/anfahrt" },
@@ -80,7 +82,12 @@ export function JsonLdLocalBusiness({
     delivery: false,
     publicAccess: true,
     smokingAllowed: false,
-    hasMenu: `${url}/speisekarte`,
+    hasMenu: {
+      "@type": "Menu",
+      "@id": `${url}/speisekarte#menu`,
+      url: `${url}/speisekarte`,
+      name: `Speisekarte ${business.shortName}`,
+    },
     menu: `${url}/speisekarte`,
     address: {
       "@type": "PostalAddress",
@@ -132,6 +139,8 @@ export function JsonLdLocalBusiness({
       "Thai Catering Landshut",
       "Thai Kochkurs Landshut",
       "Mittagessen zum Mitnehmen Landshut",
+      "Schüler Mittagessen Landshut",
+      "Thai Speisekarte Landshut",
     ],
     founder: {
       "@type": "Person",
@@ -232,6 +241,8 @@ export function JsonLdBreadcrumbs({
 }: {
   items: { name: string; path: string }[];
 }) {
+  if (items.length < 2) return null;
+
   const url = getSiteUrl();
   const data = {
     "@context": "https://schema.org",
@@ -242,6 +253,38 @@ export function JsonLdBreadcrumbs({
       name: item.name,
       item: `${url}${item.path === "/" ? "" : item.path}`,
     })),
+  };
+
+  return <JsonScript data={data} />;
+}
+
+export function JsonLdWebPage({
+  name,
+  description,
+  path,
+  aboutBusiness = true,
+}: {
+  name: string;
+  description: string;
+  path: string;
+  aboutBusiness?: boolean;
+}) {
+  const url = getSiteUrl();
+  const pageUrl = `${url}${path === "/" ? "" : path}`;
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${pageUrl}#webpage`,
+    url: pageUrl,
+    name,
+    description,
+    inLanguage: "de-DE",
+    isPartOf: { "@id": `${url}/#website` },
+    ...(aboutBusiness ? { about: { "@id": `${url}/#business` } } : {}),
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: `${url}/images/hero.jpg`,
+    },
   };
 
   return <JsonScript data={data} />;
@@ -286,14 +329,27 @@ export function JsonLdMenu({
       "@type": "MenuSection",
       name: section.title,
       description: section.note || undefined,
-      hasMenuItem: section.items.slice(0, 24).map((item) => {
+      hasMenuItem: section.items.slice(0, 40).map((item) => {
         const label = item.nr ? `${item.nr}. ${item.name}` : item.name;
         const priceRaw = item.price || item.prices?.[0]?.price || "";
         const amount = parseEuroPrice(priceRaw);
+        const isVeg =
+          /vegetar|vegan|gemüse/i.test(section.title) ||
+          /vegetar|vegan/i.test(item.name);
         return {
           "@type": "MenuItem",
           name: label,
           description: item.description || undefined,
+          ...(isVeg
+            ? {
+                suitableForDiet: [
+                  "https://schema.org/VegetarianDiet",
+                  ...( /vegan/i.test(section.title) || /vegan/i.test(item.name)
+                    ? ["https://schema.org/VeganDiet"]
+                    : []),
+                ],
+              }
+            : {}),
           offers: amount
             ? {
                 "@type": "Offer",
@@ -322,13 +378,12 @@ export function JsonLdCookingCourseEvent({
 
   const url = getSiteUrl();
   const title = course.title?.trim() || "Thai Kochkurs Landshut";
-  const startTime = course.startTime?.trim();
-  const startDate =
-    startTime && /^\d{1,2}:\d{2}$/.test(startTime)
-      ? `${course.date}T${startTime.padStart(5, "0")}`
-      : course.date;
+  const startTime = course.startTime?.trim() || "18:00";
+  const startDate = berlinDateTime(course.date, startTime);
+  const endDate = berlinDateTime(course.date, addHours(startTime, 2.5));
   const priceAmount = course.price ? parseEuroPrice(course.price) : null;
   const maxSeats = Number.parseInt(String(course.maxParticipants || ""), 10);
+  const validFrom = course.updatedAt?.slice(0, 10) || course.date;
 
   const data = {
     "@context": "https://schema.org",
@@ -340,10 +395,10 @@ export function JsonLdCookingCourseEvent({
       course.pageText?.trim() ||
       "Thai Kochkurs bei Wassana in Landshut — Schritt für Schritt kochen lernen.",
     startDate,
-    endDate: course.date,
+    endDate,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
-    image: [`${url}${course.image || "/images/ingredients.jpg"}`],
+    image: [`${url}${course.image || "/images/hero.jpg"}`],
     url: `${url}/kochkurs`,
     inLanguage: "de-DE",
     ...(Number.isFinite(maxSeats) && maxSeats > 0
@@ -351,6 +406,7 @@ export function JsonLdCookingCourseEvent({
       : {}),
     location: {
       "@type": "Place",
+      "@id": `${url}/#business`,
       name: business.fullName,
       address: {
         "@type": "PostalAddress",
@@ -369,12 +425,7 @@ export function JsonLdCookingCourseEvent({
         ? { description: course.locationNote.trim() }
         : {}),
     },
-    organizer: {
-      "@type": "Organization",
-      name: business.fullName,
-      url,
-      telephone: business.phoneE164,
-    },
+    organizer: { "@id": `${url}/#business` },
     performer: {
       "@type": "Person",
       name: business.owner,
@@ -383,7 +434,7 @@ export function JsonLdCookingCourseEvent({
       "@type": "Offer",
       url: `${url}/kochkurs`,
       availability: "https://schema.org/InStock",
-      validFrom: new Date().toISOString().slice(0, 10),
+      validFrom,
       ...(priceAmount
         ? { price: priceAmount, priceCurrency: "EUR" }
         : course.price?.trim()
@@ -393,4 +444,13 @@ export function JsonLdCookingCourseEvent({
   };
 
   return <JsonScript data={data} />;
+}
+
+function addHours(hhmm: string, hours: number): string {
+  const match = hhmm.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return "20:30";
+  const total = Number(match[1]) * 60 + Number(match[2]) + Math.round(hours * 60);
+  const h = Math.floor(total / 60) % 24;
+  const m = total % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }

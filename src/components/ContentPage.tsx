@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { JsonLdBreadcrumbs } from "@/components/JsonLd";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { JsonLdBreadcrumbs, JsonLdWebPage } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 
@@ -10,6 +11,7 @@ export function ContentPage({
   lead,
   image,
   imageAlt,
+  description,
   children,
 }: {
   breadcrumbs: { name: string; path: string }[];
@@ -18,11 +20,20 @@ export function ContentPage({
   lead: string;
   image: string;
   imageAlt: string;
+  /** Optional WebPage schema description (defaults to lead). */
+  description?: string;
   children: ReactNode;
 }) {
+  const pagePath = breadcrumbs[breadcrumbs.length - 1]?.path || "/";
+
   return (
     <main>
       <JsonLdBreadcrumbs items={breadcrumbs} />
+      <JsonLdWebPage
+        name={title}
+        description={description || lead}
+        path={pagePath}
+      />
       <MediaBand
         src={image}
         alt={imageAlt}
@@ -34,6 +45,7 @@ export function ContentPage({
       />
       <section className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
         <div className="mx-auto max-w-3xl px-5 py-[var(--section-y)] md:px-8">
+          <Breadcrumbs items={breadcrumbs} />
           <Reveal>
             <div className="space-y-8 text-[color:var(--muted)] leading-relaxed">
               {children}

@@ -3,20 +3,15 @@ import Link from "next/link";
 import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { pageMetadata } from "@/lib/seo-metadata";
 import { getSiteContent } from "@/lib/site-content";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Impressum",
   description: `Impressum von ${site.fullName}, ${site.address.street}, ${site.address.zip} ${site.address.city}.`,
-  alternates: { canonical: "/impressum" },
-  openGraph: {
-    title: "Impressum | Wassana Thai Imbiss Landshut",
-    description: `Rechtliche Angaben zu ${site.fullName} in Landshut.`,
-    url: "/impressum",
-  },
-  robots: { index: true, follow: true },
-};
+  path: "/impressum",
+});
 
 export const dynamic = "force-dynamic";
 

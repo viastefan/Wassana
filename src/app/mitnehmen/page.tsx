@@ -2,23 +2,28 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentBlock, ContentPage } from "@/components/ContentPage";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { pageMetadata } from "@/lib/seo-metadata";
 import { getSiteContent } from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Thai Essen mitnehmen Landshut",
   description:
     "Thai Essen in Landshut mitnehmen: frisch gekocht am Regierungsplatz, Mo–Fr Abholen. Curries, Wok und beliebte Gerichte der Woche zum Mitnehmen.",
-  alternates: { canonical: "/mitnehmen" },
-  openGraph: {
-    title: "Thai Essen mitnehmen | Wassana Landshut",
-    description:
-      "Frisch abholen am Regierungsplatz — Curries, Wok und mehr zum Mitnehmen.",
-    url: "/mitnehmen",
+  path: "/mitnehmen",
+  keywords: [
+    "Thai Essen mitnehmen Landshut",
+    "Mittagessen zum Mitnehmen Landshut",
+    "Thai Abholen Landshut",
+  ],
+  image: {
+    url: "/images/soup.jpg",
+    width: 1600,
+    height: 1067,
+    alt: "Thai-Gericht zum Mitnehmen bei Wassana in Landshut",
   },
-  robots: { index: true, follow: true },
-};
+});
 
 export default async function MitnehmenPage() {
   const [business, content] = await Promise.all([
@@ -33,10 +38,11 @@ export default async function MitnehmenPage() {
         { name: "Mitnehmen", path: "/mitnehmen" },
       ]}
       eyebrow="Abholen in Landshut"
-      title="Frisch mitnehmen"
+      title="Thai Essen mitnehmen"
       lead="Curries, Wok und Klassiker — frisch aus der Küche, ideal für Büro, Pause oder zu Hause."
       image="/images/soup.jpg"
       imageAlt="Thai-Gericht zum Mitnehmen bei Wassana in Landshut"
+      description="Thai Essen in Landshut mitnehmen — frisch abholen am Regierungsplatz."
     >
       <ContentBlock title="So funktioniert Abholen">
         <p>

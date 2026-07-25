@@ -22,6 +22,15 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: ["/admin", "/admin/", "/api/"],
       },
+      {
+        userAgent: "Googlebot-Image",
+        allow: ["/images/", "/icon", "/apple-icon", "/favicon"],
+      },
+      {
+        userAgent: "AdsBot-Google",
+        allow: "/",
+        disallow: ["/admin", "/admin/", "/api/"],
+      },
     ],
     sitemap: `${base}/sitemap.xml`,
     host: CANONICAL_SITE_URL.replace(/^https?:\/\//, ""),
