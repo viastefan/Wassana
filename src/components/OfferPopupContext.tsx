@@ -6,11 +6,15 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import type { StudentLunchOffer } from "@/lib/site-content-shared";
 import { STUDENT_LUNCH_POPUP_HREF } from "@/lib/site-content-shared";
+
+/** Auto-show Schüler-Mittag popup after this delay on every full page load. */
+export const MITTAG_AUTO_OPEN_MS = 30_000;
 
 type OfferPopupContextValue = {
   open: boolean;
@@ -29,9 +33,12 @@ export function OfferPopupProvider({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  /** User closed the popup this page session — don't auto-reopen. */
+  const dismissedRef = useRef(false);
 
   const openOffer = useCallback(() => setOpen(true), []);
   const closeOffer = useCallback(() => {
+    dismissedRef.current = true;
     setOpen(false);
     if (typeof window !== "undefined") {
       const hash = window.location.hash.toLowerCase();
@@ -67,6 +74,14 @@ export function OfferPopupProvider({
     syncFromHash();
     window.addEventListener("hashchange", syncFromHash);
     return () => window.removeEventListener("hashchange", syncFromHash);
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (dismissedRef.current) return;
+      setOpen(true);
+    }, MITTAG_AUTO_OPEN_MS);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const value = useMemo(

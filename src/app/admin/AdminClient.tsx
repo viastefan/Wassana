@@ -3077,8 +3077,9 @@ export function AdminClient() {
 
                 <Section title="Mittag-Popup">
                   <p className="mb-2 text-sm text-[color:var(--admin-muted)]">
-                    Inhalt für Banner „Mehr“ und den Button auf der Startseite.
-                    Auf dem Handy als Sheet von unten.
+                    Inhalt für Banner „Mehr“, Startseiten-Button und das
+                    zentrierte Popup (öffnet automatisch nach 30 Sekunden bei
+                    jedem Seitenaufruf).
                   </p>
                   {(
                     [

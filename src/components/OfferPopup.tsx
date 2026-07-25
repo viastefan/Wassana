@@ -14,14 +14,9 @@ function bulletList(raw: string) {
 export function OfferPopup() {
   const { open, closeOffer, offer } = useOfferPopup();
   const titleId = useId();
-  const dragY = useRef(0);
-  const startY = useRef(0);
-  const dragging = useRef(false);
   const exitingRef = useRef(false);
-  const [offsetY, setOffsetY] = useState(0);
   const [entered, setEntered] = useState(false);
   const [exiting, setExiting] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
   const bullets = bulletList(offer.popupBullets);
 
@@ -30,12 +25,10 @@ export function OfferPopup() {
     exitingRef.current = true;
     setExiting(true);
     setEntered(false);
-    setIsDragging(false);
     window.setTimeout(() => {
       closeOffer();
       exitingRef.current = false;
       setExiting(false);
-      setOffsetY(0);
     }, 280);
   }, [closeOffer]);
 
@@ -44,8 +37,6 @@ export function OfferPopup() {
       setEntered(false);
       setExiting(false);
       exitingRef.current = false;
-      setOffsetY(0);
-      setIsDragging(false);
       return;
     }
 
@@ -64,33 +55,6 @@ export function OfferPopup() {
       document.removeEventListener("keydown", onKey);
     };
   }, [open, requestClose]);
-
-  function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (window.matchMedia("(min-width: 768px)").matches) return;
-    dragging.current = true;
-    setIsDragging(true);
-    startY.current = event.clientY;
-    dragY.current = 0;
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-
-  function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
-    if (!dragging.current) return;
-    const delta = Math.max(0, event.clientY - startY.current);
-    dragY.current = delta;
-    setOffsetY(delta);
-  }
-
-  function onPointerUp() {
-    if (!dragging.current) return;
-    dragging.current = false;
-    setIsDragging(false);
-    if (dragY.current > 110) {
-      requestClose();
-      return;
-    }
-    setOffsetY(0);
-  }
 
   if (!open && !exiting) return null;
 
@@ -118,32 +82,17 @@ export function OfferPopup() {
         aria-modal="true"
         aria-labelledby={titleId}
         className="offer-popup-sheet"
-        style={
-          offsetY || isDragging
-            ? {
-                transform: `translateY(${offsetY}px)`,
-                transition: isDragging ? "none" : undefined,
-              }
-            : undefined
-        }
       >
-        <div
-          className="offer-popup-handle-zone"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+        <div className="offer-popup-accent" aria-hidden />
+
+        <button
+          type="button"
+          className="offer-popup-close"
+          aria-label="Schließen"
+          onClick={requestClose}
         >
-          <div className="offer-popup-handle" aria-hidden />
-          <button
-            type="button"
-            className="offer-popup-close"
-            aria-label="Schließen"
-            onClick={requestClose}
-          >
-            ×
-          </button>
-        </div>
+          ×
+        </button>
 
         <div className="offer-popup-body">
           <p className="offer-popup-eyebrow">{offer.eyebrow}</p>
@@ -151,7 +100,13 @@ export function OfferPopup() {
             {title}
           </h2>
           {lead ? <p className="offer-popup-lead">{lead}</p> : null}
-          <div className="gold-rule mt-5 max-w-[12rem]" />
+
+          {price ? (
+            <p className="offer-popup-price-badge">
+              <span className="offer-popup-price-label">Angebot</span>
+              <span className="offer-popup-price">{price}</span>
+            </p>
+          ) : null}
 
           {offer.popupBody.trim() ? (
             <p className="offer-popup-copy">{offer.popupBody}</p>
@@ -165,7 +120,6 @@ export function OfferPopup() {
             </ul>
           ) : null}
 
-          {price ? <p className="offer-popup-price">{price}</p> : null}
           {note ? <p className="offer-popup-note">{note}</p> : null}
 
           <div className="offer-popup-actions">
@@ -181,7 +135,7 @@ export function OfferPopup() {
               className="btn-gold offer-popup-cta"
               onClick={requestClose}
             >
-              Schließen
+              Später
             </button>
           </div>
         </div>
