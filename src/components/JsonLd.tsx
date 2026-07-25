@@ -41,7 +41,7 @@ export function JsonLdLocalBusiness() {
       opens: slot.opens,
       closes: slot.closes,
     })),
-    sameAs: [site.social.facebook],
+    sameAs: [site.social.facebook, site.social.instagram],
     areaServed: {
       "@type": "City",
       name: "Landshut",
