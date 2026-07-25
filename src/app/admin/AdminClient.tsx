@@ -1987,7 +1987,7 @@ export function AdminClient() {
                         })
                       }
                       className={fieldClass}
-                      placeholder="Schüler & Azubis mittags: Gericht inkl. Getränk"
+                      placeholder="Schüler & Azubis in Landshut: mittags Gericht inkl. Getränk"
                     />
                   </Field>
                   <Field label="Hervorhebung (z. B. Preis)">

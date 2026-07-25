@@ -84,7 +84,7 @@ export function sanitizeHref(value: string, fallback: string): string {
 export function defaultTopBanner(): TopBanner {
   return {
     active: true,
-    text: "Schüler & Azubis mittags: Gericht inkl. Getränk",
+    text: "Schüler & Azubis in Landshut: mittags Gericht inkl. Getränk",
     highlight: site.studentLunch.price,
     linkHref: STUDENT_LUNCH_POPUP_HREF,
     linkLabel: "Mehr",
