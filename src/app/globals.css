@@ -237,9 +237,44 @@ select:-webkit-autofill:focus {
 }
 
 .admin-install-hero .btn-primary,
-.admin-install-hero .btn-gold {
+.admin-install-hero .btn-gold,
+.admin-install-cta {
   position: relative;
   z-index: 1;
+}
+
+/** High-contrast CTA on the dark install hero (avoids red-on-red). */
+.admin-install-hero .admin-install-cta,
+button.admin-install-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--admin-gold) 70%, white);
+  border-radius: 999px;
+  background: #f7f3ea !important;
+  color: var(--admin-burgundy) !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-install-hero .admin-install-cta:hover,
+button.admin-install-cta:hover {
+  background: #ffffff !important;
+  color: var(--admin-burgundy) !important;
+  transform: translateY(-1px);
+}
+
+.admin-install-hero .admin-install-cta:focus-visible {
+  outline: 2px solid var(--admin-gold);
+  outline-offset: 3px;
 }
 
 .admin-login-card,

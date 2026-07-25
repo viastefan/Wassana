@@ -1055,13 +1055,13 @@ export function AdminClient() {
         {installEvent ? (
           <button
             type="button"
-            className="btn-primary !bg-white !text-[color:var(--admin-burgundy)] hover:!bg-[color:var(--admin-bg)]"
+            className="admin-install-cta"
             onClick={() => void onInstall()}
           >
             App installieren
           </button>
         ) : (
-          <span className="admin-chip !bg-white/12 !text-white">
+          <span className="admin-chip !bg-white/14 !text-[#f7f3ea] !border-white/25">
             Bereit zum Speichern
           </span>
         )}
