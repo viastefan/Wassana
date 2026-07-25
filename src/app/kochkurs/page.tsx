@@ -143,7 +143,7 @@ export default async function KochkursPage() {
           <div className="relative min-h-[240px] md:min-h-[320px]">
             <Image
               src={midImage}
-              alt="Thai-Gerichte und Atmosphäre beim Kochkurs bei Wassana"
+              alt="Atmosphäre beim Thai Kochkurs bei Wassana"
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
