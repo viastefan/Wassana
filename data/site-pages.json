@@ -1,0 +1,322 @@
+{
+  "chrome": {
+    "skipLink": "Zum Inhalt springen",
+    "nav": {
+      "start": "Start",
+      "speisekarte": "Speisekarte",
+      "catering": "Catering",
+      "kochkurs": "Kochkurs",
+      "kontakt": "Kontakt"
+    },
+    "contactMenu": {
+      "inquiry": "Kontaktanfrage",
+      "inquiryHint": "Formular schreiben",
+      "email": "E-Mail",
+      "call": "Anrufen",
+      "openMenu": "Menü öffnen",
+      "closeMenu": "Menü schließen"
+    },
+    "footer": {
+      "exploreLabel": "Entdecken",
+      "hoursLabel": "Öffnungszeiten",
+      "contactLabel": "Kontakt",
+      "mapsLink": "Anfahrt & Karte",
+      "contactForm": "Kontaktformular",
+      "route": "Route",
+      "impressum": "Impressum",
+      "datenschutz": "Datenschutz",
+      "cookies": "Cookies",
+      "ownerPrefix": "Inh.:",
+      "instagramPrefix": "Instagram",
+      "exploreLinks": [
+        {
+          "href": "/speisekarte",
+          "label": "Speisekarte"
+        },
+        {
+          "href": "/mitnehmen",
+          "label": "Mitnehmen"
+        },
+        {
+          "href": "/catering",
+          "label": "Catering"
+        },
+        {
+          "href": "/kochkurs",
+          "label": "Kochkurs"
+        },
+        {
+          "href": "/ueber-uns",
+          "label": "Über uns"
+        },
+        {
+          "href": "/anfahrt",
+          "label": "Anfahrt"
+        },
+        {
+          "href": "/kontakt",
+          "label": "Kontakt"
+        }
+      ]
+    },
+    "cookie": {
+      "title": "Cookies & Datenschutz",
+      "lead": "Keine Tracking- oder Werbe-Cookies. Lokal speichern wir nur Ihre Auswahl und wenige Komfort-Einstellungen. Google Maps laden wir erst nach Zustimmung. Später ändern unter „Cookies“ im Footer. Mehr in der {privacy} und im {imprint}.",
+      "privacyLabel": "Datenschutzerklärung",
+      "imprintLabel": "Impressum",
+      "btnNecessary": "Nur notwendige",
+      "btnAcceptAll": "Alle akzeptieren"
+    },
+    "coursePromo": {
+      "kicker": "Kochkurs",
+      "nextLabel": "Nächster Termin",
+      "more": "Mehr erfahren",
+      "close": "Hinweis schließen",
+      "atTime": "Uhr"
+    },
+    "map": {
+      "kicker": "Karte",
+      "consentText": "Google Maps wird erst nach Zustimmung geladen (Datenschutz).",
+      "load": "Karte laden",
+      "openExternal": "In Google Maps öffnen"
+    },
+    "locationLabels": {
+      "hours": "Öffnungszeiten",
+      "phone": "Telefon",
+      "routeCta": "Route planen",
+      "mapsCta": "In Google Maps"
+    }
+  },
+  "home": {
+    "heroTitleLine1": "Willkommen",
+    "heroTitleLine2": "bei Wassana",
+    "routeHint": "· Route öffnen",
+    "ctaMenu": "Speisekarte",
+    "ctaMap": "Auf der Karte",
+    "brandName": "Wassana",
+    "brandTagline": "Glück und gutes Schicksal",
+    "kitchenEyebrow": "Die Küche bei Wassana",
+    "kitchenTitle": "Salzig, süß, sauer, scharf",
+    "kitchenP1": "Authentische Gerichte wie Massaman oder Panaeng Curries, verschiedene Wok-Gerichte und das berühmte Pad kra pao finden Sie bei uns auf der Karte.",
+    "kitchenP2": "An bestimmten Tagen bieten wir auch besondere thailändische Gerichte an, die man sonst selten findet. Alle Speisen können gerne mitgenommen werden.",
+    "kitchenCta": "Zur Speisekarte",
+    "offersCta": "Entdecken",
+    "offers": [
+      {
+        "title": "Speisekarte",
+        "text": "Beliebte Gerichte der Woche und Klassiker — frisch bei Wassana.",
+        "href": "/speisekarte"
+      },
+      {
+        "title": "Catering",
+        "text": "Events inkl. Geschirr — Menüplan von Wassana.",
+        "href": "/catering"
+      },
+      {
+        "title": "Kochkurs",
+        "text": "Schritt für Schritt Thai kochen mit Wassana.",
+        "href": "/kochkurs"
+      }
+    ],
+    "takeawayEyebrow": "Mo–Fr · Regierungsplatz",
+    "takeawayTitleLine1": "Frisch kochen.",
+    "takeawayTitleLine2": "Abholen. Mitnehmen.",
+    "takeawayText": "Bei Wassana kommt alles frisch aus der Küche — ideal für die Mittagspause in Landshut oder zum Mitnehmen nach Hause.",
+    "takeawayCta1": "Mitnehmen & Abholen",
+    "takeawayCta2": "Speisekarte",
+    "faqEyebrow": "Landshut · FAQ",
+    "faqTitle": "Häufige Fragen",
+    "faqLead": "Kurz und klar — für Gäste, die Wassana in Landshut suchen."
+  },
+  "speisekarte": {
+    "heroEyebrow": "Speisekarte Landshut",
+    "heroTitle": "Unsere Gerichte",
+    "heroText": "Frisch zubereitet in Landshut — Currys, Wok, Suppen und mehr. Gerne auch zum Mitnehmen.",
+    "pdfEyebrow": "Zum Mitnehmen & Teilen",
+    "pdfText": "Die komplette Speisekarte als klares PDF — beliebte Gerichte der Woche und alle Klassiker.",
+    "pdfCta": "Speisekarte als PDF",
+    "weeklyEyebrow": "Diese Woche bei Wassana",
+    "weeklyTitle": "Beliebte Gerichte der Woche",
+    "fullMenuCta": "Zur vollständigen Speisekarte",
+    "chipWeekly": "Beliebte Gerichte",
+    "chipPdf": "Als PDF"
+  },
+  "catering": {
+    "heroEyebrow": "Catering Landshut",
+    "heroTitle": "Feierlichkeiten mit Thai-Atmosphäre",
+    "heroText": "Geburtstage, Firmenfeiern oder Hochzeiten — individueller Menüplan und passendes Geschirr.",
+    "serviceEyebrow": "Unser Service",
+    "serviceTitle": "Was wir übernehmen",
+    "serviceLead": "Du sagst uns Anlass, Personenzahl und Termin — wir kümmern uns um Menü, Mengen und die praktische Umsetzung.",
+    "offerings": [
+      {
+        "title": "Individueller Menüplan",
+        "text": "Wir stellen Curries, Wok-Gerichte und Beilagen passend zu Anlass, Gästezahl und Vorlieben zusammen — auch vegetarisch möglich."
+      },
+      {
+        "title": "Frisch zubereitet",
+        "text": "Die Gerichte kommen frisch aus unserer Küche am Regierungsplatz — authentisch gewürzt, zum Buffet oder zum Portionieren."
+      },
+      {
+        "title": "Passendes Geschirr",
+        "text": "Auf Wunsch liefern wir Geschirr und Servierbedarf mit, damit bei dir vor Ort weniger Organisation nötig ist."
+      },
+      {
+        "title": "Geburtstage & private Feiern",
+        "text": "Vom kleinen Familienessen bis zur größeren Feier — wir stimmen Menge und Menü vorher klar mit dir ab."
+      },
+      {
+        "title": "Firmenfeiern & Meetings",
+        "text": "Für Teams und Kundentermine in Landshut: zuverlässig, zeitlich planbar und mit klarer Absprache zu Lieferung oder Abholung."
+      },
+      {
+        "title": "Hochzeiten & besondere Anlässe",
+        "text": "Thai-Küche als besonderer Akzent — wir planen Vorlauf, Mengen und Ablauf gemeinsam mit euch."
+      }
+    ],
+    "ctaEmail": "Per E-Mail anfragen",
+    "ctaCall": "Anrufen",
+    "formHintBefore": "Oder nutze das Formular hier — oder unser ",
+    "formHintLink": "Kontaktformular",
+    "formHintAfter": ".",
+    "formTitle": "Catering anfragen",
+    "formIntro": "Kurz Anlass, Personenzahl und Wunschtermin — wir melden uns.",
+    "formSubject": "Catering Anfrage Landshut"
+  },
+  "kochkurs": {
+    "heroEyebrow": "Kochkurs Landshut",
+    "midEyebrow": "Bei Wassana",
+    "detailsEyebrow": "Gut zu wissen",
+    "detailsTitle": "Was dich erwartet",
+    "includesTitle": "Inklusive",
+    "bringTitle": "Bitte mitbringen",
+    "meetupTitle": "Treffpunkt",
+    "flowEyebrow": "So läuft es",
+    "flowTitle": "Vom ersten Schnitt bis zum Teller",
+    "flowLead": "Ein Abend bei Wassana in Landshut — gemeinsam kochen, lernen und genießen. Zutaten und Anleitung sind dabei.",
+    "flowSteps": [
+      {
+        "label": "Ankommen",
+        "value": "Wir begrüßen euch in der Küche, stellen den Ablauf vor und gehen die Zutaten gemeinsam durch."
+      },
+      {
+        "label": "Kochen",
+        "value": "Schritt für Schritt bereitet ihr {dish} zu — mit Tipps zur Schärfe und Würzung."
+      },
+      {
+        "label": "Genießen & mitnehmen",
+        "value": "Am Ende probiert ihr euer Gericht und bekommt Tipps, wo ihr die Zutaten später selbst findet."
+      }
+    ],
+    "ctaEmail": "Per E-Mail anfragen",
+    "ctaCall": "Anrufen",
+    "formAltBefore": "Auch über das ",
+    "formAltLink": "Kontaktformular",
+    "formAltAfter": " möglich.",
+    "formTitle": "Kursplatz anfragen",
+    "formIntro": "Name, Personenanzahl und Wunschtermin reichen völlig.",
+    "formSubject": "Kochkurs Anfrage Landshut",
+    "factTermin": "Termin",
+    "factBeginn": "Beginn",
+    "factDauer": "Dauer",
+    "factPreis": "Preis",
+    "factPlaetze": "Plätze",
+    "factNiveau": "Niveau",
+    "factGericht": "Gericht"
+  },
+  "mitnehmen": {
+    "eyebrow": "Abholen in Landshut",
+    "title": "Frisch mitnehmen",
+    "lead": "Curries, Wok und Klassiker — frisch aus der Küche, ideal für Büro, Pause oder zu Hause.",
+    "block1Title": "So funktioniert Abholen",
+    "block1P1": "Ihr bestellt telefonisch unter {phone} oder kommt vorbei. Wir kochen frisch und packen euer Essen zum Mitnehmen ein.",
+    "block1P2": "Adresse: {street}, {zip} {city} — zentral am Regierungsplatz.",
+    "block2Title": "Wann abholen?",
+    "block2P2": "Besonders zur Mittagszeit lohnt sich ein Blick auf die aktuellen beliebten Gerichte der Woche — viele eignen sich gut zum Mitnehmen.",
+    "block3Title": "Was eignet sich zum Mitnehmen?",
+    "block3P1": "Curries mit Duftreis, Wok-Gerichte, Suppen und die beliebten Gerichte der Woche lassen sich gut transportieren. Schärfe könnt ihr nach Wunsch wählen.",
+    "ctaMenu": "Speisekarte ansehen",
+    "ctaAnfahrt": "Anfahrt"
+  },
+  "ueberUns": {
+    "eyebrow": "Wassana Landshut",
+    "title": "Über uns",
+    "lead": "Frisch gekocht am Regierungsplatz — mit dem Wunsch nach Glück und gutem Schicksal.",
+    "meaningTitle": "Was Wassana bedeutet",
+    "placeTitle": "Thai Imbiss am Regierungsplatz",
+    "placeP1": "{fullName} ist euer Thai Imbiss in Landshut — zentral am {street}. Bei uns gibt es Curries, Wok-Gerichte und Klassiker der thailändischen Küche, frisch zubereitet und gerne zum Mitnehmen.",
+    "placeP2Prefix": "Inhaber:",
+    "hoursTitle": "Wann wir für euch da sind",
+    "hoursP2": "Ideal für die Mittagspause, zum Abholen nach der Arbeit oder für ein authentisches Thai-Gericht zwischendurch.",
+    "ctaMenu": "Speisekarte",
+    "ctaKontakt": "Kontakt"
+  },
+  "anfahrt": {
+    "eyebrow": "Standort Landshut",
+    "title": "So findet ihr uns",
+    "lead": "{street}, {zip} {city} — im Gewerbehaus am Regierungsplatz.",
+    "addressTitle": "Adresse",
+    "phoneLabel": "Telefon:",
+    "hoursTitle": "Öffnungszeiten",
+    "travelTitle": "Mit dem Auto oder zu Fuß",
+    "travelText": "Der Regierungsplatz liegt zentral in Landshut. Zu Fuß aus der Altstadt gut erreichbar; mit dem Auto über die üblichen Zufahrten zur Innenstadt. Für die genaue Route nutzt am besten Google Maps.",
+    "ctaRoute": "Route öffnen",
+    "ctaCall": "Anrufen",
+    "ctaKontakt": "Kontakt"
+  },
+  "kontakt": {
+    "eyebrow": "Kontakt Landshut",
+    "title": "Schreib uns oder ruf an",
+    "lead": "Für Bestellungen, Catering oder den Kochkurs sind wir gerne für dich da — mitten in Landshut.",
+    "labelPhone": "Telefon",
+    "labelEmail": "E-Mail",
+    "labelAddress": "Adresse",
+    "labelHours": "Öffnungszeiten",
+    "mapsLink": "In Google Maps öffnen",
+    "formTitle": "Nachricht senden",
+    "formIntro": "Schreib uns kurz dein Anliegen — wir melden uns zurück.",
+    "formSubject": "Anfrage über die Website"
+  },
+  "faqs": [
+    {
+      "question": "Wo liegt Wassana Thai Imbiss in Landshut?",
+      "answer": "Wassana befindet sich am Regierungsplatz 542, 84028 Landshut — zentral in der Altstadt, gut erreichbar zu Fuß und mit dem Auto."
+    },
+    {
+      "question": "Wann hat Wassana in Landshut geöffnet?",
+      "answer": "Montag bis Freitag von 11:00 bis 18:00 Uhr. Samstag, Sonntag und an Feiertagen sind wir geschlossen."
+    },
+    {
+      "question": "Kann ich bei Wassana Thai-Essen mitnehmen?",
+      "answer": "Ja. Alle Gerichte gibt es frisch zubereitet zum Mitnehmen — ideal für Mittagspause, Büro oder zu Hause in Landshut."
+    },
+    {
+      "question": "Gibt es beliebte Gerichte der Woche und Schüler-Mittagessen?",
+      "answer": "Ja. Mo–Fr gibt es wechselnde beliebte Gerichte der Woche. Für Schülerinnen, Schüler und Azubis gibt es mittags ein Angebot inkl. Softgetränk — gegen Vorlage eines Ausweises. Details stehen im Angebot oben auf der Seite."
+    },
+    {
+      "question": "Bietet Wassana Catering und Kochkurse in Landshut an?",
+      "answer": "Ja. Wir bieten Catering für Events und Thai-Kochkurse in Landshut an. Anfragen am besten über das Kontaktformular oder telefonisch unter 0871/9745862."
+    }
+  ],
+  "contactForm": {
+    "defaultTitle": "Nachricht senden",
+    "defaultIntro": "Schreib uns kurz dein Anliegen — wir melden uns zurück.",
+    "nameLabel": "Name",
+    "emailLabel": "E-Mail",
+    "phoneLabel": "Telefon (optional)",
+    "messageLabel": "Nachricht",
+    "submit": "Anfrage senden",
+    "sending": "Wird gesendet …",
+    "sent": "Danke — deine Anfrage ist angekommen. Wir melden uns so bald wie möglich.",
+    "errorSend": "Senden fehlgeschlagen. Bitte später erneut versuchen.",
+    "errorNetwork": "Netzwerkfehler. Bitte später erneut versuchen oder anrufen."
+  },
+  "speisekarteUi": {
+    "weekEyebrow": "Diese Woche bei Wassana",
+    "weekTitle": "Beliebte Gerichte der Woche",
+    "toFullMenu": "Zur vollständigen Speisekarte",
+    "markingTitle": "Hinweise & Kennzeichnung",
+    "markingText": "Hochgestellte Zeichen neben den Gerichten stehen für Zusatzstoffe und Allergene. Schärfe nach Wunsch: nicht scharf – leicht scharf – mittelscharf – scharf – sehr scharf. Extra Soße 0,10 €. Getränke mit * inkl. 0,15 € Pfand."
+  }
+}

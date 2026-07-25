@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ContentBlock, ContentPage } from "@/components/ContentPage";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
+import { fillTemplate, getSitePages } from "@/lib/site-pages";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +22,12 @@ export const metadata: Metadata = {
 };
 
 export default async function UeberUnsPage() {
-  const [business, content] = await Promise.all([
+  const [business, content, pages] = await Promise.all([
     getResolvedBusiness(),
     getSiteContent(),
+    getSitePages(),
   ]);
+  const copy = pages.ueberUns;
 
   return (
     <ContentPage
@@ -32,44 +35,42 @@ export default async function UeberUnsPage() {
         { name: "Start", path: "/" },
         { name: "Über uns", path: "/ueber-uns" },
       ]}
-      eyebrow="Wassana Landshut"
-      title="Über uns"
-      lead="Frisch gekocht am Regierungsplatz — mit dem Wunsch nach Glück und gutem Schicksal."
+      eyebrow={copy.eyebrow}
+      title={copy.title}
+      lead={copy.lead}
       image="/images/ingredients.jpg"
       imageAlt="Frische Zutaten der Thai-Küche bei Wassana in Landshut"
     >
-      <ContentBlock title="Was Wassana bedeutet">
+      <ContentBlock title={copy.meaningTitle}>
         <p className="text-[color:var(--ink)]">{content.meaning}</p>
       </ContentBlock>
 
-      <ContentBlock title="Thai Imbiss am Regierungsplatz">
+      <ContentBlock title={copy.placeTitle}>
         <p>
-          {business.fullName} ist euer Thai Imbiss in Landshut — zentral am{" "}
-          {business.street}. Bei uns gibt es Curries, Wok-Gerichte und Klassiker
-          der thailändischen Küche, frisch zubereitet und gerne zum Mitnehmen.
+          {fillTemplate(copy.placeP1, {
+            fullName: business.fullName,
+            street: business.street,
+          })}
         </p>
         <p>
-          Inhaber:{" "}
+          {copy.placeP2Prefix}{" "}
           <strong className="text-[color:var(--ink)]">{business.owner}</strong>
         </p>
       </ContentBlock>
 
-      <ContentBlock title="Wann wir für euch da sind">
+      <ContentBlock title={copy.hoursTitle}>
         <p>
           {content.hours.weekdaysLong}. {content.hours.weekend}.
         </p>
-        <p>
-          Ideal für die Mittagspause, zum Abholen nach der Arbeit oder für ein
-          authentisches Thai-Gericht zwischendurch.
-        </p>
+        <p>{copy.hoursP2}</p>
       </ContentBlock>
 
       <div className="flex flex-wrap gap-3 pt-2">
         <Link href="/speisekarte" className="btn-primary">
-          Speisekarte
+          {copy.ctaMenu}
         </Link>
         <Link href="/kontakt" className="btn-gold">
-          Kontakt
+          {copy.ctaKontakt}
         </Link>
       </div>
     </ContentPage>

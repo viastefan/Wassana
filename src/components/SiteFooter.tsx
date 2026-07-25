@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
 import { useBusiness } from "@/components/BusinessContext";
+import { useSitePages } from "@/components/SitePagesContext";
 import { site } from "@/lib/site";
 
 type SiteFooterProps = {
@@ -13,18 +14,10 @@ type SiteFooterProps = {
   };
 };
 
-const exploreLinks = [
-  { href: "/speisekarte", label: "Speisekarte" },
-  { href: "/mitnehmen", label: "Mitnehmen" },
-  { href: "/catering", label: "Catering" },
-  { href: "/kochkurs", label: "Kochkurs" },
-  { href: "/ueber-uns", label: "Über uns" },
-  { href: "/anfahrt", label: "Anfahrt" },
-  { href: "/kontakt", label: "Kontakt" },
-] as const;
-
 export function SiteFooter({ hours }: SiteFooterProps) {
   const business = useBusiness();
+  const pages = useSitePages();
+  const footer = pages.chrome.footer;
   const weekdaysLong = hours?.weekdaysLong || site.hours.weekdaysLong;
   const weekend = hours?.weekend || site.hours.weekend;
 
@@ -58,7 +51,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
               {business.fullName}
             </Link>
             <br />
-            Inh.: {business.owner}
+            {footer.ownerPrefix} {business.owner}
             <br />
             {business.street}
             <br />
@@ -68,10 +61,10 @@ export function SiteFooter({ hours }: SiteFooterProps) {
 
         <div>
           <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-            Entdecken
+            {footer.exploreLabel}
           </p>
           <div className="mt-3 flex flex-col gap-2 text-[color:var(--ink)]">
-            {exploreLinks.map((link) => (
+            {footer.exploreLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -85,7 +78,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
 
         <div>
           <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-            Öffnungszeiten
+            {footer.hoursLabel}
           </p>
           <p className="mt-3 text-[color:var(--ink)]">{weekdaysLong}</p>
           <p className="mt-1 text-sm text-[color:var(--muted)]">{weekend}</p>
@@ -93,13 +86,13 @@ export function SiteFooter({ hours }: SiteFooterProps) {
             href="/anfahrt"
             className="mt-5 inline-block text-sm text-[color:var(--red)] underline-offset-4 hover:underline"
           >
-            Anfahrt & Karte
+            {footer.mapsLink}
           </Link>
         </div>
 
         <div>
           <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-            Kontakt
+            {footer.contactLabel}
           </p>
           <div className="mt-3 flex flex-col gap-2 text-[color:var(--ink)]">
             <a
@@ -120,10 +113,10 @@ export function SiteFooter({ hours }: SiteFooterProps) {
               rel="noreferrer"
               className="hover:text-[color:var(--red)]"
             >
-              Instagram {business.instagramHandle}
+              {footer.instagramPrefix} {business.instagramHandle}
             </a>
             <Link href="/kontakt" className="hover:text-[color:var(--red)]">
-              Kontaktformular
+              {footer.contactForm}
             </Link>
           </div>
         </div>
@@ -141,13 +134,13 @@ export function SiteFooter({ hours }: SiteFooterProps) {
               rel="noreferrer"
               className="hover:text-[color:var(--red)]"
             >
-              Route
+              {footer.route}
             </a>
             <Link href="/impressum" className="hover:text-[color:var(--red)]">
-              Impressum
+              {footer.impressum}
             </Link>
             <Link href="/datenschutz" className="hover:text-[color:var(--red)]">
-              Datenschutz
+              {footer.datenschutz}
             </Link>
             <CookieSettingsButton />
           </div>

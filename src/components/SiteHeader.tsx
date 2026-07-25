@@ -5,14 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { useBusiness } from "@/components/BusinessContext";
+import { useSitePages } from "@/components/SitePagesContext";
 import { site } from "@/lib/site";
-
-const navItems = [
-  { href: "/", label: "Start" },
-  { href: "/speisekarte", label: "Speisekarte" },
-  { href: "/catering", label: "Catering" },
-  { href: "/kochkurs", label: "Kochkurs" },
-] as const;
 
 export function SiteHeader({
   embedded = false,
@@ -22,23 +16,30 @@ export function SiteHeader({
   hours?: { weekdays: string };
 }) {
   const business = useBusiness();
+  const pages = useSitePages();
   const hoursLabel = hours?.weekdays?.trim() || site.hours.weekdays;
   const pathname = usePathname();
+  const navItems = [
+    { href: "/", label: pages.chrome.nav.start },
+    { href: "/speisekarte", label: pages.chrome.nav.speisekarte },
+    { href: "/catering", label: pages.chrome.nav.catering },
+    { href: "/kochkurs", label: pages.chrome.nav.kochkurs },
+  ] as const;
   const contactActions = [
     {
       href: "/kontakt",
-      label: "Kontaktanfrage",
-      hint: "Formular schreiben",
+      label: pages.chrome.contactMenu.inquiry,
+      hint: pages.chrome.contactMenu.inquiryHint,
     },
     {
       href: business.emailHref,
-      label: "E-Mail",
+      label: pages.chrome.contactMenu.email,
       hint: business.email,
       external: true,
     },
     {
       href: business.phoneHref,
-      label: "Anrufen",
+      label: pages.chrome.contactMenu.call,
       hint: business.phone,
       external: true,
     },
@@ -165,7 +166,7 @@ export function SiteHeader({
               aria-haspopup="menu"
               onClick={() => setContactOpen((v) => !v)}
             >
-              Kontakt
+              {pages.chrome.nav.kontakt}
               <span className="contact-menu-caret" aria-hidden>
                 ▾
               </span>
@@ -208,7 +209,11 @@ export function SiteHeader({
 
         <button
           type="button"
-          aria-label={open ? "Menü schließen" : "Menü öffnen"}
+          aria-label={
+            open
+              ? pages.chrome.contactMenu.closeMenu
+              : pages.chrome.contactMenu.openMenu
+          }
           aria-expanded={open}
           className={`nav-toggle md:hidden ${
             solid ? "text-[color:var(--ink)]" : ""
@@ -279,7 +284,7 @@ export function SiteHeader({
                   <span className="mobile-nav-index">
                     0{navItems.length + 1}
                   </span>
-                  <span>Kontakt</span>
+                  <span>{pages.chrome.nav.kontakt}</span>
                   <span className="mobile-nav-caret" aria-hidden>
                     {mobileContactOpen ? "▴" : "▾"}
                   </span>

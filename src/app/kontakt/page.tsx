@@ -4,6 +4,7 @@ import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { getSiteContent } from "@/lib/site-content";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { getSitePages } from "@/lib/site-pages";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +22,12 @@ export const metadata: Metadata = {
 };
 
 export default async function KontaktPage() {
-  const [content, business] = await Promise.all([
+  const [content, business, pages] = await Promise.all([
     getSiteContent(),
     getResolvedBusiness(),
+    getSitePages(),
   ]);
+  const copy = pages.kontakt;
   const mapsUrl = business.maps.place;
 
   return (
@@ -38,19 +41,18 @@ export default async function KontaktPage() {
       <section className="mx-auto grid max-w-6xl gap-14 px-5 py-[var(--section-y)] md:grid-cols-2 md:gap-20 md:px-8">
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Kontakt Landshut
+            {copy.eyebrow}
           </p>
           <h1 className="font-display mt-3 text-4xl text-[color:var(--red)] md:text-5xl">
-            Schreib uns oder ruf an
+            {copy.title}
           </h1>
           <p className="mt-5 max-w-md text-lg text-[color:var(--muted)]">
-            Für Bestellungen, Catering oder den Kochkurs sind wir gerne für dich
-            da — mitten in Landshut.
+            {copy.lead}
           </p>
 
           <div className="mt-10 space-y-6">
             <div>
-              <p className="text-sm text-[color:var(--gold)]">Telefon</p>
+              <p className="text-sm text-[color:var(--gold)]">{copy.labelPhone}</p>
               <a
                 href={business.phoneHref}
                 className="mt-1 block text-xl hover:text-[color:var(--red)]"
@@ -59,7 +61,7 @@ export default async function KontaktPage() {
               </a>
             </div>
             <div>
-              <p className="text-sm text-[color:var(--gold)]">E-Mail</p>
+              <p className="text-sm text-[color:var(--gold)]">{copy.labelEmail}</p>
               <a
                 href={business.emailHref}
                 className="mt-1 block text-xl hover:text-[color:var(--red)]"
@@ -68,7 +70,9 @@ export default async function KontaktPage() {
               </a>
             </div>
             <div>
-              <p className="text-sm text-[color:var(--gold)]">Adresse</p>
+              <p className="text-sm text-[color:var(--gold)]">
+                {copy.labelAddress}
+              </p>
               <p className="mt-1 text-xl">
                 {business.street}
                 <br />
@@ -80,11 +84,11 @@ export default async function KontaktPage() {
                 rel="noreferrer"
                 className="mt-2 inline-block text-sm text-[color:var(--red)] underline-offset-2 hover:underline"
               >
-                In Google Maps öffnen
+                {copy.mapsLink}
               </a>
             </div>
             <div>
-              <p className="text-sm text-[color:var(--gold)]">Öffnungszeiten</p>
+              <p className="text-sm text-[color:var(--gold)]">{copy.labelHours}</p>
               <p className="mt-1 text-[color:var(--ink)]">
                 {content.hours.weekdaysLong}
                 <br />
@@ -97,7 +101,12 @@ export default async function KontaktPage() {
         </Reveal>
 
         <Reveal delay={1}>
-          <ContactForm source="kontakt" />
+          <ContactForm
+            source="kontakt"
+            title={copy.formTitle}
+            intro={copy.formIntro}
+            subject={copy.formSubject}
+          />
         </Reveal>
       </section>
     </main>

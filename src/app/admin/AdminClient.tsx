@@ -12,7 +12,7 @@ import {
 import { formatCourseDate } from "@/lib/cooking-course-format";
 import type { BusinessProfile } from "@/lib/business-profile-shared";
 import type { SiteContent } from "@/lib/site-content";
-import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
+import type { WeeklyMenuData } from "@/lib/weekly-menu-store-shared";
 import type { FullMenuData } from "@/lib/menu-store-shared";
 import {
   COURSE_IMAGE_OPTIONS,

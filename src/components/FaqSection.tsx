@@ -1,7 +1,17 @@
 import { Reveal } from "@/components/Reveal";
-import type { SeoFaqItem } from "@/lib/seo-faq";
+import type { FaqItem } from "@/lib/site-pages-shared";
 
-export function FaqSection({ items }: { items: SeoFaqItem[] }) {
+export function FaqSection({
+  items,
+  eyebrow = "Landshut · FAQ",
+  title = "Häufige Fragen",
+  lead = "Kurz und klar — für Gäste, die Wassana in Landshut suchen.",
+}: {
+  items: FaqItem[];
+  eyebrow?: string;
+  title?: string;
+  lead?: string;
+}) {
   return (
     <section
       className="border-t border-[color:var(--line)] bg-[color:var(--paper)]"
@@ -10,16 +20,16 @@ export function FaqSection({ items }: { items: SeoFaqItem[] }) {
       <div className="mx-auto max-w-3xl px-5 py-[var(--section-y)] md:px-8">
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Landshut · FAQ
+            {eyebrow}
           </p>
           <h2
             id="faq-heading"
             className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl"
           >
-            Häufige Fragen
+            {title}
           </h2>
           <p className="mt-3 max-w-xl text-[color:var(--muted)] leading-relaxed">
-            Kurz und klar — für Gäste, die Wassana in Landshut suchen.
+            {lead}
           </p>
         </Reveal>
 
