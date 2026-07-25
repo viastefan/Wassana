@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
+import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import { site } from "@/lib/site";
@@ -15,11 +16,18 @@ export const metadata: Metadata = {
     description: "Catering-Service mit Thai-Atmosphäre für Ihr Event.",
     url: "/catering",
   },
+  robots: { index: true, follow: true },
 };
 
 export default function CateringPage() {
   return (
     <main>
+      <JsonLdBreadcrumbs
+        items={[
+          { name: "Start", path: "/" },
+          { name: "Catering", path: "/catering" },
+        ]}
+      />
       <MediaBand
         src="/images/soup.jpg"
         alt="Thai-Gerichte fürs Catering von Wassana"

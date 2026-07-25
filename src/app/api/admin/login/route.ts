@@ -4,8 +4,30 @@ import {
   createAdminSessionToken,
   verifyAdminPassword,
 } from "@/lib/cooking-course";
+import {
+  assertSameOrigin,
+  getClientIp,
+  rateLimit,
+  sanitizeHeader,
+} from "@/lib/security";
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const limited = rateLimit(`admin-login:${ip}`, 12, 15 * 60 * 1000);
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Zu viele Login-Versuche. Bitte kurz warten." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limited.retryAfterSec) },
+      },
+    );
+  }
+
+  if (!assertSameOrigin(request)) {
+    return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
+  }
+
   let body: { password?: string };
   try {
     body = await request.json();
@@ -13,7 +35,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
 
-  if (!verifyAdminPassword(String(body.password || ""))) {
+  const password = sanitizeHeader(String(body.password || ""), 200);
+  if (!verifyAdminPassword(password)) {
     return NextResponse.json(
       { error: "Falsches Passwort." },
       { status: 401 },

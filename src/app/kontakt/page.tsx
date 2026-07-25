@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
+import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { getSiteContent } from "@/lib/site-content";
 import { site } from "@/lib/site";
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
     description: "So erreichst du uns in Landshut am Regierungsplatz.",
     url: "/kontakt",
   },
+  robots: { index: true, follow: true },
 };
 
 export default async function KontaktPage() {
@@ -22,6 +24,12 @@ export default async function KontaktPage() {
 
   return (
     <main className="pt-24">
+      <JsonLdBreadcrumbs
+        items={[
+          { name: "Start", path: "/" },
+          { name: "Kontakt", path: "/kontakt" },
+        ]}
+      />
       <section className="mx-auto grid max-w-6xl gap-14 px-5 py-12 md:grid-cols-2 md:gap-20 md:px-8 md:py-20">
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">

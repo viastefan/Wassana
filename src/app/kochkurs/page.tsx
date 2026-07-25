@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
+import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import {
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
     description: "Gemeinsam berühmte Thai-Gerichte kochen lernen.",
     url: "/kochkurs",
   },
+  robots: { index: true, follow: true },
 };
 
 export const dynamic = "force-dynamic";
@@ -30,6 +32,12 @@ export default async function KochkursPage() {
 
   return (
     <main>
+      <JsonLdBreadcrumbs
+        items={[
+          { name: "Start", path: "/" },
+          { name: "Kochkurs", path: "/kochkurs" },
+        ]}
+      />
       <MediaBand
         src="/images/ingredients.jpg"
         alt="Frische Zutaten für den Thai Kochkurs bei Wassana"

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Special_Elite } from "next/font/google";
 import { JsonLdLocalBusiness, JsonLdWebSite } from "@/components/JsonLd";
 import { PublicChrome } from "@/components/PublicChrome";
@@ -15,6 +15,17 @@ const typewriter = Special_Elite({
 
 const siteUrl = getSiteUrl();
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3eee4" },
+    { media: "(prefers-color-scheme: dark)", color: "#7a0c24" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  colorScheme: "light",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
@@ -23,13 +34,23 @@ export const metadata: Metadata = {
   },
   description:
     "Thai Imbiss in Landshut am Regierungsplatz: authentische Curries, Wok-Gerichte & Suppen. Mo–Fr 11–18 Uhr. Catering & Kochkurs. Jetzt Speisekarte ansehen.",
+  applicationName: site.shortName,
   keywords: [...site.seo.keywords],
   authors: [{ name: site.fullName }],
   creator: site.fullName,
   publisher: site.fullName,
   category: "restaurant",
+  formatDetection: {
+    telephone: true,
+    email: true,
+    address: true,
+  },
   alternates: {
     canonical: "/",
+    languages: {
+      "de-DE": "/",
+      de: "/",
+    },
   },
   openGraph: {
     type: "website",
@@ -70,14 +91,25 @@ export const metadata: Metadata = {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Wassana",
+    statusBarStyle: "default",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },
   other: {
     "geo.region": "DE-BY",
     "geo.placename": "Landshut",
     "geo.position": `${site.geo.latitude};${site.geo.longitude}`,
     ICBM: `${site.geo.latitude}, ${site.geo.longitude}`,
+    "apple-mobile-web-app-title": "Wassana",
   },
 };
 

@@ -34,8 +34,20 @@ Nach Änderungen an Env-Variablen: Redeploy.
 - Google Maps erst nach Zustimmung
 - Footer-Link **Cookies** öffnet den Hinweis erneut
 
+## Google / SEO live schalten
+
+1. [Google Search Console](https://search.google.com/search-console) → Property für `https://www.wassana-thai-imbiss.de`
+2. Eigentum bestätigen (DNS-TXT bei IONOS oder HTML-Meta):
+   - Meta: Variable `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel setzen
+3. Sitemap einreichen: `https://www.wassana-thai-imbiss.de/sitemap.xml`
+4. Optional Bing Webmaster Tools mit derselben Sitemap
+5. Google Business Profile (Unternehmensprofil) mit Website + Adresse verknüpfen — wichtig für lokale SEA/Maps
+
+Technisch vorbereitet: Canonicals, Open Graph, JSON-LD (LocalBusiness), Sitemap, Robots, Security-Header.
+
 ## Technik
 
 - Next.js 15 (App Router), Tailwind v4
 - Repo: `viastefan/Wassana`, Branch `main` → Vercel Production
 - Lokale Entwicklung: `npm install && npm run build && npx next start -p 3003`
+- Security: Rate-Limits auf Kontakt/Login, Origin-Check, Security-Header, CSP

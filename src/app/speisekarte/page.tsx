@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { SpeisekarteFull } from "@/components/Speisekarte";
 import { StudentLunch } from "@/components/StudentLunch";
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
       "Wochenkarte und alle Gerichte — Thai Essen in Landshut am Regierungsplatz.",
     url: "/speisekarte",
   },
+  robots: { index: true, follow: true },
 };
 
 export default async function SpeisekartePage() {
@@ -26,6 +28,12 @@ export default async function SpeisekartePage() {
 
   return (
     <main>
+      <JsonLdBreadcrumbs
+        items={[
+          { name: "Start", path: "/" },
+          { name: "Speisekarte", path: "/speisekarte" },
+        ]}
+      />
       <MediaBand
         src="/images/curry.jpg"
         alt="Curry-Gerichte auf der Speisekarte bei Wassana"

@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { addInquiry } from "@/lib/inquiries";
 import { getOwnerInbox, isMailConfigured, sendMail } from "@/lib/mail";
+import {
+  assertSameOrigin,
+  getClientIp,
+  isValidEmail,
+  rateLimit,
+  sanitizeHeader,
+  sanitizeText,
+} from "@/lib/security";
 import { site } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -12,14 +20,33 @@ type ContactBody = {
   message?: string;
   subject?: string;
   source?: string;
-  website?: string; // honeypot
+  website?: string;
 };
 
-function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
+const ALLOWED_SOURCES = new Set([
+  "website",
+  "kontakt",
+  "kochkurs",
+  "catering",
+]);
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const limited = rateLimit(`contact:${ip}`, 8, 60 * 60 * 1000);
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Zu viele Anfragen. Bitte später erneut versuchen." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limited.retryAfterSec) },
+      },
+    );
+  }
+
+  if (!assertSameOrigin(request)) {
+    return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
+  }
+
   let body: ContactBody;
   try {
     body = await request.json();
@@ -27,39 +54,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
 
-  // Honeypot — bots fill this, humans never see it
+  // Honeypot
   if (body.website) {
     return NextResponse.json({ ok: true });
   }
 
-  const name = String(body.name || "").trim();
-  const email = String(body.email || "").trim().toLowerCase();
-  const phone = String(body.phone || "").trim();
-  const message = String(body.message || "").trim();
-  const subject = String(body.subject || "Anfrage über die Website").trim();
-  const source = String(body.source || "website").trim();
+  const name = sanitizeHeader(String(body.name || ""), 120);
+  const email = sanitizeHeader(String(body.email || "").toLowerCase(), 160);
+  const phone = sanitizeHeader(String(body.phone || ""), 60);
+  const message = sanitizeText(String(body.message || ""), 4000);
+  const subject = sanitizeHeader(
+    String(body.subject || "Anfrage über die Website"),
+    160,
+  );
+  const sourceRaw = sanitizeHeader(String(body.source || "website"), 40);
+  const source = ALLOWED_SOURCES.has(sourceRaw) ? sourceRaw : "website";
 
-  if (name.length < 2 || name.length > 120) {
+  if (name.length < 2) {
     return NextResponse.json(
       { error: "Bitte einen gültigen Namen angeben." },
       { status: 400 },
     );
   }
-  if (!isValidEmail(email) || email.length > 160) {
+  if (!isValidEmail(email)) {
     return NextResponse.json(
       { error: "Bitte eine gültige E-Mail angeben." },
       { status: 400 },
     );
   }
-  if (message.length < 5 || message.length > 4000) {
+  if (message.length < 5) {
     return NextResponse.json(
       { error: "Bitte eine kurze Nachricht schreiben." },
-      { status: 400 },
-    );
-  }
-  if (phone.length > 60) {
-    return NextResponse.json(
-      { error: "Telefonnummer ist zu lang." },
       { status: 400 },
     );
   }
@@ -133,22 +158,32 @@ export async function POST(request: Request) {
       "Anfrage gespeichert. E-Mail-Versand ist noch nicht konfiguriert (SMTP_*).";
   }
 
-  const inquiry = await addInquiry({
-    name,
-    email,
-    phone,
-    subject,
-    message,
-    source,
-    mailOwnerSent,
-    mailGuestSent,
-  });
+  try {
+    const inquiry = await addInquiry({
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      source,
+      mailOwnerSent,
+      mailGuestSent,
+    });
 
-  return NextResponse.json({
-    ok: true,
-    id: inquiry.id,
-    mailOwnerSent,
-    mailGuestSent,
-    warning: mailWarning,
-  });
+    return NextResponse.json({
+      ok: true,
+      id: inquiry.id,
+      mailOwnerSent,
+      mailGuestSent,
+      warning: mailWarning,
+    });
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          "Anfrage konnte nicht gespeichert werden. Bitte telefonisch oder per E-Mail kontaktieren.",
+      },
+      { status: 500 },
+    );
+  }
 }
