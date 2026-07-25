@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { MediaBand } from "@/components/Media";
-import { Reveal } from "@/components/Reveal";
 import { SpeisekarteFull } from "@/components/Speisekarte";
+import { StudentLunch } from "@/components/StudentLunch";
 
 export const metadata: Metadata = {
   title: "Speisekarte Thai Imbiss Landshut",
@@ -28,16 +28,7 @@ export default function SpeisekartePage() {
         priority
         height="short"
       />
-      <div className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
-        <div className="mx-auto max-w-3xl px-5 py-10 text-center md:px-8">
-          <Reveal>
-            <p className="text-[color:var(--muted)] leading-relaxed">
-              Wochenkarte und Klassiker — schauen Sie, was heute bei Wassana auf
-              dem Herd steht.
-            </p>
-          </Reveal>
-        </div>
-      </div>
+      <StudentLunch compact />
       <SpeisekarteFull />
     </main>
   );

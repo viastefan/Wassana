@@ -5,6 +5,7 @@ import { SplitMedia } from "@/components/Media";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
+import { StudentLunch } from "@/components/StudentLunch";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -147,6 +148,8 @@ export default function HomePage() {
           </Link>
         </Reveal>
       </SplitMedia>
+
+      <StudentLunch />
 
       <section className="bg-[color:var(--bg-soft)]" aria-label="Angebot">
         <div className="mx-auto grid max-w-6xl gap-0 px-5 md:grid-cols-3 md:px-8">

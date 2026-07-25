@@ -45,6 +45,13 @@ export const site = {
       },
     ],
   },
+  studentLunch: {
+    eyebrow: "Mittag für Schüler & Azubis",
+    title: "Gericht inkl. Getränk",
+    text: "Mo–Fr mittags: ein Gericht der Wochenkarte plus Softgetränk — für Schülerinnen, Schüler und Azubis.",
+    price: "ab 8,90 €",
+    note: "Gegen Vorlage von Schüler- oder Azubi-Ausweis.",
+  },
   social: {
     facebook:
       "https://www.facebook.com/pages/Wassanas-Thai-Imbiss-Feinkost/156423611044359",
@@ -76,6 +83,8 @@ export const site = {
       "Thai Kochkurs Landshut",
       "Mitnehmen Thai Landshut",
       "Regierungsplatz Thai Imbiss",
+      "Schüler Mittagessen Landshut",
+      "Mittagessen Schüler Landshut",
     ],
   },
 } as const;
