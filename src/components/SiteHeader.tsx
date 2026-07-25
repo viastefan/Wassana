@@ -14,7 +14,7 @@ const navItems = [
   { href: "/kontakt", label: "Kontakt" },
 ] as const;
 
-export function SiteHeader() {
+export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(!isHome);
@@ -48,7 +48,9 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-400 ${
+      className={`${
+        embedded ? "relative w-full" : "fixed inset-x-0 top-0 z-50"
+      } transition-all duration-400 ${
         onHero ? "site-header-hero bg-transparent" : ""
       } ${
         solid

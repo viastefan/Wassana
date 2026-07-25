@@ -16,6 +16,16 @@
     "price": "ab 8,90 €",
     "note": "Gegen Vorlage von Schüler- oder Azubi-Ausweis."
   },
+  "topBanner": {
+    "active": true,
+    "text": "Schüler & Azubis mittags: Gericht inkl. Getränk",
+    "highlight": "ab 8,90 €",
+    "linkHref": "/speisekarte#wochenkarte",
+    "linkLabel": "Mehr",
+    "backgroundColor": "#7a0c24",
+    "textColor": "#f7f3ea",
+    "highlightColor": "#cbb892"
+  },
   "location": {
     "eyebrow": "Hier findest du uns",
     "title": "Regierungsplatz, Landshut",

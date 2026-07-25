@@ -13,6 +13,7 @@
   --gold: #b59551;
   --gold-soft: #cbb892;
   --header-h: 4.25rem;
+  --banner-h: 0px;
   --hero-overlay: linear-gradient(
     120deg,
     rgba(30, 33, 41, 0.82) 0%,
@@ -424,8 +425,29 @@ a.btn-ghost:hover {
   height: var(--header-h);
 }
 
+.site-top-chrome {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+}
+
+/* Non-hero pages: clear fixed banner + header */
+.site-shell.has-top-banner #main-content > main.pt-24 {
+  padding-top: calc(6rem + var(--banner-h));
+}
+
+.site-shell.has-top-banner .site-header-hero {
+  /* Banner sits above; keep header readable on the hero */
+  background: linear-gradient(
+    to bottom,
+    rgba(30, 33, 41, 0.2),
+    transparent 85%
+  );
+}
+
 .menu-sticky {
-  top: var(--header-h);
+  top: calc(var(--header-h) + var(--banner-h));
   position: sticky;
   background: var(--bg);
 }
@@ -700,7 +722,7 @@ a.btn-ghost:hover {
   z-index: 1;
   width: min(72rem, 100%);
   margin-inline: auto;
-  padding: 5.5rem 1.25rem 2.75rem;
+  padding: calc(5.5rem + var(--banner-h)) 1.25rem 2.75rem;
 }
 
 @media (min-width: 768px) {

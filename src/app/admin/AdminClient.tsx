@@ -35,7 +35,14 @@ type Inquiry = {
   mailGuestSent: boolean;
 };
 
-type Tab = "home" | "course" | "inbox" | "content" | "menu";
+type Tab = "home" | "course" | "inbox" | "content" | "banner" | "menu";
+
+const BANNER_PRESETS = [
+  { label: "Rot", backgroundColor: "#7a0c24", textColor: "#f7f3ea", highlightColor: "#cbb892" },
+  { label: "Gold", backgroundColor: "#b59551", textColor: "#1e2129", highlightColor: "#7a0c24" },
+  { label: "Dunkel", backgroundColor: "#1e2129", textColor: "#f7f3ea", highlightColor: "#cbb892" },
+  { label: "Creme", backgroundColor: "#ebe4d8", textColor: "#1e2129", highlightColor: "#7a0c24" },
+] as const;
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -284,6 +291,7 @@ export function AdminClient() {
           meaning: data.meaning,
           hours: data.hours,
           studentLunch: data.studentLunch,
+          topBanner: data.topBanner,
           location: data.location,
           closing: data.closing,
           updatedAt: data.updatedAt,
@@ -369,14 +377,15 @@ export function AdminClient() {
   const nav = useMemo(
     () =>
       [
-        { id: "home" as const, label: "Übersicht" },
-        { id: "course" as const, label: "Kochkurs" },
+        { id: "home" as const, label: "Home" },
+        { id: "course" as const, label: "Kurs" },
         {
           id: "inbox" as const,
-          label: unread > 0 ? `Anfragen (${unread})` : "Anfragen",
+          label: unread > 0 ? `Post (${unread})` : "Post",
         },
+        { id: "banner" as const, label: "Banner" },
         { id: "content" as const, label: "Texte" },
-        { id: "menu" as const, label: "Wochenkarte" },
+        { id: "menu" as const, label: "Menü" },
       ] as const,
     [unread],
   );
@@ -505,6 +514,19 @@ export function AdminClient() {
                     </p>
                     <p className="mt-1 text-sm text-[color:var(--muted)]">
                       {inquiries.length} insgesamt
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-card text-left"
+                    onClick={() => setTab("banner")}
+                  >
+                    <p className="text-sm text-[color:var(--gold)]">Top-Banner</p>
+                    <p className="mt-2 font-display text-xl text-[color:var(--red)]">
+                      {content?.topBanner?.active ? "Sichtbar" : "Aus"}
+                    </p>
+                    <p className="mt-1 text-sm text-[color:var(--muted)]">
+                      Mittagsangebot über dem Menü
                     </p>
                   </button>
                   <button
@@ -677,6 +699,234 @@ export function AdminClient() {
                   </ul>
                 )}
               </section>
+            ) : null}
+
+            {tab === "banner" && content ? (
+              <form onSubmit={saveContent} className="space-y-5">
+                <h1 className="font-display text-3xl text-[color:var(--red)]">
+                  Top-Banner
+                </h1>
+                <p className="text-sm text-[color:var(--muted)]">
+                  Erscheint über dem Menü auf allen öffentlichen Seiten — z. B.
+                  für das Schüler-Mittagsangebot.
+                </p>
+
+                <label className="flex items-center gap-3 border border-[color:var(--line)] px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={content.topBanner.active}
+                    onChange={(e) =>
+                      setContent({
+                        ...content,
+                        topBanner: {
+                          ...content.topBanner,
+                          active: e.target.checked,
+                        },
+                      })
+                    }
+                  />
+                  <span>Banner anzeigen</span>
+                </label>
+
+                <label className="block">
+                  <span className="text-sm text-[color:var(--muted)]">Text</span>
+                  <input
+                    value={content.topBanner.text}
+                    onChange={(e) =>
+                      setContent({
+                        ...content,
+                        topBanner: {
+                          ...content.topBanner,
+                          text: e.target.value,
+                        },
+                      })
+                    }
+                    className={fieldClass}
+                    placeholder="Schüler & Azubis mittags: Gericht inkl. Getränk"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-sm text-[color:var(--muted)]">
+                    Hervorhebung (z. B. Preis)
+                  </span>
+                  <input
+                    value={content.topBanner.highlight}
+                    onChange={(e) =>
+                      setContent({
+                        ...content,
+                        topBanner: {
+                          ...content.topBanner,
+                          highlight: e.target.value,
+                        },
+                      })
+                    }
+                    className={fieldClass}
+                    placeholder="ab 8,90 €"
+                  />
+                </label>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="text-sm text-[color:var(--muted)]">
+                      Link-Ziel
+                    </span>
+                    <input
+                      value={content.topBanner.linkHref}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          topBanner: {
+                            ...content.topBanner,
+                            linkHref: e.target.value,
+                          },
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="/speisekarte#wochenkarte"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm text-[color:var(--muted)]">
+                      Link-Text
+                    </span>
+                    <input
+                      value={content.topBanner.linkLabel}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          topBanner: {
+                            ...content.topBanner,
+                            linkLabel: e.target.value,
+                          },
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="Mehr"
+                    />
+                  </label>
+                </div>
+
+                <fieldset className="space-y-3 border border-[color:var(--line)] px-4 py-4">
+                  <legend className="px-1 text-sm text-[color:var(--gold)]">
+                    Farben
+                  </legend>
+                  <div className="flex flex-wrap gap-2">
+                    {BANNER_PRESETS.map((preset) => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        className="rounded-md border border-[color:var(--line)] px-3 py-2 text-sm"
+                        style={{
+                          backgroundColor: preset.backgroundColor,
+                          color: preset.textColor,
+                        }}
+                        onClick={() =>
+                          setContent({
+                            ...content,
+                            topBanner: {
+                              ...content.topBanner,
+                              backgroundColor: preset.backgroundColor,
+                              textColor: preset.textColor,
+                              highlightColor: preset.highlightColor,
+                            },
+                          })
+                        }
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                  {(
+                    [
+                      ["backgroundColor", "Hintergrund"],
+                      ["textColor", "Textfarbe"],
+                      ["highlightColor", "Hervorhebung"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label
+                      key={key}
+                      className="flex items-center justify-between gap-3"
+                    >
+                      <span className="text-sm text-[color:var(--muted)]">
+                        {label}
+                      </span>
+                      <input
+                        type="color"
+                        value={content.topBanner[key]}
+                        onChange={(e) =>
+                          setContent({
+                            ...content,
+                            topBanner: {
+                              ...content.topBanner,
+                              [key]: e.target.value,
+                            },
+                          })
+                        }
+                        className="h-10 w-16 cursor-pointer border border-[color:var(--line)] bg-transparent"
+                      />
+                    </label>
+                  ))}
+                </fieldset>
+
+                <div
+                  className="overflow-hidden border border-[color:var(--line)]"
+                  aria-hidden
+                >
+                  <p className="px-3 py-2 text-xs tracking-[0.16em] text-[color:var(--gold)] uppercase">
+                    Vorschau
+                  </p>
+                  <div
+                    className="px-4 py-2 text-center text-sm"
+                    style={{
+                      backgroundColor: content.topBanner.backgroundColor,
+                      color: content.topBanner.textColor,
+                    }}
+                  >
+                    {content.topBanner.text || "Banner-Text"}{" "}
+                    {content.topBanner.highlight ? (
+                      <span
+                        className="font-semibold"
+                        style={{ color: content.topBanner.highlightColor }}
+                      >
+                        {content.topBanner.highlight}
+                      </span>
+                    ) : null}
+                    {content.topBanner.linkLabel ? (
+                      <span
+                        className="ml-2 underline"
+                        style={{ color: content.topBanner.highlightColor }}
+                      >
+                        {content.topBanner.linkLabel}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-gold"
+                  onClick={() =>
+                    setContent({
+                      ...content,
+                      topBanner: {
+                        ...content.topBanner,
+                        active: true,
+                        text: `${content.studentLunch.eyebrow}: ${content.studentLunch.title}`,
+                        highlight: content.studentLunch.price,
+                        linkHref: "/speisekarte#wochenkarte",
+                        linkLabel: "Mehr",
+                      },
+                    })
+                  }
+                >
+                  Aus Schüler-Mittag übernehmen
+                </button>
+
+                <button type="submit" className="btn-primary" disabled={saving}>
+                  {saving ? "Speichern …" : "Banner speichern"}
+                </button>
+              </form>
             ) : null}
 
             {tab === "content" && content ? (
@@ -1039,7 +1289,7 @@ export function AdminClient() {
 
       {authed ? (
         <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-30 border-t border-[color:var(--line)] bg-[color:var(--paper)]/95 backdrop-blur-md">
-          <div className="mx-auto grid max-w-3xl grid-cols-5 gap-1 px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          <div className="mx-auto grid max-w-3xl grid-cols-6 gap-1 px-1 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
             {nav.map((item) => (
               <button
                 key={item.id}
@@ -1049,10 +1299,12 @@ export function AdminClient() {
                   setError("");
                   setStatus("");
                   if (item.id === "inbox") void loadInbox();
-                  if (item.id === "content") void loadContent();
+                  if (item.id === "content" || item.id === "banner") {
+                    void loadContent();
+                  }
                   if (item.id === "menu") void loadWeekly();
                 }}
-                className={`rounded-lg px-1 py-2 text-center text-[0.68rem] leading-tight transition ${
+                className={`rounded-lg px-0.5 py-2 text-center text-[0.62rem] leading-tight transition ${
                   tab === item.id
                     ? "bg-[color:var(--red)] text-white"
                     : "text-[color:var(--muted)]"

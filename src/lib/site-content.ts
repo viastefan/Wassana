@@ -7,6 +7,17 @@ import {
 } from "@/lib/persist-json";
 import { sanitizeText } from "@/lib/security";
 
+export type TopBanner = {
+  active: boolean;
+  text: string;
+  highlight: string;
+  linkHref: string;
+  linkLabel: string;
+  backgroundColor: string;
+  textColor: string;
+  highlightColor: string;
+};
+
 export type SiteContent = {
   hero: {
     eyebrow: string;
@@ -25,6 +36,7 @@ export type SiteContent = {
     price: string;
     note: string;
   };
+  topBanner: TopBanner;
   location: {
     eyebrow: string;
     title: string;
@@ -40,6 +52,34 @@ export type SiteContent = {
 const DATA_PATH = path.join(process.cwd(), "data", "site-content.json");
 const TMP_PATH = path.join("/tmp", "wassana-site-content.json");
 
+const HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+function sanitizeColor(value: string, fallback: string): string {
+  const next = String(value || "").trim();
+  return HEX.test(next) ? next.toLowerCase() : fallback;
+}
+
+function sanitizeHref(value: string, fallback: string): string {
+  const next = sanitizeText(String(value || ""), 200);
+  if (!next) return fallback;
+  if (next.startsWith("/") || next.startsWith("#")) return next;
+  if (/^https?:\/\//i.test(next)) return next;
+  return fallback;
+}
+
+export function defaultTopBanner(): TopBanner {
+  return {
+    active: true,
+    text: "Schüler & Azubis mittags: Gericht inkl. Getränk",
+    highlight: site.studentLunch.price,
+    linkHref: "/speisekarte#wochenkarte",
+    linkLabel: "Mehr",
+    backgroundColor: "#7a0c24",
+    textColor: "#f7f3ea",
+    highlightColor: "#cbb892",
+  };
+}
+
 export function defaultSiteContent(): SiteContent {
   return {
     hero: {
@@ -53,6 +93,7 @@ export function defaultSiteContent(): SiteContent {
       weekend: site.hours.weekend,
     },
     studentLunch: { ...site.studentLunch },
+    topBanner: defaultTopBanner(),
     location: {
       eyebrow: "Hier findest du uns",
       title: "Regierungsplatz, Landshut",
@@ -69,6 +110,7 @@ export function defaultSiteContent(): SiteContent {
 function normalize(raw: Partial<SiteContent> | null): SiteContent {
   const base = defaultSiteContent();
   if (!raw) return base;
+  const bannerRaw = raw.topBanner || ({} as Partial<TopBanner>);
   return {
     hero: {
       eyebrow: sanitizeText(
@@ -112,6 +154,40 @@ function normalize(raw: Partial<SiteContent> | null): SiteContent {
       note: sanitizeText(
         String(raw.studentLunch?.note ?? base.studentLunch.note),
         240,
+      ),
+    },
+    topBanner: {
+      active:
+        typeof bannerRaw.active === "boolean"
+          ? bannerRaw.active
+          : base.topBanner.active,
+      text: sanitizeText(
+        String(bannerRaw.text ?? base.topBanner.text),
+        180,
+      ),
+      highlight: sanitizeText(
+        String(bannerRaw.highlight ?? base.topBanner.highlight),
+        60,
+      ),
+      linkHref: sanitizeHref(
+        String(bannerRaw.linkHref ?? base.topBanner.linkHref),
+        base.topBanner.linkHref,
+      ),
+      linkLabel: sanitizeText(
+        String(bannerRaw.linkLabel ?? base.topBanner.linkLabel),
+        40,
+      ),
+      backgroundColor: sanitizeColor(
+        String(bannerRaw.backgroundColor ?? base.topBanner.backgroundColor),
+        base.topBanner.backgroundColor,
+      ),
+      textColor: sanitizeColor(
+        String(bannerRaw.textColor ?? base.topBanner.textColor),
+        base.topBanner.textColor,
+      ),
+      highlightColor: sanitizeColor(
+        String(bannerRaw.highlightColor ?? base.topBanner.highlightColor),
+        base.topBanner.highlightColor,
       ),
     },
     location: {

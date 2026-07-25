@@ -11,6 +11,7 @@ Admin: https://www.wassana-thai-imbiss.de/admin
 3. Unten navigieren:
    - **Kochkurs** — Termin & Texte
    - **Anfragen** — Nachrichten aus Formularen
+   - **Banner** — Top-Leiste (Mittagsangebot): Text, Link, Farben
    - **Texte** — Startseite, Zeiten, Schüler-Mittag, Standort
    - **Wochenkarte** — Mo–Fr Gerichte & Preise
 

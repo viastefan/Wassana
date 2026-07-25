@@ -8,7 +8,12 @@ import {
   assertSameOrigin,
   readJsonLimited,
 } from "@/lib/security";
-import { getSiteContent, saveSiteContent, type SiteContent } from "@/lib/site-content";
+import {
+  defaultTopBanner,
+  getSiteContent,
+  saveSiteContent,
+  type SiteContent,
+} from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +54,8 @@ export async function PUT(request: Request) {
     );
   }
 
+  const fallbackBanner = defaultTopBanner();
+
   try {
     const { content, persist } = await saveSiteContent({
       hero: {
@@ -67,6 +74,18 @@ export async function PUT(request: Request) {
         text: body.studentLunch?.text || "",
         price: body.studentLunch?.price || "",
         note: body.studentLunch?.note || "",
+      },
+      topBanner: {
+        active: Boolean(body.topBanner?.active),
+        text: body.topBanner?.text || "",
+        highlight: body.topBanner?.highlight || "",
+        linkHref: body.topBanner?.linkHref || fallbackBanner.linkHref,
+        linkLabel: body.topBanner?.linkLabel || "",
+        backgroundColor:
+          body.topBanner?.backgroundColor || fallbackBanner.backgroundColor,
+        textColor: body.topBanner?.textColor || fallbackBanner.textColor,
+        highlightColor:
+          body.topBanner?.highlightColor || fallbackBanner.highlightColor,
       },
       location: {
         eyebrow: body.location?.eyebrow || "",
