@@ -138,7 +138,6 @@ export function SiteHeader() {
       >
         <div className="mobile-nav-clip">
           <nav className="mobile-nav-panel" aria-label="Mobilnavigation">
-            <div className="gold-rule mb-8" />
             <ul className="mobile-nav-list">
               {navItems.map((link, index) => (
                 <li
