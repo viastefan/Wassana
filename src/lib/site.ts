@@ -90,7 +90,7 @@ export function getSiteUrl() {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
   }
-  return "https://wassana-43cb.vercel.app";
+  return "https://www.wassana-thai-imbiss.de";
 }
 
 export const navLinks = [

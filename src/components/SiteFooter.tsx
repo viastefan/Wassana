@@ -80,7 +80,7 @@ export function SiteFooter() {
           <p>
             © {new Date().getFullYear()} {site.fullName}
           </p>
-          <div className="flex gap-5">
+          <div className="flex flex-wrap gap-5">
             <a
               href={site.maps.directions}
               target="_blank"
@@ -91,6 +91,9 @@ export function SiteFooter() {
             </a>
             <Link href="/impressum" className="hover:text-[color:var(--red)]">
               Impressum
+            </Link>
+            <Link href="/datenschutz" className="hover:text-[color:var(--red)]">
+              Datenschutz
             </Link>
           </div>
         </div>

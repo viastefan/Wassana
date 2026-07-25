@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/kochkurs", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/kontakt", priority: 0.85, changeFrequency: "monthly" as const },
     { path: "/impressum", priority: 0.3, changeFrequency: "yearly" as const },
+    { path: "/datenschutz", priority: 0.3, changeFrequency: "yearly" as const },
   ];
 
   return routes.map((route) => ({
