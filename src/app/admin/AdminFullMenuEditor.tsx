@@ -1,6 +1,12 @@
 "use client";
 
-import type { Dispatch, FormEvent, SetStateAction } from "react";
+import {
+  useMemo,
+  useState,
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+} from "react";
 import {
   blankMenuItem,
   blankMenuSection,
@@ -31,6 +37,8 @@ export function AdminFullMenuEditor({
   publishPhase: PublishPhase;
   onSave: (event: FormEvent) => void;
 }) {
+  const [search, setSearch] = useState("");
+
   function updateSections(
     updater: (sections: FullMenuSection[]) => FullMenuSection[],
   ) {
@@ -108,12 +116,43 @@ export function AdminFullMenuEditor({
     });
   }
 
+  const filteredSections = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) {
+      return menu.sections.map((section, index) => ({ section, index }));
+    }
+    return menu.sections
+      .map((section, index) => ({ section, index }))
+      .filter(({ section }) => {
+        const hay = [
+          section.title,
+          section.note,
+          section.id,
+          ...section.items.flatMap((item) => [
+            item.nr,
+            item.name,
+            item.description,
+            item.price,
+            item.allergens,
+          ]),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return hay.includes(q);
+      });
+  }, [menu.sections, search]);
+
+  const dishCount = menu.sections.reduce(
+    (sum, section) => sum + section.items.length,
+    0,
+  );
+
   return (
     <form onSubmit={onSave} className="admin-form space-y-3">
       <ScreenHeader
         kicker="Speisekarte"
         title="Alle Gerichte"
-        description="Kategorien und Gerichte ändern — Veröffentlichen macht die komplette Speisekarte sofort live."
+        description="Hier pflegst du die feste Speisekarte. Kein Code, kein Deploy — nur eingeben und veröffentlichen."
         action={
           <button
             type="button"
@@ -126,16 +165,69 @@ export function AdminFullMenuEditor({
         }
       />
 
-      <Section title="Hinweis">
+      <div className="admin-live-hero">
+        <p className="admin-kicker">So geht’s live</p>
+        <ol className="admin-live-steps">
+          <li>
+            <span className="admin-live-step-num">1</span>
+            <span>
+              Fehlende Gerichte mit <strong>+ Gericht</strong> oder{" "}
+              <strong>+ Kategorie</strong> eintragen
+            </span>
+          </li>
+          <li>
+            <span className="admin-live-step-num">2</span>
+            <span>
+              Unten <strong>Speisekarte veröffentlichen</strong> tippen
+            </span>
+          </li>
+          <li>
+            <span className="admin-live-step-num">3</span>
+            <span>
+              Grün = sofort auf der Website unter /speisekarte (Live-Speicher /
+              Vercel Blob)
+            </span>
+          </li>
+        </ol>
+        <p className="mt-3 text-sm text-[color:var(--admin-muted)]">
+          GitHub ist nur optionales Backup. Für die öffentliche Seite reicht
+          Veröffentlichen. Aktuell: {menu.sections.length} Kategorien ·{" "}
+          {dishCount} Gerichte
+          {menu.updatedAt
+            ? ` · Stand ${new Intl.DateTimeFormat("de-DE", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }).format(new Date(menu.updatedAt))}`
+            : ""}
+          .
+        </p>
+      </div>
+
+      <Section title="Suchen & Hinweis">
+        <Field label="Gericht oder Kategorie suchen">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="admin-menu-search"
+            placeholder="z. B. Pad Thai, Vorspeisen, Nr. 12 …"
+            autoComplete="off"
+          />
+        </Field>
         <p className="text-sm text-[color:var(--admin-muted)]">
-          Das ist die feste Speisekarte unter den beliebten Gerichten der Woche.
-          Mit ↑ ↓ sortierst
-          du Kategorien und Gerichte. Nach dem Veröffentlichen ist alles live
-          auf /speisekarte.
+          Steht unter den beliebten Gerichten der Woche. Mit ↑ ↓ sortieren.
+          Kennzeichnung z. B. A,B,C.
         </p>
       </Section>
 
-      {menu.sections.map((section, sectionIndex) => (
+      {filteredSections.length === 0 ? (
+        <p className="admin-empty">
+          Nichts gefunden für „{search.trim()}“. Suche leeren oder neues Gericht
+          anlegen.
+        </p>
+      ) : null}
+
+      {filteredSections.map(({ section, index: sectionIndex }) => (
         <Section
           key={`${section.id}-${sectionIndex}`}
           title={section.title || `Kategorie ${sectionIndex + 1}`}
@@ -164,81 +256,70 @@ export function AdminFullMenuEditor({
                 className="admin-sort-btn"
                 aria-label="Kategorie entfernen"
                 disabled={menu.sections.length <= 1}
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      `Kategorie „${section.title || "ohne Titel"}“ wirklich löschen?`,
-                    )
-                  ) {
-                    removeSection(sectionIndex);
-                  }
-                }}
-                title="Kategorie löschen"
+                onClick={() => removeSection(sectionIndex)}
+                title="Entfernen"
               >
                 ×
               </button>
             </>
           }
         >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Titel">
-              <input
-                value={section.title}
-                onChange={(e) => {
-                  const title = e.target.value;
-                  updateSections((sections) => {
-                    const copy = [...sections];
-                    const current = copy[sectionIndex];
-                    copy[sectionIndex] = {
-                      ...current,
-                      title,
-                      id:
-                        current.id === slugifyMenuId(current.title) ||
-                        !current.id
-                          ? slugifyMenuId(title)
-                          : current.id,
-                    };
-                    return copy;
-                  });
-                }}
-                className={fieldClass}
-                placeholder="Hauptgerichte"
-              />
-            </Field>
-            <Field
-              label="Anker-ID"
-              hint="für Sprungmarken auf der Seite, z. B. hauptgerichte"
-            >
-              <input
-                value={section.id}
-                onChange={(e) => {
-                  const id = slugifyMenuId(e.target.value);
-                  updateSections((sections) => {
-                    const copy = [...sections];
-                    copy[sectionIndex] = { ...copy[sectionIndex], id };
-                    return copy;
-                  });
-                }}
-                className={fieldClass}
-                placeholder="hauptgerichte"
-              />
-            </Field>
-          </div>
-          <Field label="Hinweis unter dem Titel (optional)">
+          <Field label="Titel der Kategorie">
             <input
-              value={section.note}
+              value={section.title}
               onChange={(e) => {
+                const title = e.target.value;
                 updateSections((sections) => {
                   const copy = [...sections];
+                  const current = copy[sectionIndex];
+                  if (!current) return sections;
                   copy[sectionIndex] = {
-                    ...copy[sectionIndex],
-                    note: e.target.value,
+                    ...current,
+                    title,
+                    id: current.id || slugifyMenuId(title),
                   };
                   return copy;
                 });
               }}
               className={fieldClass}
-              placeholder="Optionaler Hinweis"
+              placeholder="z. B. Hauptgerichte"
+            />
+          </Field>
+          <Field
+            label="Technische ID"
+            hint="für Sprungmarken auf der Seite, z. B. hauptgerichte"
+          >
+            <input
+              value={section.id}
+              onChange={(e) => {
+                const id = e.target.value;
+                updateSections((sections) => {
+                  const copy = [...sections];
+                  const current = copy[sectionIndex];
+                  if (!current) return sections;
+                  copy[sectionIndex] = { ...current, id };
+                  return copy;
+                });
+              }}
+              className={fieldClass}
+              placeholder="hauptgerichte"
+            />
+          </Field>
+          <Field label="Hinweis unter dem Titel (optional)">
+            <input
+              value={section.note || ""}
+              onChange={(e) => {
+                const note = e.target.value;
+                updateSections((sections) => {
+                  const copy = [...sections];
+                  const current = copy[sectionIndex];
+                  if (!current) return sections;
+                  copy[sectionIndex] = { ...current, note };
+                  return copy;
+                });
+              }}
+              className={fieldClass}
+              placeholder="optional"
             />
           </Field>
 
@@ -259,14 +340,14 @@ export function AdminFullMenuEditor({
 
             {section.items.map((item, itemIndex) => (
               <div
-                key={`${section.id}-item-${itemIndex}`}
+                key={`${section.id}-${itemIndex}`}
                 className="admin-full-item"
               >
                 <div className="admin-day-row-sort">
                   <button
                     type="button"
                     className="admin-sort-btn"
-                    aria-label="Gericht nach oben"
+                    aria-label={`Gericht ${itemIndex + 1} nach oben`}
                     disabled={itemIndex === 0}
                     onClick={() => moveItem(sectionIndex, itemIndex, -1)}
                   >
@@ -275,7 +356,7 @@ export function AdminFullMenuEditor({
                   <button
                     type="button"
                     className="admin-sort-btn"
-                    aria-label="Gericht nach unten"
+                    aria-label={`Gericht ${itemIndex + 1} nach unten`}
                     disabled={itemIndex === section.items.length - 1}
                     onClick={() => moveItem(sectionIndex, itemIndex, 1)}
                   >
@@ -284,7 +365,7 @@ export function AdminFullMenuEditor({
                   <button
                     type="button"
                     className="admin-sort-btn"
-                    aria-label="Gericht entfernen"
+                    aria-label={`Gericht ${itemIndex + 1} entfernen`}
                     disabled={section.items.length <= 1}
                     onClick={() => removeItem(sectionIndex, itemIndex)}
                     title="Entfernen"
@@ -297,14 +378,14 @@ export function AdminFullMenuEditor({
                     aria-label="Nr"
                     value={item.nr}
                     onChange={(e) => {
+                      const nr = e.target.value;
                       updateSections((sections) => {
                         const copy = [...sections];
-                        const items = [...copy[sectionIndex].items];
-                        items[itemIndex] = { ...item, nr: e.target.value };
-                        copy[sectionIndex] = {
-                          ...copy[sectionIndex],
-                          items,
-                        };
+                        const current = copy[sectionIndex];
+                        if (!current) return sections;
+                        const items = [...current.items];
+                        items[itemIndex] = { ...items[itemIndex], nr };
+                        copy[sectionIndex] = { ...current, items };
                         return copy;
                       });
                     }}
@@ -315,14 +396,14 @@ export function AdminFullMenuEditor({
                     aria-label="Name"
                     value={item.name}
                     onChange={(e) => {
+                      const name = e.target.value;
                       updateSections((sections) => {
                         const copy = [...sections];
-                        const items = [...copy[sectionIndex].items];
-                        items[itemIndex] = { ...item, name: e.target.value };
-                        copy[sectionIndex] = {
-                          ...copy[sectionIndex],
-                          items,
-                        };
+                        const current = copy[sectionIndex];
+                        if (!current) return sections;
+                        const items = [...current.items];
+                        items[itemIndex] = { ...items[itemIndex], name };
+                        copy[sectionIndex] = { ...current, items };
                         return copy;
                       });
                     }}
@@ -333,14 +414,14 @@ export function AdminFullMenuEditor({
                     aria-label="Preis"
                     value={item.price}
                     onChange={(e) => {
+                      const price = e.target.value;
                       updateSections((sections) => {
                         const copy = [...sections];
-                        const items = [...copy[sectionIndex].items];
-                        items[itemIndex] = { ...item, price: e.target.value };
-                        copy[sectionIndex] = {
-                          ...copy[sectionIndex],
-                          items,
-                        };
+                        const current = copy[sectionIndex];
+                        if (!current) return sections;
+                        const items = [...current.items];
+                        items[itemIndex] = { ...items[itemIndex], price };
+                        copy[sectionIndex] = { ...current, items };
                         return copy;
                       });
                     }}
@@ -349,19 +430,16 @@ export function AdminFullMenuEditor({
                   />
                   <input
                     aria-label="Kennzeichnung"
-                    value={item.allergens}
+                    value={item.allergens || ""}
                     onChange={(e) => {
+                      const allergens = e.target.value;
                       updateSections((sections) => {
                         const copy = [...sections];
-                        const items = [...copy[sectionIndex].items];
-                        items[itemIndex] = {
-                          ...item,
-                          allergens: e.target.value,
-                        };
-                        copy[sectionIndex] = {
-                          ...copy[sectionIndex],
-                          items,
-                        };
+                        const current = copy[sectionIndex];
+                        if (!current) return sections;
+                        const items = [...current.items];
+                        items[itemIndex] = { ...items[itemIndex], allergens };
+                        copy[sectionIndex] = { ...current, items };
                         return copy;
                       });
                     }}
@@ -370,19 +448,19 @@ export function AdminFullMenuEditor({
                   />
                   <input
                     aria-label="Beschreibung"
-                    value={item.description}
+                    value={item.description || ""}
                     onChange={(e) => {
+                      const description = e.target.value;
                       updateSections((sections) => {
                         const copy = [...sections];
-                        const items = [...copy[sectionIndex].items];
+                        const current = copy[sectionIndex];
+                        if (!current) return sections;
+                        const items = [...current.items];
                         items[itemIndex] = {
-                          ...item,
-                          description: e.target.value,
+                          ...items[itemIndex],
+                          description,
                         };
-                        copy[sectionIndex] = {
-                          ...copy[sectionIndex],
-                          items,
-                        };
+                        copy[sectionIndex] = { ...current, items };
                         return copy;
                       });
                     }}
@@ -400,6 +478,7 @@ export function AdminFullMenuEditor({
         saving={saving}
         phase={publishPhase}
         label="Speisekarte veröffentlichen"
+        hint="Speichert in den Live-Speicher (Vercel Blob) — ohne Code und ohne Deploy. Grün = auf der Website."
       />
     </form>
   );
