@@ -179,7 +179,7 @@ export default async function HomePage() {
       <StudentLunch offer={content.studentLunch} />
 
       <section className="offer-strip border-y border-[color:var(--line)]" aria-label="Angebot">
-        <div className="mx-auto grid max-w-6xl gap-0 px-5 md:grid-cols-3 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-3 px-5 py-8 md:grid-cols-3 md:gap-4 md:px-8 md:py-10">
           {[
             {
               title: "Speisekarte",
@@ -198,21 +198,15 @@ export default async function HomePage() {
             },
           ].map((item, index) => (
             <Reveal key={item.title} delay={(index % 3) as 0 | 1 | 2}>
-              <Link
-                href={item.href}
-                className="offer-link group block border-t border-[color:var(--line)] py-11 transition duration-300 md:border-t-0 md:border-l md:px-8 md:py-14 md:first:border-l-0 md:first:pl-0"
-              >
-                <p className="text-sm tracking-[0.14em] text-[color:var(--gold)]">
-                  0{index + 1}
-                </p>
-                <h2 className="font-display mt-3 text-2xl text-[color:var(--red)] transition group-hover:translate-x-0.5 md:text-[1.7rem]">
-                  {item.title}
-                </h2>
-                <p className="mt-2 max-w-xs text-[color:var(--muted)] leading-relaxed">
-                  {item.text}
-                </p>
-                <span className="mt-5 inline-block text-sm tracking-wide text-[color:var(--red)] opacity-0 transition group-hover:opacity-100">
-                  Entdecken →
+              <Link href={item.href} className="offer-link group">
+                <p className="offer-link-index">0{index + 1}</p>
+                <h2 className="offer-link-title">{item.title}</h2>
+                <p className="offer-link-text">{item.text}</p>
+                <span className="offer-link-cta">
+                  Entdecken
+                  <span aria-hidden className="offer-link-arrow">
+                    →
+                  </span>
                 </span>
               </Link>
             </Reveal>

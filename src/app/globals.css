@@ -1441,37 +1441,113 @@ a.btn-ghost:hover {
 
 .offer-link {
   position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 1.55rem 1.4rem 1.65rem;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.28s var(--ease-out),
+    box-shadow 0.28s var(--ease-out);
 }
 
-.offer-link::after {
+.offer-link::before {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--gold) 55%, transparent),
-    transparent
-  );
-  opacity: 0;
-  transition: opacity 0.25s var(--ease-out);
+  inset: 0;
+  z-index: -1;
+  border: 1px solid transparent;
+  background: transparent;
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--gold) 40%, transparent);
+  transition:
+    background 0.28s var(--ease-out),
+    border-color 0.28s var(--ease-out),
+    box-shadow 0.28s var(--ease-out);
 }
 
-@media (min-width: 768px) {
-  .offer-link::after {
-    display: none;
-  }
+.offer-link:hover,
+.offer-link:focus-visible {
+  transform: translateY(-3px);
 }
 
-.offer-link:hover {
-  background: color-mix(in srgb, var(--paper) 62%, transparent);
+.offer-link:hover::before,
+.offer-link:focus-visible::before {
+  background: color-mix(in srgb, var(--paper) 90%, white);
+  border-color: color-mix(in srgb, var(--gold) 40%, var(--line));
+  box-shadow:
+    inset 3px 0 0 var(--gold),
+    0 14px 28px rgba(30, 33, 41, 0.06);
 }
 
-.offer-link:hover::after {
+.offer-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--red) 45%, transparent);
+  outline-offset: 3px;
+}
+
+.offer-link-index {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+}
+
+.offer-link-title {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: clamp(1.45rem, 3.2vw, 1.7rem);
+  line-height: 1.15;
+  color: var(--red);
+  transition: transform 0.28s var(--ease-out);
+}
+
+.offer-link:hover .offer-link-title,
+.offer-link:focus-visible .offer-link-title {
+  transform: translateX(2px);
+}
+
+.offer-link-text {
+  margin: 0.55rem 0 0;
+  max-width: 18rem;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.offer-link-cta {
+  margin-top: auto;
+  padding-top: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  color: var(--red);
+  opacity: 0.72;
+  transition: opacity 0.28s var(--ease-out), gap 0.28s var(--ease-out);
+}
+
+.offer-link:hover .offer-link-cta,
+.offer-link:focus-visible .offer-link-cta {
   opacity: 1;
+  gap: 0.55rem;
+}
+
+.offer-link-arrow {
+  display: inline-block;
+  transition: transform 0.28s var(--ease-out);
+}
+
+.offer-link:hover .offer-link-arrow,
+.offer-link:focus-visible .offer-link-arrow {
+  transform: translateX(3px);
+}
+
+@media (hover: none) {
+  .offer-link:hover {
+    transform: none;
+  }
 }
 
 .feature-band {
