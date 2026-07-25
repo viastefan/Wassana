@@ -29,14 +29,19 @@ export function ScreenHeader({
 
 export function Section({
   title,
+  action,
   children,
 }: {
   title: string;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="admin-section">
-      <h2 className="admin-section-title">{title}</h2>
+      <div className="admin-section-heading">
+        <h2 className="admin-section-title">{title}</h2>
+        {action ? <div className="admin-section-action">{action}</div> : null}
+      </div>
       <div className="admin-section-body">{children}</div>
     </section>
   );

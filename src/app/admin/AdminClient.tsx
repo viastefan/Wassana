@@ -900,6 +900,68 @@ export function AdminClient() {
     });
   }
 
+  function moveWeeklyDay(dayIndex: number, dir: -1 | 1) {
+    setWeekly((prev) => {
+      if (!prev) return prev;
+      const nextIndex = dayIndex + dir;
+      if (nextIndex < 0 || nextIndex >= prev.days.length) return prev;
+      const days = [...prev.days];
+      const temp = days[dayIndex];
+      days[dayIndex] = days[nextIndex];
+      days[nextIndex] = temp;
+      return { ...prev, days };
+    });
+  }
+
+  function moveWeeklyItem(
+    dayIndex: number,
+    itemIndex: number,
+    dir: -1 | 1,
+  ) {
+    setWeekly((prev) => {
+      if (!prev) return prev;
+      const day = prev.days[dayIndex];
+      if (!day) return prev;
+      const nextIndex = itemIndex + dir;
+      if (nextIndex < 0 || nextIndex >= day.items.length) return prev;
+      const items = [...day.items];
+      const temp = items[itemIndex];
+      items[itemIndex] = items[nextIndex];
+      items[nextIndex] = temp;
+      const days = [...prev.days];
+      days[dayIndex] = { ...day, items };
+      return { ...prev, days };
+    });
+  }
+
+  function addWeeklyItem(dayIndex: number) {
+    setWeekly((prev) => {
+      if (!prev) return prev;
+      const day = prev.days[dayIndex];
+      if (!day || day.items.length >= 40) return prev;
+      const days = [...prev.days];
+      days[dayIndex] = {
+        ...day,
+        items: [...day.items, { nr: "–", name: "", price: "", allergens: "" }],
+      };
+      return { ...prev, days };
+    });
+  }
+
+  function removeWeeklyItem(dayIndex: number, itemIndex: number) {
+    setWeekly((prev) => {
+      if (!prev) return prev;
+      const day = prev.days[dayIndex];
+      if (!day || day.items.length <= 1) return prev;
+      const days = [...prev.days];
+      days[dayIndex] = {
+        ...day,
+        items: day.items.filter((_, index) => index !== itemIndex),
+      };
+      return { ...prev, days };
+    });
+  }
+
   async function setBannerLive(active: boolean) {
     if (!content || liveBusy) return;
     const previous = content;
@@ -2820,7 +2882,7 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Speisekarte"
                   title="Wochenkarte"
-                  description="Pro Tag Gericht, Preise und Kennzeichnung (z. B. A,B,C) — wie auf der Speisekarte."
+                  description="Tage und Varianten per Pfeile sortieren — Reihenfolge erscheint so auf der Speisekarte."
                 />
                 <Section title="Allgemein">
                   <Field label="Hinweis unter dem Titel">
@@ -2835,12 +2897,50 @@ export function AdminClient() {
                   <p className="text-sm text-[color:var(--admin-muted)]">
                     Kennzeichnung z. B. <strong>A,B,C</strong> oder{" "}
                     <strong>E</strong> — siehe Legende auf der Speisekarte
-                    (Weizen, Soja, Austernsauce, Fischsauce …).
+                    (Weizen, Soja, Austernsauce, Fischsauce …). Mit ↑ ↓
+                    verschiebst du Tage und Preisvarianten.
                   </p>
                 </Section>
 
                 {weekly.days.map((day, dayIndex) => (
-                  <Section key={`${day.day}-${dayIndex}`} title={day.day}>
+                  <Section
+                    key={`${day.day}-${dayIndex}`}
+                    title={day.day}
+                    action={
+                      <>
+                        <button
+                          type="button"
+                          className="admin-sort-btn"
+                          aria-label={`${day.day} nach oben`}
+                          disabled={dayIndex === 0}
+                          onClick={() => moveWeeklyDay(dayIndex, -1)}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-sort-btn"
+                          aria-label={`${day.day} nach unten`}
+                          disabled={dayIndex === weekly.days.length - 1}
+                          onClick={() => moveWeeklyDay(dayIndex, 1)}
+                        >
+                          ↓
+                        </button>
+                      </>
+                    }
+                  >
+                    <Field label="Wochentag / Überschrift">
+                      <input
+                        value={day.day}
+                        onChange={(e) => {
+                          const days = [...weekly.days];
+                          days[dayIndex] = { ...day, day: e.target.value };
+                          setWeekly({ ...weekly, days });
+                        }}
+                        className={fieldClass}
+                        placeholder="Montag"
+                      />
+                    </Field>
                     <Field label="Gericht">
                       <input
                         value={day.dish}
@@ -2885,75 +2985,127 @@ export function AdminClient() {
                       />
                     </Field>
                     <div className="admin-day-grid">
+                      <div className="admin-day-grid-head">
+                        <p className="admin-day-grid-label">
+                          Preisvarianten · Position {dayIndex + 1}/
+                          {weekly.days.length}
+                        </p>
+                        <button
+                          type="button"
+                          className="btn-gold !px-3 !py-1.5 text-sm"
+                          disabled={day.items.length >= 40}
+                          onClick={() => addWeeklyItem(dayIndex)}
+                        >
+                          + Variante
+                        </button>
+                      </div>
                       {day.items.map((item, itemIndex) => (
                         <div
                           key={`${item.nr}-${itemIndex}`}
                           className="admin-day-row admin-day-row--allergen"
                         >
-                          <input
-                            aria-label={`${day.day} Nr`}
-                            value={item.nr}
-                            onChange={(e) => {
-                              const days = [...weekly.days];
-                              const items = [...day.items];
-                              items[itemIndex] = {
-                                ...item,
-                                nr: e.target.value,
-                              };
-                              days[dayIndex] = { ...day, items };
-                              setWeekly({ ...weekly, days });
-                            }}
-                            className={fieldClass}
-                            placeholder="Nr"
-                          />
-                          <input
-                            aria-label={`${day.day} Name`}
-                            value={item.name}
-                            onChange={(e) => {
-                              const days = [...weekly.days];
-                              const items = [...day.items];
-                              items[itemIndex] = {
-                                ...item,
-                                name: e.target.value,
-                              };
-                              days[dayIndex] = { ...day, items };
-                              setWeekly({ ...weekly, days });
-                            }}
-                            className={fieldClass}
-                            placeholder="Name"
-                          />
-                          <input
-                            aria-label={`${day.day} Preis`}
-                            value={item.price}
-                            onChange={(e) => {
-                              const days = [...weekly.days];
-                              const items = [...day.items];
-                              items[itemIndex] = {
-                                ...item,
-                                price: e.target.value,
-                              };
-                              days[dayIndex] = { ...day, items };
-                              setWeekly({ ...weekly, days });
-                            }}
-                            className={fieldClass}
-                            placeholder="Preis"
-                          />
-                          <input
-                            aria-label={`${day.day} Kennzeichnung`}
-                            value={item.allergens || ""}
-                            onChange={(e) => {
-                              const days = [...weekly.days];
-                              const items = [...day.items];
-                              items[itemIndex] = {
-                                ...item,
-                                allergens: e.target.value,
-                              };
-                              days[dayIndex] = { ...day, items };
-                              setWeekly({ ...weekly, days });
-                            }}
-                            className={fieldClass}
-                            placeholder="A,B"
-                          />
+                          <div className="admin-day-row-sort">
+                            <button
+                              type="button"
+                              className="admin-sort-btn"
+                              aria-label={`Variante ${itemIndex + 1} nach oben`}
+                              disabled={itemIndex === 0}
+                              onClick={() =>
+                                moveWeeklyItem(dayIndex, itemIndex, -1)
+                              }
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              className="admin-sort-btn"
+                              aria-label={`Variante ${itemIndex + 1} nach unten`}
+                              disabled={itemIndex === day.items.length - 1}
+                              onClick={() =>
+                                moveWeeklyItem(dayIndex, itemIndex, 1)
+                              }
+                            >
+                              ↓
+                            </button>
+                            <button
+                              type="button"
+                              className="admin-sort-btn"
+                              aria-label={`Variante ${itemIndex + 1} entfernen`}
+                              disabled={day.items.length <= 1}
+                              onClick={() =>
+                                removeWeeklyItem(dayIndex, itemIndex)
+                              }
+                              title="Entfernen"
+                            >
+                              ×
+                            </button>
+                          </div>
+                          <div className="admin-day-row-fields">
+                            <input
+                              aria-label={`${day.day} Nr`}
+                              value={item.nr}
+                              onChange={(e) => {
+                                const days = [...weekly.days];
+                                const items = [...day.items];
+                                items[itemIndex] = {
+                                  ...item,
+                                  nr: e.target.value,
+                                };
+                                days[dayIndex] = { ...day, items };
+                                setWeekly({ ...weekly, days });
+                              }}
+                              className={fieldClass}
+                              placeholder="Nr"
+                            />
+                            <input
+                              aria-label={`${day.day} Name`}
+                              value={item.name}
+                              onChange={(e) => {
+                                const days = [...weekly.days];
+                                const items = [...day.items];
+                                items[itemIndex] = {
+                                  ...item,
+                                  name: e.target.value,
+                                };
+                                days[dayIndex] = { ...day, items };
+                                setWeekly({ ...weekly, days });
+                              }}
+                              className={fieldClass}
+                              placeholder="Name"
+                            />
+                            <input
+                              aria-label={`${day.day} Preis`}
+                              value={item.price}
+                              onChange={(e) => {
+                                const days = [...weekly.days];
+                                const items = [...day.items];
+                                items[itemIndex] = {
+                                  ...item,
+                                  price: e.target.value,
+                                };
+                                days[dayIndex] = { ...day, items };
+                                setWeekly({ ...weekly, days });
+                              }}
+                              className={fieldClass}
+                              placeholder="Preis"
+                            />
+                            <input
+                              aria-label={`${day.day} Kennzeichnung`}
+                              value={item.allergens || ""}
+                              onChange={(e) => {
+                                const days = [...weekly.days];
+                                const items = [...day.items];
+                                items[itemIndex] = {
+                                  ...item,
+                                  allergens: e.target.value,
+                                };
+                                days[dayIndex] = { ...day, items };
+                                setWeekly({ ...weekly, days });
+                              }}
+                              className={fieldClass}
+                              placeholder="A,B"
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>
