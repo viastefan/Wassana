@@ -58,7 +58,9 @@ export default async function HomePage() {
             Thai Imbiss und Feinkost · Landshut
           </p>
           <h1 className="hero-copy-delay font-display mt-3 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
-            Wassana
+            Willkommen
+            <br />
+            bei Wassana
           </h1>
           <p className="hero-copy-delay mt-5 max-w-md text-[clamp(1.05rem,2.1vw,1.3rem)] font-light leading-relaxed text-white/90">
             {content.hero.lede}
