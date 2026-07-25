@@ -99,14 +99,14 @@ export default function HomePage() {
           <Reveal>
             <Image
               src="/images/logo.png"
-              alt=""
-              width={72}
-              height={72}
-              className="mx-auto h-16 w-16 rounded-full object-contain"
+              alt="Wassana Thai Imbiss Logo"
+              width={160}
+              height={160}
+              className="mx-auto h-28 w-28 rounded-full object-contain md:h-32 md:w-32"
             />
             <h2
               id="wassana-heading"
-              className="font-display mt-6 text-[clamp(2.4rem,7vw,3.75rem)] leading-none text-[color:var(--red)]"
+              className="font-display mt-7 text-[clamp(2.4rem,7vw,3.75rem)] leading-none text-[color:var(--red)] md:mt-8"
             >
               Wassana
             </h2>

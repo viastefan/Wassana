@@ -11,9 +11,9 @@ export function SiteFooter() {
             <Image
               src="/images/logo.png"
               alt=""
-              width={48}
-              height={48}
-              className="h-12 w-12 rounded-full object-contain bg-[color:var(--paper)] p-0.5"
+              width={64}
+              height={64}
+              className="h-14 w-14 rounded-full object-contain bg-[color:var(--paper)] p-0.5"
             />
             <span className="font-display text-3xl text-[color:var(--red)]">
               {site.name}

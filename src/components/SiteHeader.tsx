@@ -65,13 +65,13 @@ export function SiteHeader() {
           <Image
             src="/images/logo.png"
             alt="Wassana Thai Imbiss"
-            width={48}
-            height={48}
-            className="h-11 w-11 rounded-full object-contain bg-[color:var(--paper)] p-0.5"
+            width={56}
+            height={56}
+            className="h-12 w-12 rounded-full object-contain bg-[color:var(--paper)] p-0.5 md:h-[3.25rem] md:w-[3.25rem]"
             priority
           />
           <span
-            className={`nav-brand font-display text-xl tracking-tight ${
+            className={`nav-brand font-display text-xl tracking-tight md:text-[1.35rem] ${
               solid ? "text-[color:var(--red)]" : ""
             }`}
           >
