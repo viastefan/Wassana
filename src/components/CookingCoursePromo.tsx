@@ -56,6 +56,11 @@ export function CookingCoursePromo() {
 
   const dateLabel = formatCourseDate(course.date);
 
+  function dismiss() {
+    sessionStorage.setItem("wassana-course-dismissed", "1");
+    setHidden(true);
+  }
+
   return (
     <aside
       className="course-promo"
@@ -65,22 +70,32 @@ export function CookingCoursePromo() {
         type="button"
         className="course-promo-close"
         aria-label="Hinweis schließen"
-        onClick={() => {
-          sessionStorage.setItem("wassana-course-dismissed", "1");
-          setHidden(true);
-        }}
+        onClick={dismiss}
       >
         ×
       </button>
-      <p className="course-promo-eyebrow">Nächster Termin</p>
-      <p className="course-promo-title">{course.title || "Kochkurs"}</p>
-      <p className="course-promo-date">am {dateLabel}</p>
-      {course.teaser ? (
-        <p className="course-promo-teaser">{course.teaser}</p>
-      ) : null}
-      <Link href="/kochkurs" className="btn-primary course-promo-btn">
-        Mehr erfahren
+
+      {/* Compact bar — especially for mobile */}
+      <Link href="/kochkurs" className="course-promo-compact">
+        <span className="course-promo-compact-label">Kochkurs</span>
+        <span className="course-promo-compact-date">{dateLabel}</span>
+        <span className="course-promo-compact-go" aria-hidden>
+          →
+        </span>
       </Link>
+
+      {/* Fuller card — desktop */}
+      <div className="course-promo-card">
+        <p className="course-promo-eyebrow">Nächster Termin</p>
+        <p className="course-promo-title">{course.title || "Kochkurs"}</p>
+        <p className="course-promo-date">am {dateLabel}</p>
+        {course.teaser ? (
+          <p className="course-promo-teaser">{course.teaser}</p>
+        ) : null}
+        <Link href="/kochkurs" className="btn-primary course-promo-btn">
+          Mehr erfahren
+        </Link>
+      </div>
     </aside>
   );
 }
