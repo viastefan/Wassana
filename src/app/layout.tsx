@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Special_Elite } from "next/font/google";
-import { JsonLdLocalBusiness, JsonLdWebSite } from "@/components/JsonLd";
+import {
+  JsonLdLocalBusiness,
+  JsonLdSiteNavigation,
+  JsonLdWebSite,
+} from "@/components/JsonLd";
 import { PublicChrome } from "@/components/PublicChrome";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
@@ -91,6 +95,8 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
       { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon.ico", sizes: "any" },
@@ -98,6 +104,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
     shortcut: ["/favicon.ico"],
   },
+  manifest: "/site.webmanifest",
   appleWebApp: {
     capable: true,
     title: "Wassana",
@@ -113,6 +120,7 @@ export const metadata: Metadata = {
     ICBM: `${site.geo.latitude}, ${site.geo.longitude}`,
     "apple-mobile-web-app-title": "Wassana",
     "msapplication-TileColor": "#7a0c24",
+    "msapplication-TileImage": "/icon-192.png",
   },
 };
 
@@ -131,6 +139,7 @@ export default async function RootLayout({
       <body className={`${typewriter.variable} antialiased`}>
         <JsonLdLocalBusiness business={business} />
         <JsonLdWebSite business={business} />
+        <JsonLdSiteNavigation />
         <PublicChrome content={content} business={business}>
           {children}
         </PublicChrome>

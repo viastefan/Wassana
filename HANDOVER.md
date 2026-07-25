@@ -47,15 +47,41 @@ Nach Änderungen an Env-Variablen: Redeploy.
 
 ## Google / SEO / SEA live schalten
 
-1. [Google Search Console](https://search.google.com/search-console) → Property für `https://www.wassana-thai-imbiss.de`
-2. Eigentum bestätigen (DNS-TXT bei IONOS oder HTML-Meta):
-   - Meta: Variable `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel setzen
-3. Sitemap einreichen: `https://www.wassana-thai-imbiss.de/sitemap.xml`
-4. URL-Prüfung → wichtige Seiten „Indexierung beantragen“ (Start, Speisekarte, Kontakt)
-5. Optional Bing Webmaster Tools mit derselben Sitemap
-6. **Google Business Profile** mit Website + Adresse verknüpfen — entscheidend für lokale SEA/Maps
+### A) Search Console (Vertrauen + Index)
 
-Technisch vorbereitet: Canonicals (nur www), Open Graph, JSON-LD (LocalBusiness), Sitemap, Robots, Security-Header, HSTS, Safari-Icons.
+1. [Google Search Console](https://search.google.com/search-console) → Property **`https://www.wassana-thai-imbiss.de`** (www!)
+2. Eigentum bestätigen (DNS-TXT bei IONOS **oder** HTML-Meta):
+   - Meta: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel setzen → Redeploy
+3. **Sitemap** einreichen: `https://www.wassana-thai-imbiss.de/sitemap.xml`
+4. **URL-Prüfung** → Indexierung beantragen für:
+   - `/` · `/speisekarte` · `/kontakt` · `/catering` · `/kochkurs`
+5. **Verbesserungen → Rich-Suchergebnisse** prüfen (FAQ, Event, Breadcrumbs)
+6. Optional: Bing Webmaster Tools mit derselben Sitemap
+
+### B) Rich Links / Sitelinks unter dem Google-Eintrag
+
+Google entscheidet selbst, wann Sitelinks (wie bei Safari) erscheinen. Technisch vorbereitet:
+
+- Klare Navigation + `SiteNavigationElement` JSON-LD
+- Eigene Seitentitel/Canonicals für Speisekarte, Catering, Kochkurs, Kontakt
+- Breadcrumbs, Sitemap, www-only Canonicals
+- FAQ auf der Startseite (sichtbar + `FAQPage`)
+- Speisekarte als `Menu` Schema
+- Kochkurs als `Event` Schema (wenn Termin aktiv)
+- Restaurant / LocalBusiness mit Adresse, Geo, Öffnungszeiten, `sameAs` (Facebook/Instagram)
+
+**Zusätzlich wichtig:** Google Business Profile (unten) — ohne GBP kaum lokales Pack in Landshut.
+
+### C) Google Business Profile (Maps + lokale Suche Landshut)
+
+1. Profil beanspruchen/bestätigen für **Regierungsplatz 542, 84028 Landshut**
+2. Website exakt: `https://www.wassana-thai-imbiss.de`
+3. Kategorie: **Thai-Restaurant** / Imbiss · Öffnungszeiten Mo–Fr 11–18
+4. Telefon `0871/9745862` · Fotos (Logo, Gerichte, Laden) hochladen
+5. Produkte/Menü + Beiträge regelmäßig pflegen
+6. Kunden um echte Bewertungen bitten (keine Fake-Sterne auf der Website)
+
+Technisch vorbereitet: Canonicals (nur www), Open Graph, JSON-LD (Restaurant/Menu/FAQ/Event/Sitelinks), Sitemap, Robots, Security-Header, HSTS, Safari-/PWA-Icons (`site.webmanifest`).
 
 ## Sicherheit (kurz)
 

@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
-import { JsonLdBreadcrumbs } from "@/components/JsonLd";
+import {
+  JsonLdBreadcrumbs,
+  JsonLdCookingCourseEvent,
+} from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
+import { getResolvedBusiness } from "@/lib/business-profile";
 import {
   formatCourseDate,
   getCookingCourse,
@@ -29,7 +33,10 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function KochkursPage() {
-  const course = await getCookingCourse();
+  const [course, business] = await Promise.all([
+    getCookingCourse(),
+    getResolvedBusiness(),
+  ]);
   const showNext = isPublicPromoVisible(course);
   const image = sanitizeCourseImage(course.image);
   const pageTitle =
@@ -46,6 +53,9 @@ export default async function KochkursPage() {
           { name: "Kochkurs", path: "/kochkurs" },
         ]}
       />
+      {showNext ? (
+        <JsonLdCookingCourseEvent course={course} business={business} />
+      ) : null}
       <MediaBand
         src={image}
         alt={`${course.title || "Thai Kochkurs"} bei Wassana in Landshut`}

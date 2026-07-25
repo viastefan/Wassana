@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { FaqSection } from "@/components/FaqSection";
+import {
+  JsonLdBreadcrumbs,
+  JsonLdFaqPage,
+} from "@/components/JsonLd";
 import { SplitMedia } from "@/components/Media";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
 import { StudentLunch } from "@/components/StudentLunch";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { landshutFaqs } from "@/lib/seo-faq";
 import { getSiteContent } from "@/lib/site-content";
 import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 
@@ -40,6 +46,8 @@ export default async function HomePage() {
 
   return (
     <main>
+      <JsonLdBreadcrumbs items={[{ name: "Start", path: "/" }]} />
+      <JsonLdFaqPage items={landshutFaqs} />
       <section className="relative min-h-[100svh] overflow-hidden">
         <Image
           src="/images/hero.jpg"
@@ -216,6 +224,8 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-5 py-[var(--section-y)] md:px-8">
         <Wochenkarte compact menu={weekly} />
       </section>
+
+      <FaqSection items={landshutFaqs} />
 
       <section className="closing-band border-t border-[color:var(--line)]">
         <div className="mx-auto max-w-2xl px-5 py-[var(--section-y)] text-center md:px-8">

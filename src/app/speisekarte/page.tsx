@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { JsonLdBreadcrumbs } from "@/components/JsonLd";
+import { JsonLdBreadcrumbs, JsonLdMenu } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { SpeisekarteFull } from "@/components/Speisekarte";
 import { StudentLunch } from "@/components/StudentLunch";
+import { getResolvedBusiness } from "@/lib/business-profile";
+import { menuSections } from "@/lib/menu";
 import { getSiteContent } from "@/lib/site-content";
 import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 
@@ -23,9 +25,10 @@ export const metadata: Metadata = {
 };
 
 export default async function SpeisekartePage() {
-  const [content, weekly] = await Promise.all([
+  const [content, weekly, business] = await Promise.all([
     getSiteContent(),
     getWeeklyMenuData(),
+    getResolvedBusiness(),
   ]);
 
   return (
@@ -36,9 +39,10 @@ export default async function SpeisekartePage() {
           { name: "Speisekarte", path: "/speisekarte" },
         ]}
       />
+      <JsonLdMenu sections={menuSections} businessName={business.shortName} />
       <MediaBand
         src="/images/curry.jpg"
-        alt="Curry-Gerichte auf der Speisekarte bei Wassana"
+        alt="Curry-Gerichte auf der Speisekarte bei Wassana Thai Imbiss in Landshut"
         eyebrow="Speisekarte Landshut"
         title="Unsere Gerichte"
         text="Frisch zubereitet in Landshut — Currys, Wok, Suppen und mehr. Gerne auch zum Mitnehmen."
