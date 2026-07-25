@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
+import { MediaBand, SplitMedia } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import {
   formatCourseDate,
@@ -28,29 +29,62 @@ export default async function KochkursPage() {
   const showNext = isPublicPromoVisible(course);
 
   return (
-    <main className="pt-24">
-      <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
-        <Reveal>
-          <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Kochkurs Landshut
-          </p>
-          <h1 className="font-display mt-3 max-w-3xl text-4xl leading-tight text-[color:var(--red)] md:text-5xl">
-            Die thailändische Küche näher kennenlernen
-          </h1>
-          {showNext ? (
-            <p className="mt-5 inline-block border border-[color:var(--gold-soft)] bg-[color:var(--paper)] px-4 py-2 text-[color:var(--ink)]">
+    <main>
+      <MediaBand
+        src="/images/ingredients.jpg"
+        alt="Frische Zutaten für den Thai Kochkurs bei Wassana"
+        eyebrow="Kochkurs Landshut"
+        title="Thai-Küche näher kennenlernen"
+        text="Schritt für Schritt Pad Thai oder Tom Yam — inkl. Tipps, wo Sie die Zutaten finden."
+        priority
+        height="short"
+      />
+
+      {showNext ? (
+        <div className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
+          <div className="mx-auto max-w-6xl px-5 py-6 md:px-8">
+            <p className="text-[color:var(--ink)]">
               Nächster Termin:{" "}
               <strong className="text-[color:var(--red)]">
                 {formatCourseDate(course.date)}
               </strong>
               {course.teaser ? ` — ${course.teaser}` : null}
             </p>
-          ) : null}
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[color:var(--muted)]">
-            An bestimmten Tagen zeigen wir Ihnen Schritt für Schritt, wie
-            berühmte Gerichte wie Pad Thai oder Tom Yam zubereitet werden — und
-            wo Sie die Zutaten dafür herbekommen können.
+          </div>
+        </div>
+      ) : null}
+
+      <SplitMedia
+        src="/images/soup.jpg"
+        alt="Gericht aus dem Kochkurs"
+        imageRight
+      >
+        <Reveal>
+          <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+            So läuft es
           </p>
+          <div className="mt-6 space-y-6">
+            {[
+              { label: "Ablauf", value: "Schritt für Schritt gemeinsam kochen" },
+              { label: "Gerichte", value: "z. B. Pad Thai oder Tom Yam" },
+              {
+                label: "Extra",
+                value: "Tipps, wo Sie die Zutaten finden",
+              },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="border-t border-[color:var(--line)] pt-5"
+              >
+                <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
+                  {item.label}
+                </p>
+                <p className="mt-2 text-lg text-[color:var(--ink)]">
+                  {item.value}
+                </p>
+              </div>
+            ))}
+          </div>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={site.cookingEmailHref} className="btn-primary">
               Per E-Mail anfragen
@@ -60,35 +94,19 @@ export default async function KochkursPage() {
             </a>
           </div>
         </Reveal>
-      </section>
+      </SplitMedia>
 
-      <section className="border-t border-[color:var(--line)] bg-[color:var(--bg-soft)]">
+      <section className="bg-[color:var(--bg-soft)]">
         <div className="mx-auto grid max-w-6xl gap-12 px-5 py-14 md:grid-cols-2 md:px-8 md:py-20">
           <Reveal>
-            <div className="space-y-6">
-              {[
-                { label: "Ablauf", value: "Schritt für Schritt gemeinsam kochen" },
-                { label: "Gerichte", value: "z. B. Pad Thai oder Tom Yam" },
-                {
-                  label: "Extra",
-                  value: "Tipps, wo Sie die Zutaten finden",
-                },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="border-t border-[color:var(--line)] pt-5"
-                >
-                  <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                    {item.label}
-                  </p>
-                  <p className="mt-2 text-lg text-[color:var(--ink)]">
-                    {item.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-8 text-sm text-[color:var(--muted)]">
-              Auch über das{" "}
+            <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+              Platz sichern
+            </p>
+            <h2 className="font-display mt-3 text-3xl text-[color:var(--ink)]">
+              Kursplatz anfragen
+            </h2>
+            <p className="mt-4 leading-relaxed text-[color:var(--muted)]">
+              Name, Personenanzahl und Wunschtermin reichen. Auch über das{" "}
               <Link
                 href="/kontakt"
                 className="text-[color:var(--red)] underline-offset-2 hover:underline"

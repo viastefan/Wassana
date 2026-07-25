@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
 
@@ -6,7 +7,18 @@ export function SiteFooter() {
     <footer className="border-t border-[color:var(--line)] bg-[color:var(--bg-soft)]">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.3fr_1fr_1fr] md:px-8">
         <div>
-          <p className="font-display text-3xl text-[color:var(--red)]">{site.name}</p>
+          <Link href="/" className="inline-flex items-center gap-3">
+            <Image
+              src="/images/logo.png"
+              alt=""
+              width={48}
+              height={48}
+              className="h-12 w-12 rounded-full object-contain bg-[color:var(--paper)] p-0.5"
+            />
+            <span className="font-display text-3xl text-[color:var(--red)]">
+              {site.name}
+            </span>
+          </Link>
           <p className="mt-2 text-sm tracking-[0.18em] text-[color:var(--gold)] uppercase">
             {site.tagline}
           </p>
@@ -63,8 +75,23 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-[color:var(--line)]">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 text-sm text-[color:var(--muted)] md:flex-row md:items-center md:justify-between md:px-8">
+      <div className="relative min-h-[120px] overflow-hidden border-t border-[color:var(--line)]">
+        <Image
+          src="/images/soup.jpg"
+          alt=""
+          fill
+          className="object-cover opacity-30"
+          sizes="100vw"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, var(--bg-soft) 0%, color-mix(in srgb, var(--bg-soft) 70%, transparent) 45%, color-mix(in srgb, var(--bg-soft) 85%, transparent) 100%)",
+          }}
+          aria-hidden
+        />
+        <div className="relative mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 text-sm text-[color:var(--muted)] md:flex-row md:items-center md:justify-between md:px-8">
           <p>
             © {new Date().getFullYear()} {site.fullName}
           </p>

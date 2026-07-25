@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { SpeisekarteFull } from "@/components/Speisekarte";
+import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
+import { SpeisekarteFull } from "@/components/Speisekarte";
 
 export const metadata: Metadata = {
   title: "Speisekarte Thai Imbiss Landshut",
@@ -17,20 +18,25 @@ export const metadata: Metadata = {
 
 export default function SpeisekartePage() {
   return (
-    <main className="pt-24">
-      <div className="mx-auto max-w-6xl px-5 pt-10 md:px-8 md:pt-14">
-        <Reveal>
-          <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Speisekarte Landshut
-          </p>
-          <h1 className="font-display mt-3 text-4xl text-[color:var(--red)] md:text-5xl">
-            Unsere Gerichte
-          </h1>
-          <p className="mt-4 max-w-xl text-lg text-[color:var(--muted)]">
-            Frisch zubereitet in Landshut — Currys, Wok, Suppen und mehr. Gerne
-            auch zum Mitnehmen.
-          </p>
-        </Reveal>
+    <main>
+      <MediaBand
+        src="/images/curry.jpg"
+        alt="Curry-Gerichte auf der Speisekarte bei Wassana"
+        eyebrow="Speisekarte Landshut"
+        title="Unsere Gerichte"
+        text="Frisch zubereitet in Landshut — Currys, Wok, Suppen und mehr. Gerne auch zum Mitnehmen."
+        priority
+        height="short"
+      />
+      <div className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
+        <div className="mx-auto max-w-3xl px-5 py-10 text-center md:px-8">
+          <Reveal>
+            <p className="text-[color:var(--muted)] leading-relaxed">
+              Wochenkarte und Klassiker — schauen Sie, was heute bei Wassana auf
+              dem Herd steht.
+            </p>
+          </Reveal>
+        </div>
       </div>
       <SpeisekarteFull />
     </main>
