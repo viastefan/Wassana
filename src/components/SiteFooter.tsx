@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
+import { CookingCourseFooterDock } from "@/components/CookingCoursePromo";
 import { useBusiness } from "@/components/BusinessContext";
 import { site } from "@/lib/site";
 
@@ -152,6 +153,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
             <CookieSettingsButton />
           </div>
         </div>
+        <CookingCourseFooterDock />
       </div>
     </footer>
   );

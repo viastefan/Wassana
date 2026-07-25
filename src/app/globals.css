@@ -3326,6 +3326,67 @@ a.btn-ghost:hover {
   }
 }
 
+/* Footer dock: under ©, never fixed */
+.course-promo-dock {
+  width: 100%;
+}
+
+.course-promo-sentinel {
+  height: 1px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.course-promo-footer {
+  position: relative;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 1.15rem;
+}
+
+@media (min-width: 768px) {
+  .course-promo-footer {
+    padding: 0 2rem 1.35rem;
+  }
+}
+
+.course-promo-footer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 2.2rem 0.7rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, var(--line));
+  background: color-mix(in srgb, var(--paper) 94%, white);
+  color: var(--ink) !important;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(30, 33, 41, 0.06);
+}
+
+.course-promo-footer-close {
+  position: absolute;
+  top: 50%;
+  right: calc(1.25rem + 0.35rem);
+  transform: translateY(-50%);
+  z-index: 2;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+}
+
+@media (min-width: 768px) {
+  .course-promo-footer-close {
+    right: calc(2rem + 0.35rem);
+  }
+}
+
+.course-promo-footer-close:hover {
+  color: var(--ink);
+}
+
 /* Bildbänder & Split-Layouts */
 .media-band {
   position: relative;
