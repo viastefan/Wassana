@@ -5,6 +5,8 @@ import { Reveal } from "@/components/Reveal";
 import { getSiteContent } from "@/lib/site-content";
 import { site } from "@/lib/site";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Kontakt Thai Imbiss Landshut",
   description:

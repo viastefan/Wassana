@@ -9,6 +9,7 @@ import {
   markAllInquiriesRead,
   markInquiryRead,
 } from "@/lib/inquiries";
+import { assertSameOrigin, readJsonLimited } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -36,12 +37,19 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
 
-  let body: { id?: string; read?: boolean; all?: boolean };
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Ungültige Daten." }, { status: 400 });
+  if (!assertSameOrigin(request)) {
+    return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
   }
+
+  const parsed = await readJsonLimited<{
+    id?: string;
+    read?: boolean;
+    all?: boolean;
+  }>(request, 4_000);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+  const body = parsed.data;
 
   if (body.all) {
     const inquiries = await markAllInquiriesRead();

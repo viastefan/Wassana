@@ -4,6 +4,7 @@ import {
   COOKING_COURSE_COOKIE,
   verifyAdminSessionToken,
 } from "@/lib/cooking-course";
+import { assertSameOrigin, readJsonLimited } from "@/lib/security";
 import {
   getWeeklyMenuData,
   saveWeeklyMenuData,
@@ -32,12 +33,18 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
 
-  let body: Partial<WeeklyMenuData>;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Ungültige Daten." }, { status: 400 });
+  if (!assertSameOrigin(request)) {
+    return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
   }
+
+  const parsed = await readJsonLimited<Partial<WeeklyMenuData>>(
+    request,
+    120_000,
+  );
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+  const body = parsed.data;
 
   if (!Array.isArray(body.days) || body.days.length === 0) {
     return NextResponse.json(
@@ -46,10 +53,25 @@ export async function PUT(request: Request) {
     );
   }
 
-  const saved = await saveWeeklyMenuData({
-    note: body.note || "",
-    days: body.days,
-  });
+  try {
+    const { menu, persist } = await saveWeeklyMenuData({
+      note: body.note || "",
+      days: body.days,
+    });
 
-  return NextResponse.json(saved);
+    return NextResponse.json({
+      ...menu,
+      warning: persist.durable ? undefined : persist.error,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Speichern fehlgeschlagen.",
+      },
+      { status: 503 },
+    );
+  }
 }

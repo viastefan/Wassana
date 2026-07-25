@@ -55,23 +55,33 @@ async function readStoreFile(filePath: string): Promise<InquiryStore | null> {
   }
 }
 
-async function writeStore(store: InquiryStore) {
+/**
+ * Persist inquiries locally only — never commit PII to GitHub.
+ * On Vercel, /tmp is writable per instance; e-mail remains the durable channel.
+ */
+async function writeStore(store: InquiryStore): Promise<void> {
   const payload = `${JSON.stringify(store, null, 2)}\n`;
+  let disk = false;
+  let tmp = false;
 
   try {
     await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
     await fs.writeFile(DATA_PATH, payload, "utf8");
+    disk = true;
   } catch {
     // Vercel read-only deploy root
   }
 
   try {
     await fs.writeFile(TMP_PATH, payload, "utf8");
+    tmp = true;
   } catch {
     // ignore
   }
 
-  await maybeCommitToGitHub(payload);
+  if (!disk && !tmp) {
+    throw new Error("Inquiry store is not writable.");
+  }
 }
 
 export async function getInquiryStore(): Promise<InquiryStore> {
@@ -106,6 +116,27 @@ export async function addInquiry(
   return inquiry;
 }
 
+export async function updateInquiryMailFlags(
+  id: string,
+  flags: { mailOwnerSent?: boolean; mailGuestSent?: boolean },
+): Promise<ContactInquiry | null> {
+  const store = await getInquiryStore();
+  let found: ContactInquiry | null = null;
+  store.inquiries = store.inquiries.map((item) => {
+    if (item.id !== id) return item;
+    found = {
+      ...item,
+      mailOwnerSent: flags.mailOwnerSent ?? item.mailOwnerSent,
+      mailGuestSent: flags.mailGuestSent ?? item.mailGuestSent,
+    };
+    return found;
+  });
+  if (!found) return null;
+  store.updatedAt = new Date().toISOString();
+  await writeStore(store);
+  return found;
+}
+
 export async function markInquiryRead(id: string, read = true) {
   const store = await getInquiryStore();
   let found = false;
@@ -126,48 +157,4 @@ export async function markAllInquiriesRead() {
   store.updatedAt = new Date().toISOString();
   await writeStore(store);
   return listInquiries();
-}
-
-async function maybeCommitToGitHub(content: string) {
-  const token = process.env.GITHUB_TOKEN;
-  const repo =
-    process.env.GITHUB_REPO ||
-    (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG
-      ? `${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}`
-      : "");
-  const branch =
-    process.env.GITHUB_BRANCH ||
-    process.env.VERCEL_GIT_COMMIT_REF ||
-    "main";
-
-  if (!token || !repo) return;
-
-  const apiFile = `https://api.github.com/repos/${repo}/contents/data/contact-inquiries.json`;
-  const headers = {
-    Accept: "application/vnd.github+json",
-    Authorization: `Bearer ${token}`,
-    "X-GitHub-Api-Version": "2022-11-28",
-    "User-Agent": "wassana-admin",
-  };
-
-  let sha: string | undefined;
-  const current = await fetch(`${apiFile}?ref=${encodeURIComponent(branch)}`, {
-    headers,
-    cache: "no-store",
-  });
-  if (current.ok) {
-    const body = (await current.json()) as { sha?: string };
-    sha = body.sha;
-  }
-
-  await fetch(apiFile, {
-    method: "PUT",
-    headers: { ...headers, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: "chore: update contact inquiries",
-      content: Buffer.from(content, "utf8").toString("base64"),
-      branch,
-      ...(sha ? { sha } : {}),
-    }),
-  });
 }

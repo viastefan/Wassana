@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
-import { addInquiry } from "@/lib/inquiries";
+import {
+  addInquiry,
+  updateInquiryMailFlags,
+} from "@/lib/inquiries";
 import { getOwnerInbox, isMailConfigured, sendMail } from "@/lib/mail";
 import {
   assertSameOrigin,
   getClientIp,
   isValidEmail,
   rateLimit,
+  readJsonLimited,
   sanitizeHeader,
   sanitizeText,
 } from "@/lib/security";
@@ -47,14 +51,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
   }
 
-  let body: ContactBody;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
+  const parsed = await readJsonLimited<ContactBody>(request, 20_000);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+  const body = parsed.data;
 
-  // Honeypot
+  // Honeypot — fake success without side effects
   if (body.website) {
     return NextResponse.json({ ok: true });
   }
@@ -86,6 +89,29 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Bitte eine kurze Nachricht schreiben." },
       { status: 400 },
+    );
+  }
+
+  // Persist first so we never claim success without a stored inquiry
+  let inquiry;
+  try {
+    inquiry = await addInquiry({
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      source,
+      mailOwnerSent: false,
+      mailGuestSent: false,
+    });
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          "Anfrage konnte nicht gespeichert werden. Bitte telefonisch oder per E-Mail kontaktieren.",
+      },
+      { status: 503 },
     );
   }
 
@@ -138,7 +164,7 @@ export async function POST(request: Request) {
       });
       mailOwnerSent = true;
     } catch {
-      mailWarning = "Speichern ok, Inhaber-Mail konnte nicht gesendet werden.";
+      mailWarning = "Gespeichert, Inhaber-Mail konnte nicht gesendet werden.";
     }
 
     try {
@@ -150,40 +176,30 @@ export async function POST(request: Request) {
       mailGuestSent = true;
     } catch {
       mailWarning = mailWarning
-        ? "Speichern ok, E-Mails konnten nicht gesendet werden."
-        : "Speichern ok, Bestätigungsmail konnte nicht gesendet werden.";
+        ? "Gespeichert, E-Mails konnten nicht gesendet werden."
+        : "Gespeichert, Bestätigungsmail konnte nicht gesendet werden.";
     }
   } else {
     mailWarning =
       "Anfrage gespeichert. E-Mail-Versand ist noch nicht konfiguriert (SMTP_*).";
   }
 
-  try {
-    const inquiry = await addInquiry({
-      name,
-      email,
-      phone,
-      subject,
-      message,
-      source,
-      mailOwnerSent,
-      mailGuestSent,
-    });
-
-    return NextResponse.json({
-      ok: true,
-      id: inquiry.id,
-      mailOwnerSent,
-      mailGuestSent,
-      warning: mailWarning,
-    });
-  } catch {
-    return NextResponse.json(
-      {
-        error:
-          "Anfrage konnte nicht gespeichert werden. Bitte telefonisch oder per E-Mail kontaktieren.",
-      },
-      { status: 500 },
-    );
+  if (mailOwnerSent || mailGuestSent) {
+    try {
+      await updateInquiryMailFlags(inquiry.id, {
+        mailOwnerSent,
+        mailGuestSent,
+      });
+    } catch {
+      // Non-fatal: inquiry already stored
+    }
   }
+
+  return NextResponse.json({
+    ok: true,
+    id: inquiry.id,
+    mailOwnerSent,
+    mailGuestSent,
+    warning: mailWarning,
+  });
 }

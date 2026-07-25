@@ -89,17 +89,28 @@ export const site = {
   },
 } as const;
 
-/** Canonical site origin — set NEXT_PUBLIC_SITE_URL in Vercel for production. */
+const PRODUCTION_SITE_URL = "https://www.wassana-thai-imbiss.de";
+
+/**
+ * Canonical site origin for SEO (sitemap, OG, JSON-LD).
+ * Prefer NEXT_PUBLIC_SITE_URL; never let preview hosts pollute production metadata
+ * when VERCEL_ENV is production.
+ */
 export function getSiteUrl() {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
   if (fromEnv) return fromEnv;
+
+  if (process.env.VERCEL_ENV === "production") {
+    return PRODUCTION_SITE_URL;
+  }
+
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.replace(/\/$/, "")}`;
   }
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
   }
-  return "https://www.wassana-thai-imbiss.de";
+  return PRODUCTION_SITE_URL;
 }
 
 export const navLinks = [

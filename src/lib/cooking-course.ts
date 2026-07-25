@@ -2,6 +2,11 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { promises as fs } from "fs";
 import path from "path";
 import { formatCourseDate } from "@/lib/cooking-course-format";
+import {
+  writeJsonWithFallback,
+  type PersistResult,
+} from "@/lib/persist-json";
+import { sanitizeText } from "@/lib/security";
 
 export type CookingCourse = {
   active: boolean;
@@ -26,8 +31,27 @@ const fallbackCourse: CookingCourse = {
   updatedAt: new Date().toISOString(),
 };
 
-function getAdminSecret() {
-  return process.env.ADMIN_PASSWORD || "wassana";
+function isProdLike() {
+  return (
+    process.env.NODE_ENV === "production" ||
+    process.env.VERCEL === "1" ||
+    Boolean(process.env.VERCEL_ENV)
+  );
+}
+
+/** Admin login password — required in production (no default). */
+function getAdminPassword(): string | null {
+  const secret = process.env.ADMIN_PASSWORD?.trim();
+  if (secret) return secret;
+  if (isProdLike()) return null;
+  return "wassana-dev-only";
+}
+
+/** HMAC secret for session cookies (prefer dedicated secret). */
+function getSessionSecret(): string | null {
+  const dedicated = process.env.ADMIN_SESSION_SECRET?.trim();
+  if (dedicated) return dedicated;
+  return getAdminPassword();
 }
 
 export function isCourseUpcoming(isoDate: string): boolean {
@@ -71,90 +95,47 @@ export async function getCookingCourse(): Promise<CookingCourse> {
 
 export async function saveCookingCourse(
   input: Omit<CookingCourse, "updatedAt">,
-): Promise<CookingCourse> {
+): Promise<{ course: CookingCourse; persist: PersistResult }> {
   const next: CookingCourse = {
     active: Boolean(input.active),
     date: String(input.date),
-    title: String(input.title || "Thai Kochkurs").trim() || "Thai Kochkurs",
-    teaser: String(input.teaser || "").trim(),
+    title:
+      sanitizeText(String(input.title || "Thai Kochkurs"), 120) ||
+      "Thai Kochkurs",
+    teaser: sanitizeText(String(input.teaser || ""), 200),
     updatedAt: new Date().toISOString(),
   };
 
   const payload = `${JSON.stringify(next, null, 2)}\n`;
+  const persist = await writeJsonWithFallback(
+    DATA_PATH,
+    TMP_PATH,
+    payload,
+    "data/cooking-course.json",
+    "chore: update next cooking course date",
+  );
 
-  try {
-    await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-    await fs.writeFile(DATA_PATH, payload, "utf8");
-  } catch {
-    // Vercel / read-only deploy: keep a writable copy in /tmp
+  if (!persist.tmp && !persist.disk && !persist.github) {
+    throw new Error(persist.error || "Kochkurs konnte nicht gespeichert werden.");
   }
 
-  try {
-    await fs.writeFile(TMP_PATH, payload, "utf8");
-  } catch {
-    // ignore tmp failures in locked-down environments
-  }
-
-  await maybeCommitToGitHub(payload);
-
-  return next;
-}
-
-async function maybeCommitToGitHub(content: string) {
-  const token = process.env.GITHUB_TOKEN;
-  const repo =
-    process.env.GITHUB_REPO ||
-    (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG
-      ? `${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}`
-      : "");
-  const branch =
-    process.env.GITHUB_BRANCH ||
-    process.env.VERCEL_GIT_COMMIT_REF ||
-    "main";
-
-  if (!token || !repo) return;
-
-  const apiFile = `https://api.github.com/repos/${repo}/contents/data/cooking-course.json`;
-  const headers = {
-    Accept: "application/vnd.github+json",
-    Authorization: `Bearer ${token}`,
-    "X-GitHub-Api-Version": "2022-11-28",
-    "User-Agent": "wassana-admin",
-  };
-
-  let sha: string | undefined;
-  const current = await fetch(`${apiFile}?ref=${encodeURIComponent(branch)}`, {
-    headers,
-    cache: "no-store",
-  });
-  if (current.ok) {
-    const body = (await current.json()) as { sha?: string };
-    sha = body.sha;
-  }
-
-  await fetch(apiFile, {
-    method: "PUT",
-    headers: { ...headers, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: "chore: update next cooking course date",
-      content: Buffer.from(content, "utf8").toString("base64"),
-      branch,
-      ...(sha ? { sha } : {}),
-    }),
-  });
+  return { course: next, persist };
 }
 
 export function createAdminSessionToken(): string {
+  const secret = getSessionSecret();
+  if (!secret) {
+    throw new Error("ADMIN_PASSWORD is not configured.");
+  }
   const exp = Date.now() + 1000 * 60 * 60 * 24 * 14;
   const payload = `admin.${exp}`;
-  const sig = createHmac("sha256", getAdminSecret())
-    .update(payload)
-    .digest("hex");
+  const sig = createHmac("sha256", secret).update(payload).digest("hex");
   return `${payload}.${sig}`;
 }
 
 export function verifyAdminSessionToken(token: string | undefined): boolean {
-  if (!token) return false;
+  const secret = getSessionSecret();
+  if (!token || !secret) return false;
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   const [role, expRaw, sig] = parts;
@@ -162,9 +143,7 @@ export function verifyAdminSessionToken(token: string | undefined): boolean {
   const exp = Number(expRaw);
   if (!Number.isFinite(exp) || exp < Date.now()) return false;
   const payload = `${role}.${expRaw}`;
-  const expected = createHmac("sha256", getAdminSecret())
-    .update(payload)
-    .digest("hex");
+  const expected = createHmac("sha256", secret).update(payload).digest("hex");
   try {
     const a = Buffer.from(sig);
     const b = Buffer.from(expected);
@@ -175,7 +154,8 @@ export function verifyAdminSessionToken(token: string | undefined): boolean {
 }
 
 export function verifyAdminPassword(password: string): boolean {
-  const expected = getAdminSecret();
+  const expected = getAdminPassword();
+  if (!expected || !password) return false;
   try {
     const a = Buffer.from(password);
     const b = Buffer.from(expected);
@@ -183,6 +163,10 @@ export function verifyAdminPassword(password: string): boolean {
   } catch {
     return false;
   }
+}
+
+export function isAdminConfigured(): boolean {
+  return Boolean(getAdminPassword());
 }
 
 export function isPublicPromoVisible(course: CookingCourse): boolean {

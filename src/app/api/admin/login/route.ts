@@ -2,18 +2,22 @@ import { NextResponse } from "next/server";
 import {
   COOKING_COURSE_COOKIE,
   createAdminSessionToken,
+  isAdminConfigured,
   verifyAdminPassword,
 } from "@/lib/cooking-course";
 import {
   assertSameOrigin,
   getClientIp,
   rateLimit,
+  readJsonLimited,
   sanitizeHeader,
 } from "@/lib/security";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const limited = rateLimit(`admin-login:${ip}`, 12, 15 * 60 * 1000);
+  const limited = rateLimit(`admin-login:${ip}`, 8, 15 * 60 * 1000);
   if (!limited.ok) {
     return NextResponse.json(
       { error: "Zu viele Login-Versuche. Bitte kurz warten." },
@@ -28,14 +32,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
   }
 
-  let body: { password?: string };
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
+  if (!isAdminConfigured()) {
+    return NextResponse.json(
+      {
+        error:
+          "Admin ist nicht konfiguriert. ADMIN_PASSWORD in Vercel setzen.",
+      },
+      { status: 503 },
+    );
   }
 
-  const password = sanitizeHeader(String(body.password || ""), 200);
+  const parsed = await readJsonLimited<{ password?: string }>(request, 4_000);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+
+  const password = sanitizeHeader(String(parsed.data.password || ""), 200);
   if (!verifyAdminPassword(password)) {
     return NextResponse.json(
       { error: "Falsches Passwort." },
@@ -43,10 +55,20 @@ export async function POST(request: Request) {
     );
   }
 
+  let token: string;
+  try {
+    token = createAdminSessionToken();
+  } catch {
+    return NextResponse.json(
+      { error: "Admin-Sitzung konnte nicht erstellt werden." },
+      { status: 503 },
+    );
+  }
+
   const response = NextResponse.json({ ok: true });
   response.cookies.set({
     name: COOKING_COURSE_COOKIE,
-    value: createAdminSessionToken(),
+    value: token,
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

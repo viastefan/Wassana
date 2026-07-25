@@ -1,6 +1,7 @@
 /** Shared hardening helpers for API routes. */
 
 const RATE_BUCKETS = new Map<string, { count: number; resetAt: number }>();
+const MAX_BUCKETS = 5000;
 
 export function getClientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -19,6 +20,13 @@ export function rateLimit(
   windowMs: number,
 ): { ok: true } | { ok: false; retryAfterSec: number } {
   const now = Date.now();
+
+  if (RATE_BUCKETS.size > MAX_BUCKETS) {
+    for (const [bucketKey, value] of RATE_BUCKETS) {
+      if (value.resetAt <= now) RATE_BUCKETS.delete(bucketKey);
+    }
+  }
+
   const current = RATE_BUCKETS.get(key);
 
   if (!current || current.resetAt <= now) {
@@ -60,18 +68,61 @@ export function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+/**
+ * CSRF / origin check for browser POSTs.
+ * Requires Origin or Sec-Fetch-Site when present; rejects cross-site.
+ */
 export function assertSameOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   const host = request.headers.get("host");
-  if (!origin || !host) {
-    // Same-origin fetch from some browsers may omit Origin on same site;
-    // allow missing origin only for non-browser-like clients with host present.
-    return Boolean(host);
+  const secFetchSite = request.headers.get("sec-fetch-site");
+
+  if (secFetchSite === "cross-site" || secFetchSite === "none") {
+    // "none" can be legitimate for user-initiated navigations, but not for
+    // credentialed JSON API calls from our forms — those send same-origin/same-site.
+    if (secFetchSite === "cross-site") return false;
   }
+
+  if (!host) return false;
+
+  if (origin) {
+    try {
+      return new URL(origin).host === host;
+    } catch {
+      return false;
+    }
+  }
+
+  // Same-origin fetch may omit Origin; allow only same-site / same-origin signals.
+  if (
+    secFetchSite === "same-origin" ||
+    secFetchSite === "same-site" ||
+    !secFetchSite
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/** Reject oversized JSON bodies early (bytes). */
+export async function readJsonLimited<T>(
+  request: Request,
+  maxBytes: number,
+): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && Number(contentLength) > maxBytes) {
+    return { ok: false, error: "Anfrage zu groß." };
+  }
+
+  const raw = await request.text();
+  if (raw.length > maxBytes) {
+    return { ok: false, error: "Anfrage zu groß." };
+  }
+
   try {
-    const originHost = new URL(origin).host;
-    return originHost === host;
+    return { ok: true, data: JSON.parse(raw) as T };
   } catch {
-    return false;
+    return { ok: false, error: "Ungültige Anfrage." };
   }
 }

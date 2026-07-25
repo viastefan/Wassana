@@ -6,6 +6,9 @@ import { getSiteContent } from "@/lib/site-content";
 import { getSiteUrl, site } from "@/lib/site";
 import "./globals.css";
 
+/** CMS texts must refresh after admin saves (Vercel /tmp + GitHub). */
+export const dynamic = "force-dynamic";
+
 const typewriter = Special_Elite({
   variable: "--font-typewriter",
   weight: "400",
@@ -22,6 +25,7 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
   viewportFit: "cover",
   colorScheme: "light",
 };
@@ -47,10 +51,6 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "/",
-    languages: {
-      "de-DE": "/",
-      de: "/",
-    },
   },
   openGraph: {
     type: "website",
@@ -91,6 +91,7 @@ export const metadata: Metadata = {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon.ico", sizes: "any" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
@@ -110,6 +111,7 @@ export const metadata: Metadata = {
     "geo.position": `${site.geo.latitude};${site.geo.longitude}`,
     ICBM: `${site.geo.latitude}, ${site.geo.longitude}`,
     "apple-mobile-web-app-title": "Wassana",
+    "msapplication-TileColor": "#7a0c24",
   },
 };
 

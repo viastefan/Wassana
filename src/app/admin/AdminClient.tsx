@@ -137,12 +137,10 @@ export function AdminClient() {
           setCourse((await courseRes.json()) as Course);
         }
 
-        const probe = await fetch("/api/cooking-course", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ probe: true }),
+        const session = await fetch("/api/admin/session", {
+          cache: "no-store",
         });
-        if (!cancelled && probe.status === 400) {
+        if (!cancelled && session.ok) {
           setAuthed(true);
           await loadAll();
         }
@@ -186,23 +184,31 @@ export function AdminClient() {
 
   async function onLogin(event: FormEvent) {
     event.preventDefault();
+    if (saving) return;
     setLoginError("");
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-    if (!res.ok) {
-      const data = (await res.json().catch(() => null)) as {
-        error?: string;
-      } | null;
-      setLoginError(data?.error || "Login fehlgeschlagen.");
-      return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        setLoginError(data?.error || "Login fehlgeschlagen.");
+        return;
+      }
+      setPassword("");
+      setAuthed(true);
+      setTab("home");
+      await loadAll();
+    } catch {
+      setLoginError("Netzwerkfehler. Bitte erneut versuchen.");
+    } finally {
+      setSaving(false);
     }
-    setPassword("");
-    setAuthed(true);
-    setTab("home");
-    await loadAll();
   }
 
   async function onLogout() {
@@ -218,24 +224,38 @@ export function AdminClient() {
     setSaving(true);
     setError("");
     setStatus("");
-    const res = await fetch("/api/cooking-course", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(course),
-    });
-    const data = (await res.json().catch(() => null)) as
-      | (Course & { error?: string })
-      | null;
-    setSaving(false);
-    if (!res.ok) {
-      if (res.status === 401) setAuthed(false);
-      setError(data?.error || "Speichern fehlgeschlagen.");
-      return;
+    try {
+      const res = await fetch("/api/cooking-course", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(course),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | (Course & { error?: string; warning?: string })
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        setError(data?.error || "Speichern fehlgeschlagen.");
+        return;
+      }
+      if (data) {
+        setCourse({
+          active: data.active,
+          date: data.date,
+          title: data.title,
+          teaser: data.teaser,
+          updatedAt: data.updatedAt,
+        });
+      }
+      setStatus(
+        data?.warning ||
+          `Kochkurs gespeichert — Widget: ${course.title} am ${formatCourseDate(course.date)}`,
+      );
+    } catch {
+      setError("Netzwerkfehler beim Speichern.");
+    } finally {
+      setSaving(false);
     }
-    if (data) setCourse(data);
-    setStatus(
-      `Kochkurs gespeichert — Widget: ${course.title} am ${formatCourseDate(course.date)}`,
-    );
   }
 
   async function saveContent(event: FormEvent) {
@@ -244,22 +264,37 @@ export function AdminClient() {
     setSaving(true);
     setError("");
     setStatus("");
-    const res = await fetch("/api/admin/content", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(content),
-    });
-    const data = (await res.json().catch(() => null)) as
-      | (SiteContent & { error?: string })
-      | null;
-    setSaving(false);
-    if (!res.ok) {
-      if (res.status === 401) setAuthed(false);
-      setError(data?.error || "Website-Texte speichern fehlgeschlagen.");
-      return;
+    try {
+      const res = await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(content),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | (SiteContent & { error?: string; warning?: string })
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        setError(data?.error || "Website-Texte speichern fehlgeschlagen.");
+        return;
+      }
+      if (data) {
+        setContent({
+          hero: data.hero,
+          meaning: data.meaning,
+          hours: data.hours,
+          studentLunch: data.studentLunch,
+          location: data.location,
+          closing: data.closing,
+          updatedAt: data.updatedAt,
+        });
+      }
+      setStatus(data?.warning || "Website-Texte aktualisiert.");
+    } catch {
+      setError("Netzwerkfehler beim Speichern.");
+    } finally {
+      setSaving(false);
     }
-    if (data) setContent(data);
-    setStatus("Website-Texte aktualisiert.");
   }
 
   async function saveWeekly(event: FormEvent) {
@@ -268,22 +303,33 @@ export function AdminClient() {
     setSaving(true);
     setError("");
     setStatus("");
-    const res = await fetch("/api/admin/weekly-menu", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(weekly),
-    });
-    const data = (await res.json().catch(() => null)) as
-      | (WeeklyMenuData & { error?: string })
-      | null;
-    setSaving(false);
-    if (!res.ok) {
-      if (res.status === 401) setAuthed(false);
-      setError(data?.error || "Wochenkarte speichern fehlgeschlagen.");
-      return;
+    try {
+      const res = await fetch("/api/admin/weekly-menu", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(weekly),
+      });
+      const data = (await res.json().catch(() => null)) as
+        | (WeeklyMenuData & { error?: string; warning?: string })
+        | null;
+      if (!res.ok) {
+        if (res.status === 401) setAuthed(false);
+        setError(data?.error || "Wochenkarte speichern fehlgeschlagen.");
+        return;
+      }
+      if (data) {
+        setWeekly({
+          note: data.note,
+          days: data.days,
+          updatedAt: data.updatedAt,
+        });
+      }
+      setStatus(data?.warning || "Wochenkarte aktualisiert.");
+    } catch {
+      setError("Netzwerkfehler beim Speichern.");
+    } finally {
+      setSaving(false);
     }
-    if (data) setWeekly(data);
-    setStatus("Wochenkarte aktualisiert.");
   }
 
   async function markRead(id: string) {
@@ -388,8 +434,8 @@ export function AdminClient() {
             {loginError ? (
               <p className="text-sm text-[color:var(--red)]">{loginError}</p>
             ) : null}
-            <button type="submit" className="btn-primary">
-              Anmelden
+            <button type="submit" className="btn-primary" disabled={saving}>
+              {saving ? "Prüfen …" : "Anmelden"}
             </button>
           </form>
         ) : (

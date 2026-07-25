@@ -4,6 +4,10 @@ import {
   COOKING_COURSE_COOKIE,
   verifyAdminSessionToken,
 } from "@/lib/cooking-course";
+import {
+  assertSameOrigin,
+  readJsonLimited,
+} from "@/lib/security";
 import { getSiteContent, saveSiteContent, type SiteContent } from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
@@ -28,12 +32,15 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
 
-  let body: Partial<SiteContent>;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Ungültige Daten." }, { status: 400 });
+  if (!assertSameOrigin(request)) {
+    return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
   }
+
+  const parsed = await readJsonLimited<Partial<SiteContent>>(request, 80_000);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
+  }
+  const body = parsed.data;
 
   if (!body.hero?.lede || !body.meaning) {
     return NextResponse.json(
@@ -42,34 +49,49 @@ export async function PUT(request: Request) {
     );
   }
 
-  const saved = await saveSiteContent({
-    hero: {
-      eyebrow: body.hero.eyebrow || "",
-      lede: body.hero.lede,
-    },
-    meaning: body.meaning,
-    hours: {
-      weekdays: body.hours?.weekdays || "",
-      weekdaysLong: body.hours?.weekdaysLong || "",
-      weekend: body.hours?.weekend || "",
-    },
-    studentLunch: {
-      eyebrow: body.studentLunch?.eyebrow || "",
-      title: body.studentLunch?.title || "",
-      text: body.studentLunch?.text || "",
-      price: body.studentLunch?.price || "",
-      note: body.studentLunch?.note || "",
-    },
-    location: {
-      eyebrow: body.location?.eyebrow || "",
-      title: body.location?.title || "",
-      text: body.location?.text || "",
-    },
-    closing: {
-      title: body.closing?.title || "Bis bald bei Wassana",
-      text: body.closing?.text || "",
-    },
-  });
+  try {
+    const { content, persist } = await saveSiteContent({
+      hero: {
+        eyebrow: body.hero.eyebrow || "",
+        lede: body.hero.lede,
+      },
+      meaning: body.meaning,
+      hours: {
+        weekdays: body.hours?.weekdays || "",
+        weekdaysLong: body.hours?.weekdaysLong || "",
+        weekend: body.hours?.weekend || "",
+      },
+      studentLunch: {
+        eyebrow: body.studentLunch?.eyebrow || "",
+        title: body.studentLunch?.title || "",
+        text: body.studentLunch?.text || "",
+        price: body.studentLunch?.price || "",
+        note: body.studentLunch?.note || "",
+      },
+      location: {
+        eyebrow: body.location?.eyebrow || "",
+        title: body.location?.title || "",
+        text: body.location?.text || "",
+      },
+      closing: {
+        title: body.closing?.title || "Bis bald bei Wassana",
+        text: body.closing?.text || "",
+      },
+    });
 
-  return NextResponse.json(saved);
+    return NextResponse.json({
+      ...content,
+      warning: persist.durable ? undefined : persist.error,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Speichern fehlgeschlagen.",
+      },
+      { status: 503 },
+    );
+  }
 }

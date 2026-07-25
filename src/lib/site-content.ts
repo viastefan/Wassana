@@ -1,6 +1,11 @@
 import path from "path";
 import { site } from "@/lib/site";
-import { readJsonFile, writeJsonWithFallback } from "@/lib/persist-json";
+import {
+  readJsonFile,
+  writeJsonWithFallback,
+  type PersistResult,
+} from "@/lib/persist-json";
+import { sanitizeText } from "@/lib/security";
 
 export type SiteContent = {
   hero: {
@@ -66,30 +71,72 @@ function normalize(raw: Partial<SiteContent> | null): SiteContent {
   if (!raw) return base;
   return {
     hero: {
-      eyebrow: String(raw.hero?.eyebrow ?? base.hero.eyebrow),
-      lede: String(raw.hero?.lede ?? base.hero.lede),
+      eyebrow: sanitizeText(
+        String(raw.hero?.eyebrow ?? base.hero.eyebrow),
+        120,
+      ),
+      lede: sanitizeText(String(raw.hero?.lede ?? base.hero.lede), 400),
     },
-    meaning: String(raw.meaning ?? base.meaning),
+    meaning: sanitizeText(String(raw.meaning ?? base.meaning), 1200),
     hours: {
-      weekdays: String(raw.hours?.weekdays ?? base.hours.weekdays),
-      weekdaysLong: String(raw.hours?.weekdaysLong ?? base.hours.weekdaysLong),
-      weekend: String(raw.hours?.weekend ?? base.hours.weekend),
+      weekdays: sanitizeText(
+        String(raw.hours?.weekdays ?? base.hours.weekdays),
+        120,
+      ),
+      weekdaysLong: sanitizeText(
+        String(raw.hours?.weekdaysLong ?? base.hours.weekdaysLong),
+        200,
+      ),
+      weekend: sanitizeText(
+        String(raw.hours?.weekend ?? base.hours.weekend),
+        200,
+      ),
     },
     studentLunch: {
-      eyebrow: String(raw.studentLunch?.eyebrow ?? base.studentLunch.eyebrow),
-      title: String(raw.studentLunch?.title ?? base.studentLunch.title),
-      text: String(raw.studentLunch?.text ?? base.studentLunch.text),
-      price: String(raw.studentLunch?.price ?? base.studentLunch.price),
-      note: String(raw.studentLunch?.note ?? base.studentLunch.note),
+      eyebrow: sanitizeText(
+        String(raw.studentLunch?.eyebrow ?? base.studentLunch.eyebrow),
+        120,
+      ),
+      title: sanitizeText(
+        String(raw.studentLunch?.title ?? base.studentLunch.title),
+        160,
+      ),
+      text: sanitizeText(
+        String(raw.studentLunch?.text ?? base.studentLunch.text),
+        800,
+      ),
+      price: sanitizeText(
+        String(raw.studentLunch?.price ?? base.studentLunch.price),
+        40,
+      ),
+      note: sanitizeText(
+        String(raw.studentLunch?.note ?? base.studentLunch.note),
+        240,
+      ),
     },
     location: {
-      eyebrow: String(raw.location?.eyebrow ?? base.location.eyebrow),
-      title: String(raw.location?.title ?? base.location.title),
-      text: String(raw.location?.text ?? base.location.text),
+      eyebrow: sanitizeText(
+        String(raw.location?.eyebrow ?? base.location.eyebrow),
+        120,
+      ),
+      title: sanitizeText(
+        String(raw.location?.title ?? base.location.title),
+        160,
+      ),
+      text: sanitizeText(
+        String(raw.location?.text ?? base.location.text),
+        600,
+      ),
     },
     closing: {
-      title: String(raw.closing?.title ?? base.closing.title),
-      text: String(raw.closing?.text ?? base.closing.text),
+      title: sanitizeText(
+        String(raw.closing?.title ?? base.closing.title),
+        160,
+      ),
+      text: sanitizeText(
+        String(raw.closing?.text ?? base.closing.text),
+        600,
+      ),
     },
     updatedAt: String(raw.updatedAt ?? base.updatedAt),
   };
@@ -105,18 +152,21 @@ export async function getSiteContent(): Promise<SiteContent> {
 
 export async function saveSiteContent(
   input: Omit<SiteContent, "updatedAt">,
-): Promise<SiteContent> {
+): Promise<{ content: SiteContent; persist: PersistResult }> {
   const next = normalize({
     ...input,
     updatedAt: new Date().toISOString(),
   });
   const payload = `${JSON.stringify(next, null, 2)}\n`;
-  await writeJsonWithFallback(
+  const persist = await writeJsonWithFallback(
     DATA_PATH,
     TMP_PATH,
     payload,
     "data/site-content.json",
     "chore: update site content from admin",
   );
-  return next;
+  if (!persist.tmp && !persist.disk && !persist.github) {
+    throw new Error(persist.error || "Inhalte konnten nicht gespeichert werden.");
+  }
+  return { content: next, persist };
 }

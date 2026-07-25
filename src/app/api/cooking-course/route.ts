@@ -6,6 +6,7 @@ import {
   saveCookingCourse,
   verifyAdminSessionToken,
 } from "@/lib/cooking-course";
+import { assertSameOrigin, readJsonLimited } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -23,18 +24,20 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
 
-  let body: {
+  if (!assertSameOrigin(request)) {
+    return NextResponse.json({ error: "Ungültige Herkunft." }, { status: 403 });
+  }
+
+  const parsed = await readJsonLimited<{
     active?: boolean;
     date?: string;
     title?: string;
     teaser?: string;
-  };
-
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Ungültige Daten." }, { status: 400 });
+  }>(request, 8_000);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+  const body = parsed.data;
 
   if (!body.date || !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
     return NextResponse.json(
@@ -43,12 +46,27 @@ export async function PUT(request: Request) {
     );
   }
 
-  const course = await saveCookingCourse({
-    active: Boolean(body.active),
-    date: body.date,
-    title: body.title || "Thai Kochkurs",
-    teaser: body.teaser || "",
-  });
+  try {
+    const { course, persist } = await saveCookingCourse({
+      active: Boolean(body.active),
+      date: body.date,
+      title: body.title || "Thai Kochkurs",
+      teaser: body.teaser || "",
+    });
 
-  return NextResponse.json(course);
+    return NextResponse.json({
+      ...course,
+      warning: persist.durable ? undefined : persist.error,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Speichern fehlgeschlagen.",
+      },
+      { status: 503 },
+    );
+  }
 }

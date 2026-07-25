@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const CANONICAL_HOST = "www.wassana-thai-imbiss.de";
+const APEX_HOST = "wassana-thai-imbiss.de";
+
 const BLOCKED_PREFIXES = [
   "/.env",
   "/wp-admin",
@@ -9,11 +12,22 @@ const BLOCKED_PREFIXES = [
   "/.git",
   "/server-status",
   "/phpmyadmin",
+  "/.aws",
+  "/vendor/phpunit",
 ];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const lower = pathname.toLowerCase();
+  const host = request.headers.get("host")?.split(":")[0]?.toLowerCase() || "";
+
+  // Canonical host for SEO (avoid duplicate apex/www indexing)
+  if (host === APEX_HOST) {
+    const url = request.nextUrl.clone();
+    url.host = CANONICAL_HOST;
+    url.protocol = "https:";
+    return NextResponse.redirect(url, 308);
+  }
 
   if (
     BLOCKED_PREFIXES.some(
@@ -34,10 +48,15 @@ export function middleware(request: NextRequest) {
   );
   response.headers.set("X-DNS-Prefetch-Control", "on");
   response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload",
+  );
+  response.headers.set(
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      // Next.js requires inline scripts for hydration; eval only in development tooling
+      "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
@@ -52,10 +71,7 @@ export function middleware(request: NextRequest) {
   );
 
   // Never index admin / API
-  if (
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/api/")
-  ) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/api/")) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
 

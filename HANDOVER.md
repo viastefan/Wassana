@@ -20,11 +20,13 @@ Project **wassana** → Settings → Environment Variables:
 
 | Variable | Zweck |
 |---|---|
-| `ADMIN_PASSWORD` | Passwort für `/admin` |
+| `ADMIN_PASSWORD` | **Pflicht** — Passwort für `/admin` (ohne Default in Production) |
+| `ADMIN_SESSION_SECRET` | Optional — separates Cookie-Secret |
 | `NEXT_PUBLIC_SITE_URL` | `https://www.wassana-thai-imbiss.de` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | E-Mail-Versand Kontaktformular |
 | `CONTACT_TO` | Empfänger (Inhaber-Mail) |
-| `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | Dauerhafte Speicherung von Admin-Änderungen |
+| `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | Dauerhafte CMS-Speicherung (Texte/Menü/Kochkurs) |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional Search-Console Meta |
 
 Nach Änderungen an Env-Variablen: Redeploy.
 
@@ -34,20 +36,31 @@ Nach Änderungen an Env-Variablen: Redeploy.
 - Google Maps erst nach Zustimmung
 - Footer-Link **Cookies** öffnet den Hinweis erneut
 
-## Google / SEO live schalten
+## Google / SEO / SEA live schalten
 
 1. [Google Search Console](https://search.google.com/search-console) → Property für `https://www.wassana-thai-imbiss.de`
 2. Eigentum bestätigen (DNS-TXT bei IONOS oder HTML-Meta):
    - Meta: Variable `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel setzen
 3. Sitemap einreichen: `https://www.wassana-thai-imbiss.de/sitemap.xml`
-4. Optional Bing Webmaster Tools mit derselben Sitemap
-5. Google Business Profile (Unternehmensprofil) mit Website + Adresse verknüpfen — wichtig für lokale SEA/Maps
+4. URL-Prüfung → wichtige Seiten „Indexierung beantragen“ (Start, Speisekarte, Kontakt)
+5. Optional Bing Webmaster Tools mit derselben Sitemap
+6. **Google Business Profile** mit Website + Adresse verknüpfen — entscheidend für lokale SEA/Maps
 
-Technisch vorbereitet: Canonicals, Open Graph, JSON-LD (LocalBusiness), Sitemap, Robots, Security-Header.
+Technisch vorbereitet: Canonicals (nur www), Open Graph, JSON-LD (LocalBusiness), Sitemap, Robots, Security-Header, HSTS, Safari-Icons.
+
+## Sicherheit (kurz)
+
+- Security-Header + CSP + HSTS
+- Scanner-Pfade blockiert (`wp-admin`, `.env`, …)
+- Rate-Limits auf Kontakt & Admin-Login
+- Origin-Check auf mutierenden APIs
+- Kein Default-Admin-Passwort in Production
+- Kontakt-Anfragen (PII) werden **nicht** ins GitHub-Repo geschrieben
+- Admin & `/api/*` mit `noindex`
 
 ## Technik
 
 - Next.js 15 (App Router), Tailwind v4
 - Repo: `viastefan/Wassana`, Branch `main` → Vercel Production
 - Lokale Entwicklung: `npm install && npm run build && npx next start -p 3003`
-- Security: Rate-Limits auf Kontakt/Login, Origin-Check, Security-Header, CSP
+- CMS-Seiten sind `force-dynamic`, damit Admin-Änderungen sofort sichtbar sind

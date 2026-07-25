@@ -51,6 +51,7 @@ export function ContactForm({
         error?: string;
         warning?: string;
         ok?: boolean;
+        mailGuestSent?: boolean;
       } | null;
 
       if (!res.ok) {
@@ -60,7 +61,15 @@ export function ContactForm({
       }
 
       form.reset();
-      setWarning(payload?.warning || "");
+      if (payload?.warning) {
+        setWarning(payload.warning);
+      } else if (payload?.mailGuestSent === false) {
+        setWarning(
+          "Deine Anfrage ist angekommen — die automatische Bestätigungsmail konnte nicht gesendet werden.",
+        );
+      } else {
+        setWarning("");
+      }
       setStatus("sent");
     } catch {
       setStatus("error");
@@ -138,13 +147,17 @@ export function ContactForm({
 
         {status === "sent" ? (
           <p className="text-sm leading-relaxed text-[color:var(--ink)]">
-            Danke — deine Anfrage ist angekommen. Du bekommst eine Bestätigung
-            per E-Mail, und wir melden uns.
+            Danke — deine Anfrage ist angekommen. Wir melden uns so bald wie
+            möglich.
             {warning ? (
               <span className="mt-2 block text-[color:var(--muted)]">
                 Hinweis: {warning}
               </span>
-            ) : null}
+            ) : (
+              <span className="mt-2 block text-[color:var(--muted)]">
+                Du erhältst zusätzlich eine kurze Bestätigung per E-Mail.
+              </span>
+            )}
           </p>
         ) : null}
 

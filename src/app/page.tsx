@@ -10,6 +10,8 @@ import { getSiteContent } from "@/lib/site-content";
 import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 import { site } from "@/lib/site";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: {
     absolute: "Wassana Thai Imbiss Landshut | Curry, Wok & Mitnehmen",

@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site";
 
+export const dynamic = "force-dynamic";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = getSiteUrl();
   const lastModified = new Date();
@@ -15,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${base}/speisekarte`,
       lastModified,
-      changeFrequency: "weekly",
+      changeFrequency: "daily",
       priority: 0.95,
     },
     {
