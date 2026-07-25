@@ -2411,6 +2411,139 @@ a.btn-ghost:hover {
     var(--paper);
 }
 
+/* Compact Schüler-Mittag band — mobile-first, desktop row */
+.student-lunch-compact {
+  display: grid;
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 0.35rem 0;
+  padding: 1.35rem 1.25rem 1.5rem;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+.student-lunch-compact:hover {
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+}
+
+.student-lunch-compact:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--gold) 70%, transparent);
+  outline-offset: -2px;
+}
+
+.student-lunch-compact-eyebrow {
+  grid-area: auto;
+  order: 1;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.student-lunch-compact-copy {
+  display: contents;
+}
+
+.student-lunch-compact-text {
+  order: 3;
+  max-width: 22rem;
+  margin-top: 0.55rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.student-lunch-compact-price {
+  order: 2;
+  margin-top: 0.45rem;
+  font-family: var(--font-display), "Special Elite", cursive;
+  font-size: 1.55rem;
+  line-height: 1;
+  color: var(--red);
+}
+
+.student-lunch-compact-note {
+  order: 4;
+  max-width: 20rem;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.student-lunch-compact-cta {
+  order: 5;
+  margin-top: 0.55rem;
+  font-size: 0.85rem;
+  color: var(--red);
+  text-underline-offset: 3px;
+}
+
+.student-lunch-compact:hover .student-lunch-compact-cta {
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .student-lunch-compact {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    justify-items: start;
+    column-gap: 2rem;
+    row-gap: 0;
+    padding: 1.5rem 2rem;
+    text-align: left;
+  }
+
+  .student-lunch-compact-eyebrow {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: baseline;
+    font-size: 0.875rem;
+    letter-spacing: 0.18em;
+  }
+
+  .student-lunch-compact-copy {
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    max-width: 36rem;
+  }
+
+  .student-lunch-compact-text {
+    display: inline;
+    max-width: none;
+    margin-top: 0;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .student-lunch-compact-price {
+    display: inline;
+    margin-top: 0;
+    margin-left: 0.35rem;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: nowrap;
+  }
+
+  .student-lunch-compact-note {
+    display: block;
+    max-width: none;
+    margin-top: 0.35rem;
+    font-size: 0.875rem;
+  }
+
+  .student-lunch-compact-cta {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
 .closing-band {
   position: relative;
   overflow: hidden;

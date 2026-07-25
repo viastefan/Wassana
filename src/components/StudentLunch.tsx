@@ -16,28 +16,23 @@ export function StudentLunch({ compact = false, offer }: StudentLunchProps) {
     return (
       <aside
         aria-label={offer.eyebrow}
-        className="feature-band border-y border-[color:var(--line)]"
+        className="feature-band student-lunch-band border-y border-[color:var(--line)]"
       >
         <button
           type="button"
-          className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-5 py-6 text-left transition hover:bg-[color:var(--paper)]/40 md:flex-row md:items-baseline md:justify-between md:gap-8 md:px-8"
+          className="student-lunch-compact"
           onClick={() => offerPopup?.openOffer()}
         >
-          <p className="text-sm tracking-[0.18em] text-[color:var(--gold)] uppercase">
-            {offer.eyebrow}
-          </p>
-          <p className="text-[color:var(--ink)] leading-relaxed md:max-w-xl">
-            {offer.text}{" "}
-            <span className="whitespace-nowrap text-[color:var(--red)]">
-              {offer.price}
-            </span>
-            <span className="mt-1 block text-sm text-[color:var(--muted)]">
-              {offer.note}
-            </span>
-            <span className="mt-2 inline-block text-sm text-[color:var(--red)] underline-offset-2 hover:underline">
+          <span className="student-lunch-compact-eyebrow">{offer.eyebrow}</span>
+          <span className="student-lunch-compact-copy">
+            <span className="student-lunch-compact-text">{offer.text}</span>
+            <span className="student-lunch-compact-price">{offer.price}</span>
+            <span className="student-lunch-compact-note">{offer.note}</span>
+            <span className="student-lunch-compact-cta">
               Mehr erfahren
+              <span aria-hidden> →</span>
             </span>
-          </p>
+          </span>
         </button>
       </aside>
     );
