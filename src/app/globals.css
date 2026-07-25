@@ -2089,10 +2089,37 @@ a.btn-ghost:hover {
 }
 
 /* Mobiles Menü: ein-/ausfahren, linksbündig untereinander */
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 46;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  /* Leicht abdunkeln — nicht zu stark */
+  background: color-mix(in srgb, var(--ink) 28%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease-out);
+}
+
+.mobile-nav-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .mobile-nav {
+  position: relative;
+  z-index: 47;
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.site-header-bar {
+  position: relative;
+  z-index: 47;
 }
 
 .mobile-nav.is-open {
@@ -2189,13 +2216,18 @@ a.btn-ghost:hover {
 
 @media (prefers-reduced-motion: reduce) {
   .mobile-nav,
-  .mobile-nav-list li {
+  .mobile-nav-list li,
+  .mobile-nav-backdrop {
     transition: none !important;
   }
 
   .mobile-nav-list li {
     opacity: 1;
     transform: none;
+  }
+
+  .mobile-nav-backdrop.is-open {
+    opacity: 1;
   }
 }
 
@@ -2224,6 +2256,8 @@ a.btn-ghost:hover {
 }
 
 .site-header-bar {
+  position: relative;
+  z-index: 47;
   height: var(--header-h);
 }
 

@@ -77,6 +77,18 @@ export function SiteHeader({
   }, [open]);
 
   useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+        setMobileContactOpen(false);
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  useEffect(() => {
     if (!contactOpen) return;
 
     function onPointerDown(event: MouseEvent) {
@@ -235,6 +247,18 @@ export function SiteHeader({
           </div>
         </button>
       </div>
+
+      <button
+        type="button"
+        className={`mobile-nav-backdrop md:hidden ${open ? "is-open" : ""}`}
+        aria-label={pages.chrome.contactMenu.closeMenu}
+        tabIndex={open ? 0 : -1}
+        aria-hidden={!open}
+        onClick={() => {
+          setOpen(false);
+          setMobileContactOpen(false);
+        }}
+      />
 
       <div
         className={`mobile-nav md:hidden ${open ? "is-open" : ""}`}
