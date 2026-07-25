@@ -1535,12 +1535,13 @@ a.btn-ghost:hover {
   z-index: 1;
   width: min(72rem, 100%);
   margin-inline: auto;
-  padding: calc(5.5rem + var(--banner-h)) 1.25rem 2.75rem;
+  /* Clear fixed header (+ optional top banner) with breathing room */
+  padding: calc(var(--header-h) + var(--banner-h) + 1.85rem) 1.25rem 2.75rem;
 }
 
 @media (min-width: 768px) {
   .media-band-copy {
-    padding: 6.5rem 2rem 3.5rem;
+    padding: calc(var(--header-h) + var(--banner-h) + 2.35rem) 2rem 3.5rem;
   }
 }
 
