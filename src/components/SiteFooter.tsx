@@ -23,7 +23,14 @@ export function SiteFooter() {
             {site.tagline}
           </p>
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-[color:var(--muted)]">
-            {site.fullName}
+            <Link
+              href="/admin"
+              className="text-[color:var(--muted)] transition hover:text-[color:var(--muted)]"
+              title="Intern"
+              aria-label="Intern: Kochkurs verwalten"
+            >
+              {site.fullName}
+            </Link>
             <br />
             Inh.: {site.owner}
             <br />
@@ -94,14 +101,6 @@ export function SiteFooter() {
             </Link>
             <Link href="/datenschutz" className="hover:text-[color:var(--red)]">
               Datenschutz
-            </Link>
-            <Link
-              href="/admin"
-              aria-label="Intern"
-              title="Intern"
-              className="select-none text-[color:var(--line)] transition hover:text-[color:var(--muted)]"
-            >
-              ·
             </Link>
           </div>
         </div>

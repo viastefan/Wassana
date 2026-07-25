@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { site } from "@/lib/site";
 import { Reveal } from "@/components/Reveal";
 
@@ -28,7 +29,14 @@ export function LocationSection() {
 
               <address className="mt-10 not-italic">
                 <p className="text-lg text-[color:var(--ink)]">
-                  {site.fullName}
+                  <Link
+                    href="/admin"
+                    className="text-[color:var(--ink)] transition hover:text-[color:var(--ink)]"
+                    title="Intern"
+                    aria-label="Intern: Kochkurs verwalten"
+                  >
+                    {site.fullName}
+                  </Link>
                 </p>
                 <p className="mt-2 text-[color:var(--muted)]">
                   {site.address.street}

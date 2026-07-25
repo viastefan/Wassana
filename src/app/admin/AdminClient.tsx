@@ -110,14 +110,14 @@ export function AdminClient() {
   return (
     <main className="mx-auto min-h-[70svh] max-w-lg px-5 pb-20 pt-28 md:px-8">
       <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-        Admin
+        Intern
       </p>
       <h1 className="font-display mt-3 text-4xl text-[color:var(--red)]">
-        Nächster Kochkurs
+        Kochkurs verwalten
       </h1>
       <p className="mt-3 text-[color:var(--muted)] leading-relaxed">
-        Hier trägst du den nächsten Termin ein. Er erscheint unten rechts auf
-        der Website als Hinweis.
+        Anmelden, Termin und Texte ändern, speichern — der Hinweis unten rechts
+        auf der Website aktualisiert sich danach.
       </p>
 
       {checking ? (
@@ -178,7 +178,9 @@ export function AdminClient() {
           </label>
 
           <label className="block">
-            <span className="text-sm text-[color:var(--muted)]">Titel</span>
+            <span className="text-sm text-[color:var(--muted)]">
+              Titel (Text auf dem Hinweis)
+            </span>
             <input
               type="text"
               value={course.title}
@@ -192,7 +194,7 @@ export function AdminClient() {
 
           <label className="block">
             <span className="text-sm text-[color:var(--muted)]">
-              Kurztext (optional)
+              Kurztext darunter
             </span>
             <input
               type="text"
@@ -208,8 +210,9 @@ export function AdminClient() {
           {course.date ? (
             <p className="border border-[color:var(--line)] bg-[color:var(--bg-soft)] px-4 py-3 text-sm text-[color:var(--muted)]">
               Vorschau:{" "}
-              <strong className="text-[color:var(--ink)]">{course.title}</strong>{" "}
-              am {formatCourseDate(course.date)}
+              <strong className="text-[color:var(--ink)]">{course.title}</strong>
+              {course.teaser ? ` — ${course.teaser}` : null} am{" "}
+              {formatCourseDate(course.date)}
             </p>
           ) : null}
 
@@ -222,7 +225,7 @@ export function AdminClient() {
 
           <div className="flex flex-wrap gap-3 pt-2">
             <button type="submit" className="btn-primary" disabled={saving}>
-              {saving ? "Speichern …" : "Termin speichern"}
+              {saving ? "Speichern …" : "Aktualisieren & speichern"}
             </button>
             <button type="button" className="btn-gold" onClick={onLogout}>
               Abmelden
