@@ -20,9 +20,9 @@ function ItemRow({
   allergens?: string;
 }) {
   return (
-    <div className="grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-3 gap-y-1 border-b border-[color:var(--line)] py-4 last:border-b-0">
+    <div className="menu-item-row grid grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-x-3 gap-y-1 border-b border-[color:var(--line)] py-4 last:border-b-0 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto]">
       <span className="text-sm text-[color:var(--gold)]">{nr || "–"}</span>
-      <div>
+      <div className="min-w-0">
         <p className="text-[color:var(--ink)]">
           {name}
           <AllergenMarks codes={codes} />
@@ -33,7 +33,7 @@ function ItemRow({
           </p>
         ) : null}
       </div>
-      <span className="whitespace-nowrap text-sm font-medium text-[color:var(--red)]">
+      <span className="col-start-2 max-w-full text-sm font-medium break-words text-[color:var(--red)] sm:col-start-3 sm:justify-self-end sm:whitespace-nowrap sm:text-right">
         {price}
       </span>
     </div>
@@ -101,14 +101,14 @@ export function Wochenkarte({
                   {day.items.map((item) => (
                     <div
                       key={`${day.day}-${item.nr}-${item.name}`}
-                      className="flex items-baseline justify-between gap-3 text-sm"
+                      className="grid grid-cols-1 gap-y-0.5 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline sm:gap-x-3"
                     >
-                      <span className="text-[color:var(--ink)]">
+                      <span className="min-w-0 text-[color:var(--ink)]">
                         <span className="text-[color:var(--gold)]">{item.nr}</span>{" "}
                         {item.name}
                         <AllergenMarks codes={item.allergens} />
                       </span>
-                      <span className="whitespace-nowrap text-[color:var(--red)]">
+                      <span className="break-words text-[color:var(--red)] sm:whitespace-nowrap sm:text-right">
                         {item.price}
                       </span>
                     </div>
