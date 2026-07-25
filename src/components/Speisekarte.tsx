@@ -237,7 +237,7 @@ export function SpeisekarteFull({
                 <AllergenLegend variant="button" />
                 <MenuPdfDownload
                   className="btn-primary"
-                  label={chipPdf}
+                  label={pdfButtonLabel}
                 />
               </div>
             </div>

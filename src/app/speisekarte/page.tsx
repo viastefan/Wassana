@@ -72,6 +72,7 @@ export default async function SpeisekartePage() {
         labels={pages.speisekarteUi}
         chipWeekly={copy.chipWeekly}
         chipPdf={copy.chipPdf}
+        pdfSaveLabel={copy.pdfCta}
       />
     </main>
   );
