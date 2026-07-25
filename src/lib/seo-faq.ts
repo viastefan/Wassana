@@ -24,7 +24,7 @@ export const landshutFaqs: SeoFaqItem[] = [
   {
     question: "Gibt es beliebte Gerichte der Woche und Schüler-Mittagessen?",
     answer:
-      "Ja. Mo–Fr gibt es wechselnde beliebte Gerichte der Woche. Für Schülerinnen, Schüler und Azubis gibt es mittags ein Angebot inkl. Softgetränk — gegen Vorlage eines Ausweises. Details stehen im Angebot oben auf der Seite.",
+      "Ja. Mo–Fr gibt es wechselnde beliebte Gerichte der Woche. Für Schülerinnen, Schüler und Azubis gibt es mittags ein Angebot inkl. Softgetränk — gegen Vorlage eines Ausweises. Details stehen auf der Seite Schüler Mittagessen Landshut.",
   },
   {
     question: "Bietet Wassana Catering und Kochkurse in Landshut an?",

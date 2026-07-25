@@ -5,7 +5,9 @@ import { ContactForm } from "@/components/ContactForm";
 import {
   JsonLdBreadcrumbs,
   JsonLdCookingCourseEvent,
+  JsonLdWebPage,
 } from "@/components/JsonLd";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
@@ -17,19 +19,19 @@ import {
   splitCourseLines,
 } from "@/lib/cooking-course";
 import { alternateCourseImage } from "@/lib/cooking-course-shared";
+import { pageMetadata } from "@/lib/seo-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Thai Kochkurs Landshut",
   description:
     "Thai Kochkurs in Landshut bei Wassana: Schritt für Schritt Pad Thai oder Tom Yam zubereiten — inkl. Tipps zu Zutaten.",
-  alternates: { canonical: "/kochkurs" },
-  openGraph: {
-    title: "Thai Kochkurs Landshut | Wassana",
-    description: "Gemeinsam berühmte Thai-Gerichte kochen lernen.",
-    url: "/kochkurs",
-  },
-  robots: { index: true, follow: true },
-};
+  path: "/kochkurs",
+  keywords: [
+    "Thai Kochkurs Landshut",
+    "Kochen lernen Thai Landshut",
+    "Pad Thai Kurs Landshut",
+  ],
+});
 
 export const dynamic = "force-dynamic";
 
@@ -80,13 +82,18 @@ export default async function KochkursPage() {
   const hasDetails =
     includes.length > 0 || whatToBring.length > 0 || Boolean(locationNote);
 
+  const crumbs = [
+    { name: "Start", path: "/" },
+    { name: "Kochkurs", path: "/kochkurs" },
+  ];
+
   return (
     <main>
-      <JsonLdBreadcrumbs
-        items={[
-          { name: "Start", path: "/" },
-          { name: "Kochkurs", path: "/kochkurs" },
-        ]}
+      <JsonLdBreadcrumbs items={crumbs} />
+      <JsonLdWebPage
+        name="Thai Kochkurs Landshut"
+        description="Thai Kochkurs bei Wassana in Landshut — Schritt für Schritt kochen lernen."
+        path="/kochkurs"
       />
       {showNext ? (
         <JsonLdCookingCourseEvent course={course} business={business} />
@@ -100,7 +107,9 @@ export default async function KochkursPage() {
         priority
         height="short"
       />
-
+      <div className="mx-auto max-w-6xl px-5 pt-4 md:px-8">
+        <Breadcrumbs items={crumbs} />
+      </div>
       {showNext ? (
         <div className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
           <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-6 md:flex-row md:items-baseline md:justify-between md:px-8">

@@ -20,11 +20,15 @@ type RouteMeta = {
   priority: number;
 };
 
+/** Soft-removed public URLs (redirect / noindex) — keep out of sitemap. */
+const HIDDEN_PATHS = new Set<string>([]);
+
 /** Optional SEO tuning; new pages still appear automatically with defaults. */
 const ROUTE_META: Record<string, RouteMeta> = {
   "/": { changeFrequency: "weekly", priority: 1 },
   "/speisekarte": { changeFrequency: "daily", priority: 0.95 },
   "/mitnehmen": { changeFrequency: "weekly", priority: 0.9 },
+  "/schueler-mittagessen": { changeFrequency: "weekly", priority: 0.88 },
   "/kontakt": { changeFrequency: "monthly", priority: 0.9 },
   "/anfahrt": { changeFrequency: "monthly", priority: 0.88 },
   "/catering": { changeFrequency: "monthly", priority: 0.85 },
@@ -33,9 +37,6 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/impressum": { changeFrequency: "yearly", priority: 0.2 },
   "/datenschutz": { changeFrequency: "yearly", priority: 0.2 },
 };
-
-/** Soft-removed public URLs (redirect / noindex) — keep out of sitemap. */
-const HIDDEN_PATHS = new Set(["/schueler-mittagessen"]);
 
 const DEFAULT_META: RouteMeta = {
   changeFrequency: "monthly",

@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
-import { JsonLdBreadcrumbs } from "@/components/JsonLd";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { JsonLdBreadcrumbs, JsonLdWebPage } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { pageMetadata } from "@/lib/seo-metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Thai Catering Landshut",
   description:
     "Thai Catering in Landshut von Wassana: individueller Menüplan, Geschirr und frische Gerichte für Geburtstage, Firmenfeiern und Hochzeiten.",
-  alternates: { canonical: "/catering" },
-  openGraph: {
-    title: "Thai Catering Landshut | Wassana",
-    description:
-      "Catering mit Thai-Küche für Events in Landshut — Menüplanung, Geschirr und frische Zubereitung.",
-    url: "/catering",
-  },
-  robots: { index: true, follow: true },
-};
+  path: "/catering",
+  keywords: [
+    "Thai Catering Landshut",
+    "Thai Buffet Firmenfeier Landshut",
+    "Catering Hochzeit Landshut",
+  ],
+});
 
 const offerings = [
   {
@@ -51,20 +51,24 @@ const offerings = [
 
 export default async function CateringPage() {
   const business = await getResolvedBusiness();
+  const crumbs = [
+    { name: "Start", path: "/" },
+    { name: "Catering", path: "/catering" },
+  ];
 
   return (
     <main>
-      <JsonLdBreadcrumbs
-        items={[
-          { name: "Start", path: "/" },
-          { name: "Catering", path: "/catering" },
-        ]}
+      <JsonLdBreadcrumbs items={crumbs} />
+      <JsonLdWebPage
+        name="Thai Catering Landshut"
+        description="Thai Catering von Wassana in Landshut für Firmenfeiern, Geburtstage und Hochzeiten."
+        path="/catering"
       />
       <MediaBand
         src="/images/soup.jpg"
-        alt="Thai-Gerichte fürs Catering von Wassana"
+        alt="Thai-Gerichte fürs Catering von Wassana in Landshut"
         eyebrow="Catering Landshut"
-        title="Feierlichkeiten mit Thai-Atmosphäre"
+        title="Thai Catering Landshut"
         text="Geburtstage, Firmenfeiern oder Hochzeiten — individueller Menüplan und passendes Geschirr."
         priority
         height="short"
@@ -73,6 +77,7 @@ export default async function CateringPage() {
       <section className="offer-strip">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-[var(--section-y)] md:grid-cols-2 md:items-start md:gap-16 md:px-8">
           <Reveal>
+            <Breadcrumbs items={crumbs} />
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
               Unser Service
             </p>

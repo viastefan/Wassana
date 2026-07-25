@@ -2,23 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentBlock, ContentPage } from "@/components/ContentPage";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { pageMetadata } from "@/lib/seo-metadata";
 import { getSiteContent } from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Über uns – Wassana Thai Imbiss Landshut",
+export const metadata: Metadata = pageMetadata({
+  title: "Über uns",
   description:
     "Über Wassana in Landshut: Bedeutung von Glück und gutem Schicksal, frische Thai-Küche am Regierungsplatz und unser Imbiss zum Mitnehmen.",
-  alternates: { canonical: "/ueber-uns" },
-  openGraph: {
-    title: "Über Wassana | Thai Imbiss Landshut",
-    description:
-      "Glück und gutes Schicksal — authentische Thai-Küche am Regierungsplatz.",
-    url: "/ueber-uns",
+  path: "/ueber-uns",
+  keywords: ["Wassana Thai Imbiss", "Wassana Landshut", "Thai Imbiss Regierungsplatz"],
+  image: {
+    url: "/images/ingredients.jpg",
+    width: 1600,
+    height: 1067,
+    alt: "Frische Zutaten der Thai-Küche bei Wassana in Landshut",
   },
-  robots: { index: true, follow: true },
-};
+});
 
 export default async function UeberUnsPage() {
   const [business, content] = await Promise.all([

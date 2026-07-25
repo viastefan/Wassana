@@ -40,11 +40,8 @@ export function LocationSection({
               <address className="mt-10 not-italic">
                 <p className="text-lg text-[color:var(--ink)]">
                   <Link
-                    href="/admin"
-                    rel="nofollow"
-                    className="text-[color:var(--ink)] transition hover:text-[color:var(--ink)]"
-                    title="Intern"
-                    aria-label="Intern: Kochkurs verwalten"
+                    href="/ueber-uns"
+                    className="text-[color:var(--ink)] transition hover:text-[color:var(--red)]"
                   >
                     {business.fullName}
                   </Link>

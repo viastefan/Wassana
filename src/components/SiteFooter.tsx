@@ -16,6 +16,7 @@ type SiteFooterProps = {
 const exploreLinks = [
   { href: "/speisekarte", label: "Speisekarte" },
   { href: "/mitnehmen", label: "Mitnehmen" },
+  { href: "/schueler-mittagessen", label: "Schüler Mittagessen" },
   { href: "/catering", label: "Catering" },
   { href: "/kochkurs", label: "Kochkurs" },
   { href: "/ueber-uns", label: "Über uns" },

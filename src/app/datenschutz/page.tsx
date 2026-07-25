@@ -3,20 +3,14 @@ import Link from "next/link";
 import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { pageMetadata } from "@/lib/seo-metadata";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Datenschutzerklärung",
   description: `Datenschutzerklärung von ${site.fullName} in ${site.address.city} — Informationen zu Cookies, Google Maps, Kontaktformular, Hosting und Bildern gemäß DSGVO und TTDSG.`,
-  alternates: { canonical: "/datenschutz" },
-  openGraph: {
-    title: "Datenschutz | Wassana Thai Imbiss Landshut",
-    description:
-      "Informationen zu Cookies, Google Maps, Kontaktformular und Hosting gemäß DSGVO.",
-    url: "/datenschutz",
-  },
-  robots: { index: true, follow: true },
-};
+  path: "/datenschutz",
+});
 
 export const dynamic = "force-dynamic";
 
