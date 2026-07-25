@@ -2076,7 +2076,7 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Speisekarte"
                   title="Wochenkarte"
-                  description="Pro Tag Gericht und Preise — mobil untereinander, am Desktop in einer Zeile."
+                  description="Pro Tag Gericht, Preise und Kennzeichnung (z. B. A,B,C) — wie auf der Speisekarte."
                 />
                 <Section title="Allgemein">
                   <Field label="Hinweis unter dem Titel">
@@ -2088,6 +2088,11 @@ export function AdminClient() {
                       className={fieldClass}
                     />
                   </Field>
+                  <p className="text-sm text-[color:var(--admin-muted)]">
+                    Kennzeichnung z. B. <strong>A,B,C</strong> oder{" "}
+                    <strong>E</strong> — siehe Legende auf der Speisekarte
+                    (Weizen, Soja, Austernsauce, Fischsauce …).
+                  </p>
                 </Section>
 
                 {weekly.days.map((day, dayIndex) => (
@@ -2117,11 +2122,29 @@ export function AdminClient() {
                         className={fieldClass}
                       />
                     </Field>
+                    <Field
+                      label="Kennzeichnung Gericht"
+                      hint="z. B. A,B,C — gilt für das Tagesgericht"
+                    >
+                      <input
+                        value={day.allergens || ""}
+                        onChange={(e) => {
+                          const days = [...weekly.days];
+                          days[dayIndex] = {
+                            ...day,
+                            allergens: e.target.value,
+                          };
+                          setWeekly({ ...weekly, days });
+                        }}
+                        className={fieldClass}
+                        placeholder="A,B,C"
+                      />
+                    </Field>
                     <div className="admin-day-grid">
                       {day.items.map((item, itemIndex) => (
                         <div
                           key={`${item.nr}-${itemIndex}`}
-                          className="admin-day-row"
+                          className="admin-day-row admin-day-row--allergen"
                         >
                           <input
                             aria-label={`${day.day} Nr`}
@@ -2170,6 +2193,22 @@ export function AdminClient() {
                             }}
                             className={fieldClass}
                             placeholder="Preis"
+                          />
+                          <input
+                            aria-label={`${day.day} Kennzeichnung`}
+                            value={item.allergens || ""}
+                            onChange={(e) => {
+                              const days = [...weekly.days];
+                              const items = [...day.items];
+                              items[itemIndex] = {
+                                ...item,
+                                allergens: e.target.value,
+                              };
+                              days[dayIndex] = { ...day, items };
+                              setWeekly({ ...weekly, days });
+                            }}
+                            className={fieldClass}
+                            placeholder="A,B"
                           />
                         </div>
                       ))}

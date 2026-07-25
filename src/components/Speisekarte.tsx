@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AllergenLegend, AllergenMarks } from "@/components/AllergenLegend";
 import { allergens, menuSections } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
@@ -22,11 +23,7 @@ function ItemRow({
       <div>
         <p className="text-[color:var(--ink)]">
           {name}
-          {codes ? (
-            <sup className="ml-1 text-[0.65rem] text-[color:var(--muted)]">
-              {codes}
-            </sup>
-          ) : null}
+          <AllergenMarks codes={codes} />
         </p>
         {description ? (
           <p className="mt-1 text-sm leading-relaxed text-[color:var(--muted)]">
@@ -59,7 +56,10 @@ export function Wochenkarte({
             <h2 className="font-display text-4xl text-[color:var(--red)] md:text-5xl">
               Wochenkarte
             </h2>
-            <p className="text-sm text-[color:var(--muted)]">{menu.note}</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm text-[color:var(--muted)]">{menu.note}</p>
+              {!compact ? <AllergenLegend variant="link" /> : null}
+            </div>
           </div>
           <div className="gold-rule mt-5" />
         </Reveal>
@@ -73,6 +73,7 @@ export function Wochenkarte({
                 </p>
                 <h3 className="font-display mt-2 text-2xl text-[color:var(--ink)]">
                   {day.dish}
+                  <AllergenMarks codes={day.allergens} />
                 </h3>
                 {day.description ? (
                   <p className="mt-2 text-sm text-[color:var(--muted)]">
@@ -88,6 +89,7 @@ export function Wochenkarte({
                       <span className="text-[color:var(--ink)]">
                         <span className="text-[color:var(--gold)]">{item.nr}</span>{" "}
                         {item.name}
+                        <AllergenMarks codes={item.allergens} />
                       </span>
                       <span className="whitespace-nowrap text-[color:var(--red)]">
                         {item.price}
@@ -102,10 +104,11 @@ export function Wochenkarte({
 
         {compact ? (
           <Reveal>
-            <div className="mt-10">
+            <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link href="/speisekarte" className="btn-primary">
                 Zur vollständigen Speisekarte
               </Link>
+              <AllergenLegend variant="link" />
             </div>
           </Reveal>
         ) : null}
@@ -128,6 +131,7 @@ export function SpeisekarteFull({ menu }: { menu: WeeklyMenuData }) {
                 {section.title}
               </a>
             ))}
+            <AllergenLegend variant="chip" />
           </div>
         </div>
 
@@ -164,20 +168,28 @@ export function SpeisekarteFull({ menu }: { menu: WeeklyMenuData }) {
         </div>
 
         <Reveal>
-          <div className="mt-16 border-t border-[color:var(--line)] pt-8">
-            <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-              Hinweise
-            </p>
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[color:var(--muted)]">
-              Schärfe nach Wunsch: nicht scharf – leicht scharf – mittelscharf –
-              scharf – sehr scharf. Extra Soße 0,10 €. Getränke mit * inkl.
-              0,15 € Pfand.
-            </p>
-            <div className="mt-5 grid gap-1 sm:grid-cols-2">
+          <div
+            id="kennzeichnung"
+            className="allergen-legend-block mt-16 border-t border-[color:var(--line)] pt-8"
+          >
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
+                  Hinweise & Kennzeichnung
+                </p>
+                <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[color:var(--muted)]">
+                  Hochgestellte Zeichen neben den Gerichten stehen für Zusatzstoffe
+                  und Allergene. Schärfe nach Wunsch: nicht scharf – leicht scharf –
+                  mittelscharf – scharf – sehr scharf. Extra Soße 0,10 €. Getränke
+                  mit * inkl. 0,15 € Pfand.
+                </p>
+              </div>
+              <AllergenLegend variant="button" />
+            </div>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
               {allergens.map((item) => (
                 <p key={item.code} className="text-sm text-[color:var(--muted)]">
-                  <span className="text-[color:var(--gold)]">{item.code})</span>{" "}
-                  {item.label}
+                  <span className="allergen-code">{item.code}</span> {item.label}
                 </p>
               ))}
             </div>
