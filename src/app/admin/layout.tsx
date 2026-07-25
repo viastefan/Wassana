@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: {
     absolute: "Wassana Verwaltung",
   },
-  description: "Kochkurs, Anfragen und Website-Inhalte verwalten.",
+  description: "Kochkurs, Anfragen und Website-Inhalte — speichern heißt live.",
   robots: { index: false, follow: false },
   manifest: "/admin.webmanifest",
   applicationName: "Wassana Verwaltung",

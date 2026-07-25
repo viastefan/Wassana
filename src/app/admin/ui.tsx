@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { PersistSnapshot } from "@/lib/admin-support";
 
 export function ScreenHeader({
   kicker,
@@ -97,31 +98,77 @@ export function Toggle({
 
 export type PublishPhase = "idle" | "publishing" | "online" | "error";
 
+export function PersistChips({
+  persist,
+}: {
+  persist?: PersistSnapshot | null;
+}) {
+  if (!persist) return null;
+  const items = [
+    { key: "blob", label: "Live-Speicher", ok: persist.blob },
+    { key: "github", label: "Backup", ok: persist.github },
+    { key: "durable", label: "Dauerhaft", ok: persist.durable },
+  ] as const;
+
+  return (
+    <div className="admin-persist-chips" aria-label="Speicher-Status">
+      {items.map((item) => (
+        <span
+          key={item.key}
+          className={`admin-persist-chip ${
+            item.ok === true
+              ? "is-ok"
+              : item.ok === false
+                ? "is-bad"
+                : "is-unknown"
+          }`}
+        >
+          <span className="admin-persist-dot" aria-hidden />
+          {item.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+export function StatusDot({
+  tone = "neutral",
+}: {
+  tone?: "ok" | "warn" | "bad" | "neutral";
+}) {
+  return <span className={`admin-status-dot is-${tone}`} aria-hidden />;
+}
+
 export function StickySave({
   saving,
   label,
   disabled,
   phase = "idle",
+  hint = "Speichert und geht sofort live auf der Website.",
 }: {
   saving: boolean;
   label: string;
   disabled?: boolean;
   phase?: PublishPhase;
+  hint?: string;
 }) {
   const busy = saving || phase === "publishing";
   const text =
     phase === "publishing"
-      ? "Veröffentlichen …"
+      ? "Geht live …"
       : phase === "online"
-        ? "Online — live"
+        ? "Live — online"
         : phase === "error"
-          ? "Fehler — siehe Hinweis"
+          ? "Nicht live — Fehler"
           : busy
-            ? "Speichern …"
+            ? "Wird veröffentlicht …"
             : label;
 
   return (
     <div className="admin-sticky-save">
+      {phase === "idle" && !busy ? (
+        <p className="admin-sticky-hint">{hint}</p>
+      ) : null}
       <button
         type="submit"
         className={`btn-primary admin-sticky-save-btn ${

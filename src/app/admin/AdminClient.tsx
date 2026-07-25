@@ -28,11 +28,14 @@ import {
 import {
   buildPublishDiagnostic,
   type DiagnosticReport,
+  type PersistSnapshot,
 } from "@/lib/admin-support";
 import {
   Field,
+  PersistChips,
   ScreenHeader,
   Section,
+  StatusDot,
   StickySave,
   Toggle,
   type PublishPhase,
@@ -112,6 +115,14 @@ export function AdminClient() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [publishPhase, setPublishPhase] = useState<PublishPhase>("idle");
+  const [lastPersist, setLastPersist] = useState<PersistSnapshot | null>(null);
+  const [cmsHealth, setCmsHealth] = useState<{
+    blob: boolean;
+    vercel: boolean;
+    githubToken: boolean;
+    summary: string;
+    checkedAt: string;
+  } | null>(null);
   const [failReport, setFailReport] = useState<DiagnosticReport | null>(null);
   const [installEvent, setInstallEvent] =
     useState<BeforeInstallPromptEvent | null>(null);
@@ -247,6 +258,35 @@ export function AdminClient() {
     }
   }, []);
 
+  const loadCmsHealth = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/diagnostics", { cache: "no-store" });
+      if (res.status === 401) {
+        setAuthed(false);
+        return;
+      }
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        env?: DiagnosticReport["env"];
+        report?: DiagnosticReport;
+      };
+      if (!data.env) return;
+      setCmsHealth({
+        blob: data.env.blob,
+        vercel: data.env.vercel,
+        githubToken: data.env.githubToken,
+        summary:
+          data.report?.summary ||
+          (data.env.blob
+            ? "Live-Speicher bereit — Änderungen können sofort online gehen."
+            : "Live-Speicher fehlt — Veröffentlichung auf .de ist blockiert."),
+        checkedAt: new Date().toISOString(),
+      });
+    } catch {
+      /* keep previous */
+    }
+  }, []);
+
   const applyCourseStore = useCallback(
     (store: { current: Course; archive?: CookingCourseArchiveEntry[] }) => {
       setCourse(store.current);
@@ -288,10 +328,12 @@ export function AdminClient() {
       loadFullMenu(),
       loadBusiness(),
       checkRuntime(),
+      loadCmsHealth(),
     ]);
   }, [
     checkRuntime,
     loadBusiness,
+    loadCmsHealth,
     loadContent,
     loadCourseStore,
     loadFullMenu,
@@ -483,25 +525,22 @@ export function AdminClient() {
       ok: boolean;
       error?: string;
       warning?: string;
-      persist?: {
-        disk?: boolean;
-        tmp?: boolean;
-        blob?: boolean;
-        github?: boolean;
-        durable?: boolean;
-      };
+      persist?: PersistSnapshot;
       successMessage?: string;
     }>,
   ) {
     setSaving(true);
     setError("");
     setStatus("");
+    setLastPersist(null);
     setPublishPhase("publishing");
     const started = Date.now();
     try {
       const result = await execute();
-      const wait = Math.max(0, 3000 - (Date.now() - started));
+      const wait = Math.max(0, 1200 - (Date.now() - started));
       if (wait) await sleep(wait);
+
+      if (result.persist) setLastPersist(result.persist);
 
       if (!result.ok || result.persist?.durable === false) {
         const report = await finalizeFailReport({
@@ -512,17 +551,19 @@ export function AdminClient() {
         setFailReport(report);
         setPublishPhase("error");
         setError(report.summary);
+        void loadCmsHealth();
         return false;
       }
 
       setPublishPhase("online");
       setStatus(result.successMessage || result.warning || "Online — live.");
+      void loadCmsHealth();
       window.setTimeout(() => {
         setPublishPhase((prev) => (prev === "online" ? "idle" : prev));
       }, 2500);
       return true;
     } catch (error) {
-      const wait = Math.max(0, 3000 - (Date.now() - started));
+      const wait = Math.max(0, 1200 - (Date.now() - started));
       if (wait) await sleep(wait);
       const report = await finalizeFailReport({
         action,
@@ -534,6 +575,7 @@ export function AdminClient() {
       setFailReport(report);
       setPublishPhase("error");
       setError(report.summary);
+      void loadCmsHealth();
       return false;
     } finally {
       setSaving(false);
@@ -1024,7 +1066,7 @@ export function AdminClient() {
   }
 
   async function setBannerLive(active: boolean) {
-    if (!content || liveBusy) return;
+    if (!content || liveBusy || saving) return;
     const previous = content;
     const next = {
       ...content,
@@ -1032,49 +1074,57 @@ export function AdminClient() {
     };
     setContent(next);
     setLiveBusy("banner");
-    setError("");
-    setStatus("");
-    try {
-      const res = await fetch("/api/admin/content", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(next),
-      });
-      const data = (await res.json().catch(() => null)) as
-        | (SiteContent & { error?: string; warning?: string })
-        | null;
-      if (!res.ok) {
-        if (res.status === 401) setAuthed(false);
-        setContent(previous);
-        setError(data?.error || "Live-Schaltung Banner fehlgeschlagen.");
-        return;
-      }
-      if (data) {
-        setContent({
-          hero: data.hero,
-          meaning: data.meaning,
-          hours: data.hours,
-          studentLunch: data.studentLunch,
-          topBanner: data.topBanner,
-          location: data.location,
-          closing: data.closing,
-          updatedAt: data.updatedAt,
+    const ok = await runPublish(
+      active ? "Top-Banner live schalten" : "Top-Banner ausschalten",
+      async () => {
+        const res = await fetch("/api/admin/content", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(next),
         });
-      }
-      setStatus(
-        data?.warning ||
-          (active ? "Banner ist jetzt live." : "Banner ist ausgeschaltet."),
-      );
-    } catch {
-      setContent(previous);
-      setError("Netzwerkfehler bei der Live-Schaltung.");
-    } finally {
-      setLiveBusy(null);
-    }
+        const data = (await res.json().catch(() => null)) as
+          | (SiteContent & {
+              error?: string;
+              warning?: string;
+              persist?: PersistSnapshot;
+            })
+          | null;
+        if (!res.ok) {
+          if (res.status === 401) setAuthed(false);
+          return {
+            ok: false,
+            error: data?.error || "Live-Schaltung Banner fehlgeschlagen.",
+            persist: data?.persist,
+          };
+        }
+        if (data) {
+          setContent({
+            hero: data.hero,
+            meaning: data.meaning,
+            hours: data.hours,
+            studentLunch: data.studentLunch,
+            topBanner: data.topBanner,
+            location: data.location,
+            closing: data.closing,
+            updatedAt: data.updatedAt,
+          });
+        }
+        return {
+          ok: true,
+          warning: data?.warning,
+          persist: data?.persist,
+          successMessage: active
+            ? "Banner ist jetzt live."
+            : "Banner ist ausgeschaltet.",
+        };
+      },
+    );
+    if (!ok) setContent(previous);
+    setLiveBusy(null);
   }
 
   async function setCourseLive(active: boolean) {
-    if (liveBusy) return;
+    if (liveBusy || saving) return;
     if (!course.date) {
       setError("Bitte zuerst unter Kurs ein Datum setzen.");
       setTab("course");
@@ -1084,39 +1134,46 @@ export function AdminClient() {
     const next = { ...course, active };
     setCourse(next);
     setLiveBusy("course");
-    setError("");
-    setStatus("");
-    try {
-      const res = await fetch("/api/cooking-course", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(next),
-      });
-      const data = (await res.json().catch(() => null)) as
-        | (Course & { error?: string; warning?: string })
-        | null;
-      if (!res.ok) {
-        if (res.status === 401) setAuthed(false);
-        setCourse(previous);
-        setError(data?.error || "Live-Schaltung Kochkurs fehlgeschlagen.");
-        return;
-      }
-      if (data) {
-        const { error: _error, warning: _warning, ...courseData } = data;
-        setCourse(createBlankCourse(courseData));
-      }
-      setStatus(
-        data?.warning ||
-          (active
+    const ok = await runPublish(
+      active ? "Kochkurs-Widget live schalten" : "Kochkurs-Widget ausschalten",
+      async () => {
+        const res = await fetch("/api/cooking-course", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(next),
+        });
+        const data = (await res.json().catch(() => null)) as
+          | (Course & {
+              error?: string;
+              warning?: string;
+              persist?: PersistSnapshot;
+            })
+          | null;
+        if (!res.ok) {
+          if (res.status === 401) setAuthed(false);
+          return {
+            ok: false,
+            error: data?.error || "Live-Schaltung Kochkurs fehlgeschlagen.",
+            persist: data?.persist,
+          };
+        }
+        if (data) {
+          const { error: _error, warning: _warning, persist: _persist, ...courseData } =
+            data;
+          setCourse(createBlankCourse(courseData));
+        }
+        return {
+          ok: true,
+          warning: data?.warning,
+          persist: data?.persist,
+          successMessage: active
             ? "Kochkurs-Widget ist live."
-            : "Kochkurs-Widget ist ausgeschaltet."),
-      );
-    } catch {
-      setCourse(previous);
-      setError("Netzwerkfehler bei der Live-Schaltung.");
-    } finally {
-      setLiveBusy(null);
-    }
+            : "Kochkurs-Widget ist ausgeschaltet.",
+        };
+      },
+    );
+    if (!ok) setCourse(previous);
+    setLiveBusy(null);
   }
 
   async function saveBusiness(event: FormEvent) {
@@ -1419,7 +1476,9 @@ export function AdminClient() {
               Wassana Verwaltung
             </p>
             <p className="truncate text-xs text-[color:var(--admin-muted)]">
-              Laden-App · Banner, Menü, Anfragen
+              {authed
+                ? "Ändern → Veröffentlichen → sofort live"
+                : "Laden-App · Banner, Menü, Anfragen"}
             </p>
           </div>
           {authed ? (
@@ -1431,7 +1490,7 @@ export function AdminClient() {
               Raus
             </button>
           ) : (
-            <span className="admin-chip is-live">Live</span>
+            <span className="admin-chip is-live">App</span>
           )}
         </div>
       </header>
@@ -1533,22 +1592,70 @@ export function AdminClient() {
 
             {tab === "home" ? (
               <section className="space-y-4">
-                <div className="flex items-end justify-between gap-3">
-                  <div>
-                    <p className="admin-kicker">Dashboard</p>
-                    <h1 className="font-display mt-1 text-3xl text-[color:var(--admin-burgundy)]">
-                      Übersicht
-                    </h1>
+                <div className="admin-live-hero">
+                  <div className="admin-live-hero-top">
+                    <div>
+                      <p className="admin-kicker">Dashboard</p>
+                      <h1 className="font-display mt-1 text-3xl text-[color:var(--admin-burgundy)]">
+                        Übersicht
+                      </h1>
+                      <p className="mt-2 max-w-md text-sm leading-relaxed text-[color:var(--admin-muted)]">
+                        Hier steuerst du die Website. Speichern heißt immer:
+                        sofort live auf wassana-thai-imbiss.de.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className={`admin-chip ${
+                        cmsHealth?.blob
+                          ? "is-live"
+                          : cmsHealth
+                            ? "is-bad"
+                            : "is-warn"
+                      }`}
+                      onClick={() => {
+                        void checkRuntime();
+                        void loadCmsHealth();
+                      }}
+                    >
+                      <StatusDot
+                        tone={
+                          cmsHealth?.blob
+                            ? "ok"
+                            : cmsHealth
+                              ? "bad"
+                              : "warn"
+                        }
+                      />
+                      {cmsHealth?.blob
+                        ? "Live bereit"
+                        : cmsHealth
+                          ? "Speicher fehlt"
+                          : "Prüfen"}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="admin-chip is-live"
-                    onClick={() => void checkRuntime()}
-                  >
-                    {runtime?.online ? "Online" : runtime ? "Offline" : "Check"}
-                  </button>
+                  <ol className="admin-live-steps">
+                    <li>
+                      <span className="admin-live-step-num">1</span>
+                      <span>Bereich wählen (Banner, Texte, Menü …)</span>
+                    </li>
+                    <li>
+                      <span className="admin-live-step-num">2</span>
+                      <span>Ändern und unten „Veröffentlichen“ tippen</span>
+                    </li>
+                    <li>
+                      <span className="admin-live-step-num">3</span>
+                      <span>
+                        Grün = online. Rot = Fehler mit klarer Diagnose.
+                      </span>
+                    </li>
+                  </ol>
+                  {cmsHealth ? (
+                    <p className="mt-3 text-sm text-[color:var(--admin-muted)]">
+                      {cmsHealth.summary}
+                    </p>
+                  ) : null}
                 </div>
-
 
                 {notifPermission === "default" || notifPermission === "unknown" ? (
                   <Section title="Mitteilungen">
@@ -1566,14 +1673,14 @@ export function AdminClient() {
                     </button>
                   </Section>
                 ) : null}
-                <Section title="Live-Schaltung">
+                <Section title="Schnell live schalten">
                   <Toggle
                     checked={Boolean(content?.topBanner.active)}
                     onChange={(active) => void setBannerLive(active)}
                     label="Top-Banner live"
                     hint={
                       liveBusy === "banner"
-                        ? "Schaltet gerade …"
+                        ? "Geht gerade live …"
                         : "Sofort auf der Website sichtbar"
                     }
                   />
@@ -1583,7 +1690,7 @@ export function AdminClient() {
                     label="Kochkurs-Widget live"
                     hint={
                       liveBusy === "course"
-                        ? "Schaltet gerade …"
+                        ? "Geht gerade live …"
                         : course.date
                           ? `Termin: ${formatCourseDate(course.date)}`
                           : "Kein Datum gesetzt"
@@ -1591,10 +1698,35 @@ export function AdminClient() {
                   />
                 </Section>
 
-                <Section title="Runtime-Status">
+                <Section
+                  title="Live-Status"
+                  action={
+                    <button
+                      type="button"
+                      className="admin-chip"
+                      onClick={() => {
+                        void checkRuntime();
+                        void loadCmsHealth();
+                      }}
+                    >
+                      Neu prüfen
+                    </button>
+                  }
+                >
                   <div className="admin-status-grid">
                     <div className="admin-status-item">
-                      <p className="admin-status-label">Website</p>
+                      <p className="admin-status-label">
+                        <StatusDot
+                          tone={
+                            runtime?.online
+                              ? "ok"
+                              : runtime
+                                ? "bad"
+                                : "neutral"
+                          }
+                        />
+                        Website
+                      </p>
                       <p className="admin-status-value">
                         {runtime
                           ? runtime.online
@@ -1609,7 +1741,38 @@ export function AdminClient() {
                       </p>
                     </div>
                     <div className="admin-status-item">
-                      <p className="admin-status-label">Banner</p>
+                      <p className="admin-status-label">
+                        <StatusDot
+                          tone={
+                            cmsHealth?.blob
+                              ? "ok"
+                              : cmsHealth
+                                ? "bad"
+                                : "neutral"
+                          }
+                        />
+                        Live-Speicher
+                      </p>
+                      <p className="admin-status-value">
+                        {cmsHealth
+                          ? cmsHealth.blob
+                            ? "Bereit"
+                            : "Fehlt"
+                          : "—"}
+                      </p>
+                      <p className="admin-status-meta">
+                        {cmsHealth?.githubToken
+                          ? "Backup optional aktiv"
+                          : "Blob = Pflicht für .de"}
+                      </p>
+                    </div>
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">
+                        <StatusDot
+                          tone={content?.topBanner.active ? "ok" : "neutral"}
+                        />
+                        Banner
+                      </p>
                       <p className="admin-status-value">
                         {content?.topBanner.active ? "Live" : "Aus"}
                       </p>
@@ -1620,7 +1783,10 @@ export function AdminClient() {
                       </p>
                     </div>
                     <div className="admin-status-item">
-                      <p className="admin-status-label">Kochkurs</p>
+                      <p className="admin-status-label">
+                        <StatusDot tone={course.active ? "ok" : "neutral"} />
+                        Kochkurs
+                      </p>
                       <p className="admin-status-value">
                         {course.active ? "Live" : "Aus"}
                       </p>
@@ -1631,7 +1797,12 @@ export function AdminClient() {
                       </p>
                     </div>
                     <div className="admin-status-item">
-                      <p className="admin-status-label">Inhalte</p>
+                      <p className="admin-status-label">
+                        <StatusDot
+                          tone={content?.updatedAt ? "ok" : "neutral"}
+                        />
+                        Texte
+                      </p>
                       <p className="admin-status-value">
                         {content?.updatedAt ? "Aktuell" : "—"}
                       </p>
@@ -1641,10 +1812,35 @@ export function AdminClient() {
                           : "keine Daten"}
                       </p>
                     </div>
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">
+                        <StatusDot
+                          tone={
+                            weekly?.updatedAt || fullMenu?.updatedAt
+                              ? "ok"
+                              : "neutral"
+                          }
+                        />
+                        Menü
+                      </p>
+                      <p className="admin-status-value">
+                        {weekly?.updatedAt || fullMenu?.updatedAt
+                          ? "Aktuell"
+                          : "—"}
+                      </p>
+                      <p className="admin-status-meta">
+                        {weekly?.updatedAt
+                          ? `Woche ${formatWhen(weekly.updatedAt)}`
+                          : fullMenu?.updatedAt
+                            ? `Karte ${formatWhen(fullMenu.updatedAt)}`
+                            : "noch nicht geprüft"}
+                      </p>
+                    </div>
                   </div>
+                  {lastPersist ? <PersistChips persist={lastPersist} /> : null}
                 </Section>
 
-                <Section title="Analytics">
+                <Section title="Anfragen">
                   <div className="admin-status-grid">
                     <div className="admin-status-item">
                       <p className="admin-status-label">7 Tage</p>
@@ -1695,7 +1891,10 @@ export function AdminClient() {
                         key={id}
                         type="button"
                         className={`admin-card ${id === "menu" ? "sm:col-span-2" : ""}`}
-                        onClick={() => setTab(id)}
+                        onClick={() => {
+                          setPublishPhase("idle");
+                          setTab(id);
+                        }}
                       >
                         <span className="admin-card-icon">
                           <Icon className="admin-icon" />
@@ -1754,7 +1953,7 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Kochkurs"
                   title="Nächster Termin"
-                  description="Anlegen, live schalten, nach dem Kurs abhaken mit Fazit — oder falsch Eingetragenes löschen."
+                  description="Anlegen und veröffentlichen = sofort live. Danach abhaken mit Fazit oder löschen."
                   action={
                     <button
                       type="button"
@@ -2485,7 +2684,7 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Top-Leiste"
                   title="Banner"
-                  description="Über dem Menü auf allen Seiten — Text, Link und Farben."
+                  description="Über dem Menü auf allen Seiten. Veröffentlichen schreibt Banner und Website-Texte gemeinsam live."
                 />
                 <Section title="Inhalt">
                   <Toggle
@@ -2709,7 +2908,7 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Website"
                   title="Texte"
-                  description="Alles, was auf der öffentlichen Seite steht — tippen und speichern."
+                  description="Öffentliche Texte ändern. Veröffentlichen geht sofort live (inkl. Banner-Daten)."
                 />
                 <Section title="Hero Startseite">
                   <Field label="Begrüßung über Wassana">
@@ -2997,7 +3196,7 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Speisekarte"
                   title="Beliebte Gerichte der Woche"
-                  description="Tage und Varianten per Pfeile sortieren — Reihenfolge erscheint so auf der Speisekarte."
+                  description="Tage und Varianten sortieren — Veröffentlichen macht die Reihenfolge sofort live."
                 />
                 <Section title="Allgemein">
                   <Field label="Hinweis unter dem Titel">
@@ -3259,7 +3458,7 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Einstellungen"
                   title="Betrieb & Inhaber"
-                  description="Alle Stammdaten für Website, Impressum, Kontakt und Anfragen."
+                  description="Stammdaten für Website und Impressum — Veröffentlichen geht sofort live."
                 />
                 <Section title="Betrieb">
                   <Field label="Betriebsname">
@@ -3472,7 +3671,12 @@ export function AdminClient() {
             {error ? (
               <p className="admin-toast is-error">{error}</p>
             ) : null}
-            {status ? <p className="admin-toast">{status}</p> : null}
+            {status ? (
+              <div className="admin-toast is-ok">
+                <p>{status}</p>
+                <PersistChips persist={lastPersist} />
+              </div>
+            ) : null}
           </>
         )}
       </main>
@@ -3485,6 +3689,7 @@ export function AdminClient() {
                 key={item.id}
                 type="button"
                 onClick={() => {
+                  setPublishPhase("idle");
                   setTab(item.id);
                   setError("");
                   setStatus("");

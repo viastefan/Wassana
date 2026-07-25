@@ -113,7 +113,7 @@ export function AdminFullMenuEditor({
       <ScreenHeader
         kicker="Speisekarte"
         title="Alle Gerichte"
-        description="Kategorien und Gerichte der kompletten Speisekarte — sortieren, anlegen, Preise und Texte ändern."
+        description="Kategorien und Gerichte ändern — Veröffentlichen macht die komplette Speisekarte sofort live."
         action={
           <button
             type="button"
