@@ -98,5 +98,4 @@ export const navLinks = [
   { href: "/speisekarte", label: "Speisekarte" },
   { href: "/catering", label: "Catering" },
   { href: "/kochkurs", label: "Kochkurs" },
-  { href: "/kontakt", label: "Kontakt" },
 ] as const;

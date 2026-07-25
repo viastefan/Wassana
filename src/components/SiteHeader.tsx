@@ -27,14 +27,18 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
 
-  const solid = scrolled || open || !isHome;
+  // Auf der Startseite oben: transparent + weiße Schrift
+  const onHero = isHome && !scrolled && !open;
+  const solid = !onHero;
 
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-400 ${
+        onHero ? "site-header-hero bg-transparent" : ""
+      } ${
         solid
           ? "border-b border-[color:var(--line)] bg-[color:var(--bg)]/95 backdrop-blur-md"
-          : "bg-transparent"
+          : ""
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 md:px-8">
@@ -52,8 +56,8 @@ export function SiteHeader() {
             priority
           />
           <span
-            className={`font-display text-xl tracking-tight ${
-              solid ? "text-[color:var(--red)]" : "text-white"
+            className={`nav-brand font-display text-xl tracking-tight ${
+              solid ? "text-[color:var(--red)]" : ""
             }`}
           >
             {site.name}
@@ -65,8 +69,8 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm tracking-wide transition-opacity hover:opacity-70 ${
-                solid ? "text-[color:var(--ink)]" : "text-white"
+              className={`nav-link text-sm tracking-wide transition-opacity hover:opacity-70 ${
+                solid ? "text-[color:var(--ink)]" : ""
               }`}
             >
               {link.label}
@@ -74,7 +78,9 @@ export function SiteHeader() {
           ))}
           <Link
             href="/kontakt"
-            className={solid ? "btn-primary px-4 py-2 text-sm" : "btn-ghost px-4 py-2 text-sm"}
+            className={
+              solid ? "btn-primary px-4 py-2 text-sm" : "btn-ghost px-4 py-2 text-sm"
+            }
           >
             Kontakt
           </Link>
@@ -84,7 +90,9 @@ export function SiteHeader() {
           type="button"
           aria-label={open ? "Menü schließen" : "Menü öffnen"}
           aria-expanded={open}
-          className={`md:hidden ${solid ? "text-[color:var(--ink)]" : "text-white"}`}
+          className={`nav-toggle md:hidden ${
+            solid ? "text-[color:var(--ink)]" : ""
+          }`}
           onClick={() => setOpen((v) => !v)}
         >
           <span className="sr-only">Menü</span>

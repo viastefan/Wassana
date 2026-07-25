@@ -164,6 +164,18 @@ a.btn-ghost:hover {
   color: #ffffff !important;
 }
 
+/* Transparenter Header über dem Hero: Menü immer weiß */
+.site-header-hero .nav-brand,
+.site-header-hero .nav-link,
+.site-header-hero .nav-toggle {
+  color: #ffffff !important;
+}
+
+.site-header-hero a.btn-ghost {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
 .chip {
   display: inline-flex;
   flex-shrink: 0;
