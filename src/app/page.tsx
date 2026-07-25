@@ -64,7 +64,8 @@ export default async function HomePage() {
         />
         <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
           <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
-            Thai Imbiss und Feinkost · Landshut
+            {content.hero.eyebrow.trim() ||
+              "Thai Imbiss und Feinkost · Landshut"}
           </p>
           <h1 className="hero-copy-delay font-display mt-3 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
             Willkommen

@@ -28,7 +28,7 @@ Project **wassana** → Settings → Environment Variables:
 | `NEXT_PUBLIC_SITE_URL` | `https://www.wassana-thai-imbiss.de` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | E-Mail-Versand Kontaktformular |
 | `CONTACT_TO` | Empfänger (Inhaber-Mail) |
-| `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | Dauerhafte CMS-Speicherung (Texte/Menü/Kochkurs) |
+| `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | **Pflicht auf Vercel** — sonst gehen Admin-Änderungen nach Redeploy verloren |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional Search-Console Meta |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Push-Benachrichtigungen Admin-App (Public) |
 | `VAPID_PRIVATE_KEY` | Push-Benachrichtigungen Admin-App (Private) |
@@ -38,6 +38,18 @@ VAPID-Keys erzeugen: `npx web-push generate-vapid-keys`
 Ohne diese Keys funktionieren lokale Mitteilungen auf dem Gerät; Push bei geschlossener App braucht die Keys auf Vercel.
 
 Nach Änderungen an Env-Variablen: Redeploy.
+
+### Admin → Live Website (wichtig)
+
+Auf Vercel ist das Dateisystem schreibgeschützt. Speichern läuft so:
+
+1. kurz in `/tmp` (nur diese Server-Instanz)
+2. dauerhaft per **GitHub Commit** in `data/*.json` → triggert Redeploy → live für alle
+
+Ohne `GITHUB_TOKEN` schlägt Speichern im Admin mit Fehler fehl (503), damit nichts „scheinbar gespeichert“ wird.
+
+`GITHUB_TOKEN` anlegen: GitHub → Settings → Developer settings → Personal access token (classic) mit Scope **`repo`** für `viastefan/Wassana`.  
+In Vercel: Variable `GITHUB_TOKEN` = Token, optional `GITHUB_REPO=viastefan/Wassana`, `GITHUB_BRANCH=main`.
 
 ## Rechtliches / Cookies
 

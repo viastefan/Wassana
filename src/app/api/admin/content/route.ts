@@ -8,6 +8,7 @@ import {
   assertSameOrigin,
   readJsonLimited,
 } from "@/lib/security";
+import { persistWarningOrFail } from "@/lib/persist-response";
 import {
   defaultTopBanner,
   getSiteContent,
@@ -106,10 +107,7 @@ export async function PUT(request: Request) {
       },
     });
 
-    return NextResponse.json({
-      ...content,
-      warning: persist.durable ? undefined : persist.error,
-    });
+    return persistWarningOrFail({ ...content }, persist);
   } catch (error) {
     return NextResponse.json(
       {

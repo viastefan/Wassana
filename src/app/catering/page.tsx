@@ -4,7 +4,9 @@ import { ContactForm } from "@/components/ContactForm";
 import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
-import { site } from "@/lib/site";
+import { getResolvedBusiness } from "@/lib/business-profile";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Thai Catering Landshut",
@@ -47,7 +49,9 @@ const offerings = [
   },
 ] as const;
 
-export default function CateringPage() {
+export default async function CateringPage() {
+  const business = await getResolvedBusiness();
+
   return (
     <main>
       <JsonLdBreadcrumbs
@@ -102,10 +106,10 @@ export default function CateringPage() {
             </ul>
 
             <div className="mt-10 flex flex-wrap gap-3">
-              <a href={site.cateringEmailHref} className="btn-primary">
+              <a href={business.cateringEmailHref} className="btn-primary">
                 Per E-Mail anfragen
               </a>
-              <a href={site.phoneHref} className="btn-gold">
+              <a href={business.phoneHref} className="btn-gold">
                 Anrufen
               </a>
             </div>

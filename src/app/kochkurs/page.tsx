@@ -15,7 +15,6 @@ import {
   isPublicPromoVisible,
   sanitizeCourseImage,
 } from "@/lib/cooking-course";
-import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Thai Kochkurs Landshut",
@@ -140,10 +139,10 @@ export default async function KochkursPage() {
               ))}
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href={site.cookingEmailHref} className="btn-primary">
+              <a href={business.cookingEmailHref} className="btn-primary">
                 Per E-Mail anfragen
               </a>
-              <a href={site.phoneHref} className="btn-gold">
+              <a href={business.phoneHref} className="btn-gold">
                 Anrufen
               </a>
             </div>

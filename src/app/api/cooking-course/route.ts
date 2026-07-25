@@ -7,6 +7,7 @@ import {
   sanitizeCourseImage,
   verifyAdminSessionToken,
 } from "@/lib/cooking-course";
+import { persistWarningOrFail } from "@/lib/persist-response";
 import { assertSameOrigin, readJsonLimited } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -61,10 +62,7 @@ export async function PUT(request: Request) {
       pageText: body.pageText || "",
     });
 
-    return NextResponse.json({
-      ...course,
-      warning: persist.durable ? undefined : persist.error,
-    });
+    return persistWarningOrFail({ ...course }, persist);
   } catch (error) {
     return NextResponse.json(
       {

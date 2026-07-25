@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { getSiteContent } from "@/lib/site-content";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -11,8 +12,13 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function ImpressumPage() {
-  const business = await getResolvedBusiness();
+  const [business, content] = await Promise.all([
+    getResolvedBusiness(),
+    getSiteContent(),
+  ]);
   return (
     <main className="pt-24">
       <section className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-20">
@@ -84,9 +90,9 @@ export default async function ImpressumPage() {
                 Öffnungszeiten
               </h2>
               <p className="mt-3 text-[color:var(--muted)]">
-                {site.hours.weekdaysLong}
+                {content.hours.weekdaysLong}
                 <br />
-                {site.hours.weekend}
+                {content.hours.weekend}
               </p>
             </section>
           </Reveal>

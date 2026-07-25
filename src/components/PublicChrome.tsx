@@ -79,7 +79,7 @@ export function PublicChrome({
                 />
               </div>
             ) : null}
-            <SiteHeader embedded />
+            <SiteHeader embedded hours={content.hours} />
           </div>
           <div id="main-content">{children}</div>
           <SiteFooter hours={content.hours} />

@@ -14,8 +14,15 @@ const navItems = [
   { href: "/kochkurs", label: "Kochkurs" },
 ] as const;
 
-export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
+export function SiteHeader({
+  embedded = false,
+  hours,
+}: {
+  embedded?: boolean;
+  hours?: { weekdays: string };
+}) {
   const business = useBusiness();
+  const hoursLabel = hours?.weekdays?.trim() || site.hours.weekdays;
   const pathname = usePathname();
   const contactActions = [
     {
@@ -306,7 +313,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
               </li>
             </ul>
             <p className="mobile-nav-meta">
-              {site.hours.weekdays}
+              {hoursLabel}
               <span aria-hidden> · </span>
               <a href={business.phoneHref}>{business.phone}</a>
             </p>

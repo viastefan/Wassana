@@ -4,6 +4,7 @@ import {
   COOKING_COURSE_COOKIE,
   verifyAdminSessionToken,
 } from "@/lib/cooking-course";
+import { persistWarningOrFail } from "@/lib/persist-response";
 import { assertSameOrigin, readJsonLimited } from "@/lib/security";
 import {
   getWeeklyMenuData,
@@ -59,10 +60,7 @@ export async function PUT(request: Request) {
       days: body.days,
     });
 
-    return NextResponse.json({
-      ...menu,
-      warning: persist.durable ? undefined : persist.error,
-    });
+    return persistWarningOrFail({ ...menu }, persist);
   } catch (error) {
     return NextResponse.json(
       {
