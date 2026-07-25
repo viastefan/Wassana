@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ContentBlock, ContentPage } from "@/components/ContentPage";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
+import { fillTemplate, getSitePages } from "@/lib/site-pages";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +22,18 @@ export const metadata: Metadata = {
 };
 
 export default async function MitnehmenPage() {
-  const [business, content] = await Promise.all([
+  const [business, content, pages] = await Promise.all([
     getResolvedBusiness(),
     getSiteContent(),
+    getSitePages(),
   ]);
+  const copy = pages.mitnehmen;
+  const vars = {
+    phone: business.phone,
+    street: business.street,
+    zip: business.zip,
+    city: business.city,
+  };
 
   return (
     <ContentPage
@@ -32,54 +41,37 @@ export default async function MitnehmenPage() {
         { name: "Start", path: "/" },
         { name: "Mitnehmen", path: "/mitnehmen" },
       ]}
-      eyebrow="Abholen in Landshut"
-      title="Frisch mitnehmen"
-      lead="Curries, Wok und Klassiker — frisch aus der Küche, ideal für Büro, Pause oder zu Hause."
+      eyebrow={copy.eyebrow}
+      title={copy.title}
+      lead={copy.lead}
       image="/images/soup.jpg"
       imageAlt="Thai-Gericht zum Mitnehmen bei Wassana in Landshut"
     >
-      <ContentBlock title="So funktioniert Abholen">
-        <p>
-          Ihr bestellt telefonisch unter{" "}
-          <a href={business.phoneHref} className="text-[color:var(--red)]">
-            {business.phone}
-          </a>{" "}
-          oder kommt vorbei. Wir kochen frisch und packen euer Essen zum
-          Mitnehmen ein.
-        </p>
-        <p>
-          Adresse: {business.street}, {business.zip} {business.city} — zentral
-          am Regierungsplatz.
-        </p>
+      <ContentBlock title={copy.block1Title}>
+        <p>{fillTemplate(copy.block1P1, vars)}</p>
+        <p>{fillTemplate(copy.block1P2, vars)}</p>
       </ContentBlock>
 
-      <ContentBlock title="Wann abholen?">
+      <ContentBlock title={copy.block2Title}>
         <p>
           {content.hours.weekdaysLong}. {content.hours.weekend}.
         </p>
-        <p>
-          Besonders zur Mittagszeit lohnt sich ein Blick auf die aktuellen
-          beliebten Gerichte der Woche — viele eignen sich gut zum Mitnehmen.
-        </p>
+        <p>{copy.block2P2}</p>
       </ContentBlock>
 
-      <ContentBlock title="Was eignet sich zum Mitnehmen?">
-        <p>
-          Curries mit Duftreis, Wok-Gerichte, Suppen und die beliebten Gerichte
-          der Woche lassen sich gut transportieren. Schärfe könnt ihr nach
-          Wunsch wählen.
-        </p>
+      <ContentBlock title={copy.block3Title}>
+        <p>{copy.block3P1}</p>
       </ContentBlock>
 
       <div className="flex flex-wrap gap-3 pt-2">
         <Link href="/speisekarte" className="btn-primary">
-          Speisekarte ansehen
+          {copy.ctaMenu}
         </Link>
         <a href={business.phoneHref} className="btn-gold">
           {business.phone}
         </a>
         <Link href="/anfahrt" className="btn-gold">
-          Anfahrt
+          {copy.ctaAnfahrt}
         </Link>
       </div>
     </ContentPage>

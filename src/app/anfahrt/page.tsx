@@ -4,6 +4,7 @@ import { ContentBlock, ContentPage } from "@/components/ContentPage";
 import { LocationSection } from "@/components/LocationSection";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import { getSiteContent } from "@/lib/site-content";
+import { fillTemplate, getSitePages } from "@/lib/site-pages";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +23,12 @@ export const metadata: Metadata = {
 };
 
 export default async function AnfahrtPage() {
-  const [business, content] = await Promise.all([
+  const [business, content, pages] = await Promise.all([
     getResolvedBusiness(),
     getSiteContent(),
+    getSitePages(),
   ]);
+  const copy = pages.anfahrt;
 
   return (
     <>
@@ -34,13 +37,17 @@ export default async function AnfahrtPage() {
           { name: "Start", path: "/" },
           { name: "Anfahrt", path: "/anfahrt" },
         ]}
-        eyebrow="Standort Landshut"
-        title="So findet ihr uns"
-        lead={`${business.street}, ${business.zip} ${business.city} — im Gewerbehaus am Regierungsplatz.`}
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        lead={fillTemplate(copy.lead, {
+          street: business.street,
+          zip: business.zip,
+          city: business.city,
+        })}
         image="/images/hero.jpg"
         imageAlt="Wassana Thai Imbiss am Regierungsplatz in Landshut"
       >
-        <ContentBlock title="Adresse">
+        <ContentBlock title={copy.addressTitle}>
           <p className="text-[color:var(--ink)]">
             {business.fullName}
             <br />
@@ -49,25 +56,21 @@ export default async function AnfahrtPage() {
             {business.zip} {business.city}
           </p>
           <p>
-            Telefon:{" "}
+            {copy.phoneLabel}{" "}
             <a href={business.phoneHref} className="text-[color:var(--red)]">
               {business.phone}
             </a>
           </p>
         </ContentBlock>
 
-        <ContentBlock title="Öffnungszeiten">
+        <ContentBlock title={copy.hoursTitle}>
           <p>
             {content.hours.weekdaysLong}. {content.hours.weekend}.
           </p>
         </ContentBlock>
 
-        <ContentBlock title="Mit dem Auto oder zu Fuß">
-          <p>
-            Der Regierungsplatz liegt zentral in Landshut. Zu Fuß aus der
-            Altstadt gut erreichbar; mit dem Auto über die üblichen Zufahrten
-            zur Innenstadt. Für die genaue Route nutzt am besten Google Maps.
-          </p>
+        <ContentBlock title={copy.travelTitle}>
+          <p>{copy.travelText}</p>
         </ContentBlock>
 
         <div className="flex flex-wrap gap-3 pt-2">
@@ -77,13 +80,13 @@ export default async function AnfahrtPage() {
             rel="noreferrer"
             className="btn-primary"
           >
-            Route öffnen
+            {copy.ctaRoute}
           </a>
           <a href={business.phoneHref} className="btn-gold">
-            Anrufen
+            {copy.ctaCall}
           </a>
           <Link href="/kontakt" className="btn-gold">
-            Kontakt
+            {copy.ctaKontakt}
           </Link>
         </div>
       </ContentPage>

@@ -11,8 +11,8 @@ import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
 import { getResolvedBusiness } from "@/lib/business-profile";
-import { landshutFaqs } from "@/lib/seo-faq";
 import { getSiteContent } from "@/lib/site-content";
+import { getSitePages } from "@/lib/site-pages";
 import { getWeeklyMenuData } from "@/lib/weekly-menu-store";
 
 export const dynamic = "force-dynamic";
@@ -32,12 +32,20 @@ export const metadata: Metadata = {
   },
 };
 
+const offerImages = [
+  "/images/curry.jpg",
+  "/images/ingredients.jpg",
+  "/images/soup.jpg",
+] as const;
+
 export default async function HomePage() {
-  const [content, weekly, business] = await Promise.all([
+  const [content, pages, weekly, business] = await Promise.all([
     getSiteContent(),
+    getSitePages(),
     getWeeklyMenuData(),
     getResolvedBusiness(),
   ]);
+  const home = pages.home;
 
   const closingText =
     content.closing.text.trim() ||
@@ -46,7 +54,7 @@ export default async function HomePage() {
   return (
     <main>
       <JsonLdBreadcrumbs items={[{ name: "Start", path: "/" }]} />
-      <JsonLdFaqPage items={landshutFaqs} />
+      <JsonLdFaqPage items={pages.faqs} />
       <section className="relative min-h-[100svh] overflow-hidden">
         <Image
           src="/images/hero.jpg"
@@ -67,9 +75,9 @@ export default async function HomePage() {
               "Thai Imbiss und Feinkost · Landshut"}
           </p>
           <h1 className="hero-copy-delay font-display mt-3 text-[clamp(3.4rem,11vw,6.75rem)] leading-[0.92] text-white">
-            Willkommen
+            {home.heroTitleLine1}
             <br />
-            bei Wassana
+            {home.heroTitleLine2}
           </h1>
           <p className="hero-copy-delay mt-5 max-w-md text-[clamp(1.05rem,2.1vw,1.3rem)] font-light leading-relaxed text-white/90">
             {content.hero.lede}
@@ -100,16 +108,16 @@ export default async function HomePage() {
                 {business.street}
               </span>
               <span className="mt-0.5 block text-sm text-white/70">
-                {business.zip} {business.city} · Route öffnen
+                {business.zip} {business.city} {home.routeHint}
               </span>
             </span>
           </a>
           <div className="hero-copy-delay-2 mt-9 flex flex-wrap gap-3">
             <Link href="/speisekarte" className="btn-primary">
-              Speisekarte
+              {home.ctaMenu}
             </Link>
             <a href="#standort" className="btn-ghost">
-              Auf der Karte
+              {home.ctaMap}
             </a>
           </div>
         </div>
@@ -134,10 +142,10 @@ export default async function HomePage() {
               id="wassana-heading"
               className="font-display mt-8 text-[clamp(2.4rem,7vw,3.75rem)] leading-none text-[color:var(--red)] md:mt-9"
             >
-              Wassana
+              {home.brandName}
             </h2>
             <p className="mt-4 text-sm tracking-[0.22em] text-[color:var(--gold)] uppercase">
-              Glück und gutes Schicksal
+              {home.brandTagline}
             </p>
             <div className="gold-rule mx-auto mt-8 max-w-xs" />
             <p className="mt-8 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl">
@@ -154,58 +162,35 @@ export default async function HomePage() {
       >
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Die Küche bei Wassana
+            {home.kitchenEyebrow}
           </p>
           <h2 className="font-display mt-4 text-3xl text-[color:var(--red)] md:text-4xl">
-            Salzig, süß, sauer, scharf
+            {home.kitchenTitle}
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-[color:var(--ink)]">
-            Authentische Gerichte wie Massaman oder Panaeng Curries, verschiedene
-            Wok-Gerichte und das berühmte Pad kra pao finden Sie bei uns auf der
-            Karte.
+            {home.kitchenP1}
           </p>
           <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
-            An bestimmten Tagen bieten wir auch besondere thailändische Gerichte
-            an, die man sonst selten findet. Alle Speisen können gerne
-            mitgenommen werden.
+            {home.kitchenP2}
           </p>
           <Link href="/speisekarte" className="btn-primary mt-8 w-fit">
-            Zur Speisekarte
+            {home.kitchenCta}
           </Link>
         </Reveal>
       </SplitMedia>
 
       <section className="offer-strip" aria-label="Angebot">
         <div className="offer-strip-rail">
-          {[
-            {
-              title: "Speisekarte",
-              text: "Beliebte Gerichte der Woche und Klassiker — frisch bei Wassana.",
-              href: "/speisekarte",
-              image: "/images/curry.jpg",
-            },
-            {
-              title: "Catering",
-              text: "Events inkl. Geschirr — Menüplan von Wassana.",
-              href: "/catering",
-              image: "/images/ingredients.jpg",
-            },
-            {
-              title: "Kochkurs",
-              text: "Schritt für Schritt Thai kochen mit Wassana.",
-              href: "/kochkurs",
-              image: "/images/soup.jpg",
-            },
-          ].map((item, index) => (
+          {home.offers.map((item, index) => (
             <Reveal
-              key={item.title}
+              key={item.href}
               delay={(index % 3) as 0 | 1 | 2}
               className="offer-strip-cell"
             >
               <Link href={item.href} className="offer-link">
                 <span className="offer-link-media" aria-hidden>
                   <Image
-                    src={item.image}
+                    src={offerImages[index] ?? offerImages[0]}
                     alt=""
                     fill
                     className="offer-link-image object-cover"
@@ -218,7 +203,7 @@ export default async function HomePage() {
                   <h2 className="offer-link-title">{item.title}</h2>
                   <p className="offer-link-text">{item.text}</p>
                   <span className="offer-link-cta">
-                    Entdecken
+                    {home.offersCta}
                     <span aria-hidden className="offer-link-arrow">
                       →
                     </span>
@@ -241,22 +226,19 @@ export default async function HomePage() {
         <div className="takeaway-band-veil" aria-hidden />
         <div className="takeaway-band-copy">
           <Reveal>
-            <p className="takeaway-band-eyebrow">Mo–Fr · Regierungsplatz</p>
+            <p className="takeaway-band-eyebrow">{home.takeawayEyebrow}</p>
             <h2 id="takeaway-heading" className="takeaway-band-title">
-              Frisch kochen.
+              {home.takeawayTitleLine1}
               <br />
-              Abholen. Mitnehmen.
+              {home.takeawayTitleLine2}
             </h2>
-            <p className="takeaway-band-text">
-              Bei Wassana kommt alles frisch aus der Küche — ideal für die
-              Mittagspause in Landshut oder zum Mitnehmen nach Hause.
-            </p>
+            <p className="takeaway-band-text">{home.takeawayText}</p>
             <div className="takeaway-band-actions">
               <Link href="/mitnehmen" className="btn-primary">
-                Mitnehmen & Abholen
+                {home.takeawayCta1}
               </Link>
               <Link href="/speisekarte" className="btn-ghost">
-                Speisekarte
+                {home.takeawayCta2}
               </Link>
             </div>
           </Reveal>
@@ -266,10 +248,15 @@ export default async function HomePage() {
       <LocationSection location={content.location} hours={content.hours} />
 
       <section className="mx-auto max-w-6xl px-5 py-[var(--section-y)] md:px-8">
-        <Wochenkarte compact menu={weekly} />
+        <Wochenkarte compact menu={weekly} labels={pages.speisekarteUi} />
       </section>
 
-      <FaqSection items={landshutFaqs} />
+      <FaqSection
+        items={pages.faqs}
+        eyebrow={home.faqEyebrow}
+        title={home.faqTitle}
+        lead={home.faqLead}
+      />
 
       <section className="closing-band border-t border-[color:var(--line)]">
         <div className="mx-auto max-w-2xl px-5 py-[var(--section-y)] text-center md:px-8">

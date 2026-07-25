@@ -4,7 +4,17 @@ import { DishInfoButton } from "@/components/DishInfoButton";
 import { MenuPdfDownload } from "@/components/MenuPdfDownload";
 import { allergens, type MenuSection } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
-import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
+import type { SitePages } from "@/lib/site-pages-shared";
+import type { WeeklyMenuData } from "@/lib/weekly-menu-store-shared";
+
+const defaultSpeisekarteUi: SitePages["speisekarteUi"] = {
+  weekEyebrow: "Diese Woche bei Wassana",
+  weekTitle: "Beliebte Gerichte der Woche",
+  toFullMenu: "Zur vollständigen Speisekarte",
+  markingTitle: "Hinweise & Kennzeichnung",
+  markingText:
+    "Hochgestellte Zeichen neben den Gerichten stehen für Zusatzstoffe und Allergene. Schärfe nach Wunsch: nicht scharf – leicht scharf – mittelscharf – scharf – sehr scharf. Extra Soße 0,10 €. Getränke mit * inkl. 0,15 € Pfand.",
+};
 
 function ItemRow({
   nr,
@@ -43,20 +53,23 @@ function ItemRow({
 export function Wochenkarte({
   compact = false,
   menu,
+  labels,
 }: {
   compact?: boolean;
   menu: WeeklyMenuData;
+  labels?: SitePages["speisekarteUi"];
 }) {
+  const ui = labels ?? defaultSpeisekarteUi;
   return (
     <section id="wochenkarte" className={compact ? "" : "bg-[color:var(--bg)]"}>
       <div className={compact ? "" : "mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-24"}>
         <Reveal>
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Diese Woche bei Wassana
+            {ui.weekEyebrow}
           </p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <h2 className="font-display text-4xl text-[color:var(--red)] md:text-5xl">
-              Beliebte Gerichte der Woche
+              {ui.weekTitle}
             </h2>
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-sm text-[color:var(--muted)]">{menu.note}</p>
@@ -123,7 +136,7 @@ export function Wochenkarte({
           <Reveal>
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link href="/speisekarte" className="btn-primary">
-                Zur vollständigen Speisekarte
+                {ui.toFullMenu}
               </Link>
               <AllergenLegend variant="link" />
             </div>
@@ -137,10 +150,20 @@ export function Wochenkarte({
 export function SpeisekarteFull({
   menu,
   sections,
+  labels,
+  chipWeekly = "Beliebte Gerichte",
+  chipPdf = "Als PDF",
+  pdfSaveLabel,
 }: {
   menu: WeeklyMenuData;
   sections: MenuSection[];
+  labels?: SitePages["speisekarteUi"];
+  chipWeekly?: string;
+  chipPdf?: string;
+  pdfSaveLabel?: string;
 }) {
+  const ui = labels ?? defaultSpeisekarteUi;
+  const pdfButtonLabel = pdfSaveLabel || chipPdf;
   return (
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
@@ -148,7 +171,7 @@ export function SpeisekarteFull({
           <div className="menu-sticky-row">
             <div className="menu-sticky-chips">
               <a href="#wochenkarte" className="chip">
-                Beliebte Gerichte
+                {chipWeekly}
               </a>
               {sections.map((section) => (
                 <a key={section.id} href={`#${section.id}`} className="chip">
@@ -159,12 +182,12 @@ export function SpeisekarteFull({
             </div>
             <MenuPdfDownload
               className="btn-gold menu-sticky-pdf"
-              label="Als PDF"
+              label={chipPdf}
             />
           </div>
         </div>
 
-        <Wochenkarte menu={menu} />
+        <Wochenkarte menu={menu} labels={labels} />
 
         <div className="mt-8 space-y-16">
           {sections.map((section) => (
@@ -204,20 +227,17 @@ export function SpeisekarteFull({
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                  Hinweise & Kennzeichnung
+                  {ui.markingTitle}
                 </p>
                 <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[color:var(--muted)]">
-                  Hochgestellte Zeichen neben den Gerichten stehen für Zusatzstoffe
-                  und Allergene. Schärfe nach Wunsch: nicht scharf – leicht scharf –
-                  mittelscharf – scharf – sehr scharf. Extra Soße 0,10 €. Getränke
-                  mit * inkl. 0,15 € Pfand.
+                  {ui.markingText}
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <AllergenLegend variant="button" />
                 <MenuPdfDownload
                   className="btn-primary"
-                  label="Als PDF speichern"
+                  label={pdfButtonLabel}
                 />
               </div>
             </div>
