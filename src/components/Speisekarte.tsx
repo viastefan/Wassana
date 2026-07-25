@@ -152,7 +152,7 @@ export function SpeisekarteFull({
         <div className="mt-8 space-y-16">
           {sections.map((section) => (
             <Reveal key={section.id}>
-              <div id={section.id}>
+              <div id={section.id} className="menu-section-anchor">
                 <h3 className="font-display text-3xl text-[color:var(--ink)]">
                   {section.title}
                 </h3>

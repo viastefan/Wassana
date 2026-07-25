@@ -2365,6 +2365,12 @@ a.btn-ghost:hover {
     0 10px 24px rgba(30, 33, 41, 0.06);
 }
 
+/* Keep hash targets clear of fixed header + sticky chips */
+#wochenkarte,
+.menu-section-anchor {
+  scroll-margin-top: calc(var(--header-h) + var(--banner-h) + 5.5rem);
+}
+
 .menu-sticky-row {
   display: flex;
   flex-direction: column;
