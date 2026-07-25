@@ -63,7 +63,11 @@ a {
 }
 
 /* Links ohne eigene Farbe folgen dem Textfluss */
-a:where(:not([class*="text-"]):not(.btn-primary):not(.btn-gold):not(.chip)) {
+a:where(
+  :not([class*="text-"]):not(.btn-primary):not(.btn-ghost):not(.btn-gold):not(
+      .chip
+    )
+) {
   color: inherit;
 }
 
@@ -94,13 +98,15 @@ img {
   );
 }
 
-.btn-primary {
+.btn-primary,
+a.btn-primary,
+button.btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   background: var(--red);
-  color: #ffffff;
+  color: #ffffff !important;
   padding: 0.75rem 1.4rem;
   font-size: 0.9rem;
   font-weight: 500;
@@ -108,9 +114,11 @@ img {
   transition: background 0.25s ease, transform 0.25s ease;
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+a.btn-primary:hover,
+button.btn-primary:hover {
   background: var(--red-hover);
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .btn-gold {
@@ -134,14 +142,15 @@ img {
   color: #ffffff;
 }
 
-.btn-ghost {
+.btn-ghost,
+a.btn-ghost {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.45);
   background: transparent;
-  color: #ffffff;
+  color: #ffffff !important;
   padding: 0.75rem 1.35rem;
   font-size: 0.9rem;
   font-weight: 500;
@@ -149,9 +158,10 @@ img {
   transition: background 0.25s ease, border-color 0.25s ease;
 }
 
-.btn-ghost:hover {
+.btn-ghost:hover,
+a.btn-ghost:hover {
   background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .chip {
