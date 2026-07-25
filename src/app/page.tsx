@@ -280,9 +280,14 @@ export default async function HomePage() {
             <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
               {closingText}
             </p>
-            <a href={business.phoneHref} className="btn-primary mt-8 inline-flex">
-              {business.phone}
-            </a>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <a href={business.phoneHref} className="btn-primary">
+                {business.phone}
+              </a>
+              <Link href="/speisekarte" className="btn-gold">
+                Speisekarte
+              </Link>
+            </div>
           </Reveal>
         </div>
       </section>
