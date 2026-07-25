@@ -107,38 +107,54 @@ export default async function KochkursPage() {
         </div>
       </section>
 
-      <section className="offer-strip">
-        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-[var(--section-y)] md:grid-cols-2 md:px-8">
+      <section className="course-flow-band" aria-labelledby="course-flow-heading">
+        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-[var(--section-y)] md:grid-cols-2 md:gap-16 md:px-8">
           <Reveal>
             <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
               So läuft es
             </p>
-            <div className="mt-6 space-y-6">
+            <h2
+              id="course-flow-heading"
+              className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl"
+            >
+              Vom ersten Schnitt bis zum Teller
+            </h2>
+            <p className="mt-4 max-w-md text-[color:var(--muted)] leading-relaxed">
+              Ein Abend bei Wassana in Landshut — gemeinsam kochen, lernen und
+              genießen. Zutaten und Anleitung sind dabei.
+            </p>
+
+            <ol className="course-flow-list">
               {[
                 {
-                  label: "Ablauf",
-                  value: "Schritt für Schritt gemeinsam kochen",
+                  label: "Ankommen",
+                  value:
+                    "Wir begrüßen euch in der Küche, stellen den Ablauf vor und gehen die Zutaten gemeinsam durch.",
                 },
-                { label: "Gerichte", value: "z. B. Pad Thai oder Tom Yam" },
                 {
-                  label: "Extra",
-                  value: "Tipps, wo Sie die Zutaten finden",
+                  label: "Kochen",
+                  value:
+                    "Schritt für Schritt bereitet ihr Klassiker wie Pad Thai oder Tom Yam zu — mit Tipps zur Schärfe und Würzung.",
                 },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="border-t border-[color:var(--line)] pt-5"
-                >
-                  <p className="text-sm tracking-[0.16em] text-[color:var(--gold)] uppercase">
-                    {item.label}
-                  </p>
-                  <p className="mt-2 text-lg text-[color:var(--ink)]">
-                    {item.value}
-                  </p>
-                </div>
+                {
+                  label: "Genießen & mitnehmen",
+                  value:
+                    "Am Ende probiert ihr euer Gericht und bekommt Tipps, wo ihr die Zutaten später selbst findet.",
+                },
+              ].map((item, index) => (
+                <li key={item.label} className="course-flow-item">
+                  <span className="course-flow-index" aria-hidden>
+                    0{index + 1}
+                  </span>
+                  <div>
+                    <p className="course-flow-label">{item.label}</p>
+                    <p className="course-flow-text">{item.value}</p>
+                  </div>
+                </li>
               ))}
-            </div>
-            <div className="mt-8 flex flex-wrap gap-3">
+            </ol>
+
+            <div className="mt-9 flex flex-wrap gap-3">
               <a href={business.cookingEmailHref} className="btn-primary">
                 Per E-Mail anfragen
               </a>
@@ -146,7 +162,7 @@ export default async function KochkursPage() {
                 Anrufen
               </a>
             </div>
-            <p className="mt-8 text-sm text-[color:var(--muted)]">
+            <p className="mt-6 text-sm text-[color:var(--muted)]">
               Auch über das{" "}
               <Link
                 href="/kontakt"

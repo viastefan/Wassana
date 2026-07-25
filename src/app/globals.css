@@ -1681,6 +1681,59 @@ a.btn-ghost:hover {
   }
 }
 
+.course-flow-band {
+  position: relative;
+  background:
+    radial-gradient(560px 240px at 0% 0%, color-mix(in srgb, var(--gold) 14%, transparent), transparent 70%),
+    radial-gradient(480px 220px at 100% 100%, color-mix(in srgb, var(--red) 7%, transparent), transparent 65%),
+    var(--bg-soft);
+  border-block: 1px solid var(--line);
+}
+
+.course-flow-list {
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+
+.course-flow-item {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  gap: 0.9rem;
+  padding: 1.15rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--line) 90%, var(--gold));
+}
+
+.course-flow-item:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 90%, var(--gold));
+}
+
+.course-flow-index {
+  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  padding-top: 0.15rem;
+}
+
+.course-flow-label {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.course-flow-text {
+  margin: 0.4rem 0 0;
+  max-width: 28rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
 .takeaway-band {
   position: relative;
   isolation: isolate;
