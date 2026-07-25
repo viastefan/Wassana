@@ -128,7 +128,7 @@ export function SpeisekarteFull({
   return (
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
-        <div className="menu-sticky sticky z-20 -mx-5 mb-8 border-b border-[color:var(--line)] bg-[color:var(--bg)] px-5 py-3 md:-mx-8 md:mb-10 md:px-8">
+        <div className="menu-sticky sticky z-20 -mx-5 mb-8 border-b border-[color:var(--line)] px-5 py-3 md:-mx-8 md:mb-10 md:px-8">
           <div className="menu-sticky-row">
             <div className="menu-sticky-chips">
               <a href="#wochenkarte" className="chip">
