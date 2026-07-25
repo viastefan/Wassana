@@ -1452,11 +1452,11 @@ export function AdminClient() {
       >
         ×
       </button>
-      <p className="admin-kicker !text-[color:var(--admin-gold-soft)]">Web-App</p>
-      <h2 className="font-display mt-2 text-2xl text-white md:text-[1.7rem]">
+      <p className="admin-kicker">Web-App</p>
+      <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[color:var(--admin-ink)] md:text-[1.65rem]">
         App jetzt herunterladen
       </h2>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-[color:var(--admin-muted)]">
         Speichere die Verwaltung auf dem Homescreen. Danach startet sie ohne
         Browser-Leiste — ideal fürs Handy im Laden.
       </p>
@@ -1470,13 +1470,11 @@ export function AdminClient() {
             App installieren
           </button>
         ) : (
-          <span className="admin-chip !bg-white/14 !text-[#f7f3ea] !border-white/25">
-            Bereit zum Speichern
-          </span>
+          <span className="admin-chip">Bereit zum Speichern</span>
         )}
       </div>
       {!installEvent ? (
-        <p className="mt-3 text-xs leading-relaxed text-white/70">
+        <p className="mt-3 text-xs leading-relaxed text-[color:var(--admin-muted)]">
           iPhone: Teilen → „Zum Home-Bildschirm“. Android: Menü → „App
           installieren“ / „Zum Startbildschirm“.
         </p>
@@ -1531,7 +1529,7 @@ export function AdminClient() {
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-lg text-[color:var(--admin-burgundy)]">
+            <p className="truncate text-lg font-semibold tracking-tight text-[color:var(--admin-ink)]">
               Wassana Verwaltung
             </p>
             <p className="truncate text-xs text-[color:var(--admin-muted)]">

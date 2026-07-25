@@ -121,31 +121,40 @@ select:-webkit-autofill:focus {
 }
 
 .admin-app {
-  /* Moderne Laden-App: Marken-DNA, klarere Hierarchie */
-  --admin-bg: #ebe4d8;
-  --admin-bg-deep: #dfd5c5;
-  --admin-surface: #fbf7f0;
-  --admin-raised: #fffdf9;
-  --admin-ink: #1c1f26;
-  --admin-muted: #5c5662;
-  --admin-line: #d2c6b4;
-  --admin-burgundy: #6e0f22;
-  --admin-burgundy-soft: #8a1a30;
+  /* Modern operations console — brand red/gold as accents, cool neutral paper */
+  --admin-bg: #f6f4f1;
+  --admin-bg-deep: #eceae6;
+  --admin-cream: #f6f4f1;
+  --admin-surface: #ffffff;
+  --admin-raised: #ffffff;
+  --admin-ink: #14171c;
+  --admin-muted: #5e6672;
+  --admin-line: #e4e0da;
+  --admin-burgundy: #7a0c24;
+  --admin-burgundy-soft: #9a1834;
   --admin-gold: #b59551;
   --admin-gold-soft: #d4c09a;
   --admin-gold-deep: #8f7340;
-  --admin-ok: #1f5c3a;
-  --admin-ok-soft: #e7f3ec;
-  --admin-warn: #8a5a12;
-  --admin-warn-soft: #f7efdf;
-  --admin-radius: 1rem;
-  --admin-radius-sm: 0.7rem;
+  --admin-ok: #1a6b42;
+  --admin-ok-soft: #e8f5ee;
+  --admin-warn: #9a6414;
+  --admin-warn-soft: #f8f0e4;
+  --admin-radius: 0.85rem;
+  --admin-radius-sm: 0.55rem;
+  --admin-shadow: 0 1px 2px rgba(20, 23, 28, 0.04), 0 8px 24px rgba(20, 23, 28, 0.04);
   min-height: 100svh;
   color: var(--admin-ink);
+  font-family: var(--font-admin-sans), "Segoe UI", sans-serif;
+  letter-spacing: -0.01em;
   background:
-    radial-gradient(920px 520px at 0% -8%, color-mix(in srgb, var(--admin-burgundy) 11%, transparent), transparent 58%),
-    radial-gradient(760px 440px at 100% 0%, color-mix(in srgb, var(--admin-gold) 16%, transparent), transparent 56%),
-    linear-gradient(180deg, #f4ede3 0%, var(--admin-bg) 40%, var(--admin-bg-deep) 100%);
+    radial-gradient(900px 420px at 100% -10%, color-mix(in srgb, var(--admin-burgundy) 6%, transparent), transparent 55%),
+    radial-gradient(720px 380px at 0% 0%, color-mix(in srgb, var(--admin-gold) 8%, transparent), transparent 50%),
+    linear-gradient(180deg, #faf8f5 0%, var(--admin-bg) 48%, var(--admin-bg-deep) 100%);
+  text-rendering: optimizeLegibility;
+}
+
+.admin-app .font-display {
+  font-family: var(--font-admin-display), var(--font-admin-sans), sans-serif;
 }
 
 .admin-shell {
@@ -154,53 +163,41 @@ select:-webkit-autofill:focus {
 }
 
 .admin-shell::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.16;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--admin-gold-deep) 9%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--admin-gold-deep) 9%, transparent) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 72%);
+  content: none;
 }
 
 .admin-topbar {
   position: sticky;
   top: 0;
   z-index: 40;
-  border-bottom: 1px solid color-mix(in srgb, var(--admin-gold) 28%, var(--admin-line));
-  background: color-mix(in srgb, var(--admin-surface) 88%, transparent);
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--admin-gold-soft) 35%, transparent);
+  border-bottom: 1px solid var(--admin-line);
+  background: color-mix(in srgb, var(--admin-surface) 86%, transparent);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  box-shadow: none;
 }
 
 .admin-brand-mark {
   display: grid;
   place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 999px;
-  background: var(--admin-raised);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--admin-gold) 50%, transparent),
-    0 0 0 4px color-mix(in srgb, var(--admin-gold-soft) 22%, transparent);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.7rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  box-shadow: none;
   overflow: hidden;
 }
 
 .admin-install-hero {
   position: relative;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 45%, transparent);
+  border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius);
-  background:
-    linear-gradient(145deg, #2a2430 0%, #1e2129 48%, #3a1520 100%);
-  color: #f7f3ea;
-  padding: 1.25rem 1.2rem 1.35rem;
-  box-shadow: 0 18px 40px rgba(30, 33, 41, 0.2);
+  background: var(--admin-surface);
+  color: var(--admin-ink);
+  padding: 1.2rem 1.15rem 1.3rem;
+  box-shadow: var(--admin-shadow);
 }
 
 .admin-install-close {
@@ -213,27 +210,28 @@ select:-webkit-autofill:focus {
   width: 2rem;
   height: 2rem;
   border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #f7f3ea;
-  font-size: 1.35rem;
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, var(--admin-ink) 5%, transparent);
+  color: var(--admin-muted);
+  font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.18s ease, opacity 0.18s ease;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .admin-install-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--admin-ink) 9%, transparent);
+  color: var(--admin-ink);
 }
 
 .admin-install-hero::after {
   content: "";
   position: absolute;
-  inset: auto -20% -40% auto;
-  width: 12rem;
-  height: 12rem;
+  inset: auto -15% -55% auto;
+  width: 10rem;
+  height: 10rem;
   border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--admin-gold) 48%, transparent), transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--admin-gold) 18%, transparent), transparent 70%);
   pointer-events: none;
 }
 
@@ -250,32 +248,30 @@ select:-webkit-autofill:focus {
   z-index: 1;
 }
 
-/** High-contrast CTA on the dark install hero (avoids red-on-red). */
 .admin-install-hero .admin-install-cta,
 button.admin-install-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.75rem 1.35rem;
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 70%, white);
-  border-radius: 999px;
-  background: #f7f3ea !important;
-  color: var(--admin-burgundy) !important;
+  min-height: 2.7rem;
+  padding: 0.7rem 1.25rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: var(--admin-burgundy) !important;
+  color: #fff !important;
   font-size: 0.9rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  letter-spacing: 0.01em;
+  box-shadow: none;
   transition:
     background 0.2s ease,
-    color 0.2s ease,
     transform 0.2s ease;
 }
 
 .admin-install-hero .admin-install-cta:hover,
 button.admin-install-cta:hover {
-  background: #ffffff !important;
-  color: var(--admin-burgundy) !important;
+  background: var(--admin-burgundy-soft) !important;
+  color: #fff !important;
   transform: translateY(-1px);
 }
 
@@ -286,11 +282,11 @@ button.admin-install-cta:hover {
 
 .admin-login-card,
 .admin-panel {
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 26%, var(--admin-line));
+  border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius);
-  background: color-mix(in srgb, var(--admin-surface) 97%, white);
-  box-shadow: 0 14px 34px rgba(30, 33, 41, 0.06);
-  padding: 1.25rem;
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+  padding: 1.35rem 1.25rem;
 }
 
 .admin-splash {
@@ -301,9 +297,8 @@ button.admin-install-cta:hover {
   place-items: center;
   padding: 1.5rem;
   background:
-    radial-gradient(720px 420px at 50% 20%, color-mix(in srgb, var(--admin-gold) 18%, transparent), transparent 62%),
-    radial-gradient(640px 380px at 50% 100%, color-mix(in srgb, var(--admin-burgundy) 10%, transparent), transparent 58%),
-    linear-gradient(180deg, #f4ede3 0%, var(--admin-bg) 55%, var(--admin-bg-deep) 100%);
+    radial-gradient(640px 360px at 50% 18%, color-mix(in srgb, var(--admin-burgundy) 7%, transparent), transparent 60%),
+    linear-gradient(180deg, #faf8f5 0%, var(--admin-bg) 100%);
 }
 
 .admin-splash-inner {
@@ -317,46 +312,44 @@ button.admin-install-cta:hover {
 .admin-splash-logo-wrap {
   display: grid;
   place-items: center;
-  width: 8.5rem;
-  height: 8.5rem;
-  border-radius: 999px;
-  background: var(--admin-raised);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--admin-gold) 45%, transparent),
-    0 0 0 8px color-mix(in srgb, var(--admin-gold-soft) 22%, transparent),
-    0 18px 40px rgba(30, 33, 41, 0.1);
-  animation: admin-splash-pulse 1.6s ease-in-out infinite;
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 1.15rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  box-shadow: var(--admin-shadow);
+  animation: admin-splash-pulse 1.8s ease-in-out infinite;
 }
 
 .admin-splash-logo {
-  width: 6.6rem;
-  height: 6.6rem;
-  border-radius: 999px;
+  width: 5.75rem;
+  height: 5.75rem;
+  border-radius: 0.85rem;
   object-fit: contain;
   background: var(--admin-raised);
 }
 
 .admin-splash-title {
-  margin: 1.25rem 0 0;
-  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
-  font-size: 2rem;
+  margin: 1.15rem 0 0;
+  font-family: var(--font-admin-display), var(--font-admin-sans), sans-serif;
+  font-size: 1.85rem;
   line-height: 1;
   color: var(--admin-burgundy);
 }
 
 .admin-splash-sub {
-  margin: 0.45rem 0 0;
-  font-size: 0.88rem;
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
   color: var(--admin-muted);
 }
 
 .admin-splash-bar {
   width: 100%;
-  height: 0.35rem;
-  margin-top: 1.35rem;
+  height: 0.28rem;
+  margin-top: 1.25rem;
   overflow: hidden;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--admin-ink) 8%, white);
+  background: color-mix(in srgb, var(--admin-ink) 7%, white);
 }
 
 .admin-splash-bar-fill {
@@ -364,31 +357,23 @@ button.admin-install-cta:hover {
   height: 100%;
   width: 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--admin-burgundy), var(--admin-gold));
-  animation: admin-splash-bar 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  background: var(--admin-burgundy);
+  animation: admin-splash-bar 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes admin-splash-pulse {
   0%,
   100% {
     transform: scale(1);
-    box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--admin-gold) 45%, transparent),
-      0 0 0 8px color-mix(in srgb, var(--admin-gold-soft) 22%, transparent),
-      0 18px 40px rgba(30, 33, 41, 0.1);
   }
   50% {
-    transform: scale(1.04);
-    box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--admin-gold) 55%, transparent),
-      0 0 0 12px color-mix(in srgb, var(--admin-gold-soft) 28%, transparent),
-      0 22px 44px rgba(30, 33, 41, 0.12);
+    transform: scale(1.015);
   }
 }
 
 @keyframes admin-splash-bar {
   from {
-    width: 8%;
+    width: 12%;
   }
   to {
     width: 100%;
@@ -408,83 +393,89 @@ button.admin-install-cta:hover {
 
 .admin-kicker {
   margin: 0;
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--admin-gold-deep);
+  color: var(--admin-muted);
 }
 
 .admin-card {
   display: block;
   width: 100%;
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 20%, var(--admin-line));
+  border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius-sm);
-  background: var(--admin-raised);
-  padding: 1.1rem 1.05rem;
+  background: var(--admin-surface);
+  padding: 1.05rem 1rem;
   text-align: left;
-  box-shadow: 0 8px 20px rgba(30, 33, 41, 0.04);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: none;
   transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
 }
 
 .admin-card:hover {
-  border-color: color-mix(in srgb, var(--admin-gold) 65%, var(--admin-line));
-  background: #fffaf2;
-  transform: translateY(-2px);
-  box-shadow: 0 16px 30px rgba(30, 33, 41, 0.07);
+  border-color: color-mix(in srgb, var(--admin-burgundy) 28%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-burgundy) 3%, white);
+  transform: translateY(-1px);
 }
 
 .admin-card-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.15rem;
-  height: 2.15rem;
-  border-radius: 0.7rem;
-  background: color-mix(in srgb, var(--admin-gold) 16%, var(--admin-surface));
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, var(--admin-burgundy) 8%, var(--admin-surface));
   color: var(--admin-burgundy);
   font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
 .admin-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.28rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: color-mix(in srgb, var(--admin-gold) 18%, var(--admin-surface));
-  color: var(--admin-ink);
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  background: var(--admin-surface);
+  color: var(--admin-muted);
 }
 
 .admin-chip.is-live {
+  border-color: color-mix(in srgb, var(--admin-ok) 28%, var(--admin-line));
   background: var(--admin-ok-soft);
   color: var(--admin-ok);
 }
 
 .admin-chip.is-warn {
+  border-color: color-mix(in srgb, var(--admin-warn) 28%, var(--admin-line));
   background: var(--admin-warn-soft);
   color: var(--admin-warn);
 }
 
 .admin-chip.is-bad {
-  background: color-mix(in srgb, var(--admin-burgundy) 10%, white);
+  border-color: color-mix(in srgb, var(--admin-burgundy) 28%, var(--admin-line));
+  background: color-mix(in srgb, var(--admin-burgundy) 8%, white);
   color: var(--admin-burgundy);
 }
 
 .admin-tabbar {
-  border-top: 1px solid color-mix(in srgb, var(--admin-gold) 28%, var(--admin-line));
+  border-top: 1px solid var(--admin-line);
   background: color-mix(in srgb, var(--admin-surface) 92%, transparent);
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  box-shadow: 0 -12px 30px rgba(30, 33, 41, 0.06);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  box-shadow: 0 -8px 24px rgba(20, 23, 28, 0.04);
 }
 
 .admin-tabbar button {
@@ -497,21 +488,19 @@ button.admin-install-cta:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.22rem;
+  gap: 0.2rem;
   width: 100%;
-  border-radius: 0.9rem;
-  padding: 0.5rem 0.15rem;
+  border-radius: 0.65rem;
+  padding: 0.45rem 0.1rem;
   color: var(--admin-muted);
-  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  transition: background 0.16s ease, color 0.16s ease;
 }
 
 .admin-tab.is-active {
-  background: linear-gradient(180deg, #fffaf2, color-mix(in srgb, var(--admin-gold-soft) 32%, var(--admin-surface)));
+  background: color-mix(in srgb, var(--admin-burgundy) 7%, transparent);
   color: var(--admin-burgundy);
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--admin-gold) 50%, transparent),
-    0 8px 16px color-mix(in srgb, var(--admin-gold) 16%, transparent);
+  transform: none;
+  box-shadow: none;
 }
 
 .admin-tab-glyph {
@@ -523,12 +512,13 @@ button.admin-install-cta:hover {
 }
 
 .admin-tab-icon {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.15rem;
+  height: 1.15rem;
 }
 
 .admin-tab-label {
-  font-size: 0.58rem;
+  font-size: 0.6rem;
+  font-weight: 600;
   line-height: 1.1;
 }
 
@@ -540,14 +530,14 @@ button.admin-install-cta:hover {
 .admin-status-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.7rem;
+  gap: 0.65rem;
 }
 
 .admin-status-item {
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 20%, var(--admin-line));
+  border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius-sm);
-  background: var(--admin-raised);
-  padding: 0.8rem 0.85rem;
+  background: var(--admin-surface);
+  padding: 0.85rem 0.9rem;
 }
 
 .admin-status-label {
@@ -555,17 +545,20 @@ button.admin-install-cta:hover {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--admin-gold-deep);
+  color: var(--admin-muted);
 }
 
 .admin-status-value {
-  margin: 0.4rem 0 0;
-  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
-  font-size: 1.12rem;
-  color: var(--admin-burgundy);
+  margin: 0.35rem 0 0;
+  font-family: var(--font-admin-sans), sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--admin-ink);
 }
 
 .admin-status-meta {
@@ -577,35 +570,34 @@ button.admin-install-cta:hover {
 
 .admin-status-dot {
   display: inline-block;
-  width: 0.55rem;
-  height: 0.55rem;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--admin-muted) 45%, white);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-muted) 12%, transparent);
+  box-shadow: none;
 }
 
 .admin-status-dot.is-ok {
   background: var(--admin-ok);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-ok) 16%, transparent);
+  box-shadow: none;
 }
 
 .admin-status-dot.is-warn {
   background: var(--admin-warn);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-warn) 16%, transparent);
+  box-shadow: none;
 }
 
 .admin-status-dot.is-bad {
   background: var(--admin-burgundy);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-burgundy) 16%, transparent);
+  box-shadow: none;
 }
 
 .admin-live-hero {
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 28%, var(--admin-line));
+  border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--admin-raised) 92%, white), var(--admin-surface));
+  background: var(--admin-surface);
   padding: 1.15rem 1.1rem 1.2rem;
-  box-shadow: 0 12px 28px rgba(30, 33, 41, 0.05);
+  box-shadow: var(--admin-shadow);
 }
 
 .admin-live-hero-top {
@@ -769,20 +761,24 @@ button.admin-install-cta:hover {
 }
 
 .admin-field {
-  margin-top: 0.45rem;
+  margin-top: 0.4rem;
   width: 100%;
   border: 1px solid var(--admin-line);
-  border-radius: 0.65rem;
-  background: var(--admin-raised);
-  padding: 0.85rem 1rem;
+  border-radius: 0.55rem;
+  background: var(--admin-surface);
+  padding: 0.8rem 0.95rem;
   color: var(--admin-ink);
   outline: none;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.admin-field:hover {
+  border-color: color-mix(in srgb, var(--admin-ink) 18%, var(--admin-line));
 }
 
 .admin-field:focus {
-  border-color: var(--admin-gold-deep);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-gold) 22%, transparent);
+  border-color: var(--admin-burgundy);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-burgundy) 14%, transparent);
 }
 
 .admin-screen-header {
@@ -794,15 +790,17 @@ button.admin-install-cta:hover {
 }
 
 .admin-screen-title {
-  margin: 0.2rem 0 0;
-  font-family: var(--font-typewriter), "Courier New", Courier, monospace;
-  font-size: clamp(1.7rem, 6vw, 2.1rem);
+  margin: 0.15rem 0 0;
+  font-family: var(--font-admin-sans), sans-serif;
+  font-size: clamp(1.55rem, 5.5vw, 1.95rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
   line-height: 1.1;
-  color: var(--admin-burgundy);
+  color: var(--admin-ink);
 }
 
 .admin-screen-desc {
-  margin: 0.45rem 0 0;
+  margin: 0.4rem 0 0;
   max-width: 34rem;
   font-size: 0.92rem;
   line-height: 1.5;
@@ -815,12 +813,12 @@ button.admin-install-cta:hover {
 }
 
 .admin-section {
-  margin-top: 0.85rem;
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 22%, var(--admin-line));
+  margin-top: 0.75rem;
+  border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius);
-  background: color-mix(in srgb, var(--admin-surface) 97%, white);
-  box-shadow: 0 10px 24px rgba(30, 33, 41, 0.035);
-  padding: 1rem 1rem 1.1rem;
+  background: var(--admin-surface);
+  box-shadow: none;
+  padding: 1rem 1rem 1.05rem;
 }
 
 .admin-section-heading {
@@ -834,9 +832,10 @@ button.admin-install-cta:hover {
 .admin-section-title {
   margin: 0;
   font-size: 0.72rem;
-  letter-spacing: 0.16em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--admin-gold-deep);
+  color: var(--admin-muted);
 }
 
 .admin-section-action {
@@ -957,9 +956,9 @@ button.admin-install-cta:hover {
   overflow: hidden;
   isolation: isolate;
   width: 100%;
-  min-height: 3.2rem;
-  border-radius: 999px;
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--admin-burgundy) 24%, transparent);
+  min-height: 3.05rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--admin-burgundy) 18%, transparent);
 }
 
 .admin-sticky-save-btn {
@@ -978,8 +977,8 @@ button.admin-install-cta:hover {
   width: 0;
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, white 28%, transparent),
-    color-mix(in srgb, white 14%, transparent)
+    color-mix(in srgb, white 22%, transparent),
+    color-mix(in srgb, white 10%, transparent)
   );
   pointer-events: none;
 }
@@ -990,16 +989,16 @@ button.admin-install-cta:hover {
 
 .admin-sticky-save-btn.is-loading,
 .admin-sheet-save.is-loading {
-  background: linear-gradient(180deg, #7a1a30, #5a1020) !important;
+  background: var(--admin-burgundy-soft) !important;
 }
 
 .admin-sticky-save-btn.is-online {
-  background: linear-gradient(180deg, #2f6b45, #1f4d31) !important;
-  box-shadow: 0 10px 22px rgba(31, 77, 49, 0.28);
+  background: var(--admin-ok) !important;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--admin-ok) 22%, transparent);
 }
 
 .admin-sticky-save-btn.is-error {
-  background: linear-gradient(180deg, #5c1018, #3d0a10) !important;
+  background: #5c1018 !important;
 }
 
 @keyframes admin-btn-fill {
