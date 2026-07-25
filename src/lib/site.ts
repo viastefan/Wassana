@@ -48,7 +48,7 @@ export const site = {
   studentLunch: {
     eyebrow: "Mittag für Schüler & Azubis",
     title: "Gericht inkl. Getränk",
-    text: "Mo–Fr mittags: ein Gericht der Wochenkarte plus Softgetränk — für Schülerinnen, Schüler und Azubis.",
+    text: "Mo–Fr mittags: ein Gericht der Woche plus Softgetränk — für Schülerinnen, Schüler und Azubis.",
     price: "ab 8,90 €",
     note: "Gegen Vorlage von Schüler- oder Azubi-Ausweis.",
   },

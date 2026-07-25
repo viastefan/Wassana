@@ -363,7 +363,7 @@ export function SpeisekartePdfDocument({
 
         <View style={styles.section}>
           <Text style={styles.sectionKicker}>Diese Woche</Text>
-          <Text style={styles.sectionTitle}>Wochenkarte</Text>
+          <Text style={styles.sectionTitle}>Beliebte Gerichte der Woche</Text>
           {weekly.note?.trim() ? (
             <Text style={styles.sectionNote}>{weekly.note.trim()}</Text>
           ) : null}

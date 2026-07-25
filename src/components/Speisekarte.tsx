@@ -55,7 +55,7 @@ export function Wochenkarte({
           </p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <h2 className="font-display text-4xl text-[color:var(--red)] md:text-5xl">
-              Wochenkarte
+              Beliebte Gerichte der Woche
             </h2>
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-sm text-[color:var(--muted)]">{menu.note}</p>
@@ -132,7 +132,7 @@ export function SpeisekarteFull({
           <div className="menu-sticky-row">
             <div className="menu-sticky-chips">
               <a href="#wochenkarte" className="chip">
-                Wochenkarte
+                Beliebte Gerichte
               </a>
               {sections.map((section) => (
                 <a key={section.id} href={`#${section.id}`} className="chip">

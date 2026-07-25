@@ -180,7 +180,7 @@ export default async function HomePage() {
           {[
             {
               title: "Speisekarte",
-              text: "Wochenkarte und Klassiker — frisch bei Wassana.",
+              text: "Beliebte Gerichte der Woche und Klassiker — frisch bei Wassana.",
               href: "/speisekarte",
               image: "/images/curry.jpg",
             },

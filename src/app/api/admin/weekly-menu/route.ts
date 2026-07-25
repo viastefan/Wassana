@@ -49,7 +49,7 @@ export async function PUT(request: Request) {
 
   if (!Array.isArray(body.days) || body.days.length === 0) {
     return NextResponse.json(
-      { error: "Wochenkarte braucht mindestens einen Tag." },
+      { error: "Wochen-Favoriten brauchen mindestens einen Tag." },
       { status: 400 },
     );
   }

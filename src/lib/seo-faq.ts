@@ -22,9 +22,9 @@ export const landshutFaqs: SeoFaqItem[] = [
       "Ja. Alle Gerichte gibt es frisch zubereitet zum Mitnehmen — ideal für Mittagspause, Büro oder zu Hause in Landshut.",
   },
   {
-    question: "Gibt es eine Wochenkarte und Schüler-Mittagessen?",
+    question: "Gibt es beliebte Gerichte der Woche und Schüler-Mittagessen?",
     answer:
-      "Ja. Mo–Fr gibt es eine Wochenkarte. Für Schülerinnen, Schüler und Azubis gibt es mittags ein Angebot inkl. Softgetränk — gegen Vorlage eines Ausweises. Details stehen im Angebot oben auf der Seite.",
+      "Ja. Mo–Fr gibt es wechselnde beliebte Gerichte der Woche. Für Schülerinnen, Schüler und Azubis gibt es mittags ein Angebot inkl. Softgetränk — gegen Vorlage eines Ausweises. Details stehen im Angebot oben auf der Seite.",
   },
   {
     question: "Bietet Wassana Catering und Kochkurse in Landshut an?",

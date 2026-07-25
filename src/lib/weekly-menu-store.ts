@@ -108,7 +108,7 @@ export async function saveWeeklyMenuData(
   );
   if (!persist.durable && !persist.tmp) {
     throw new Error(
-      persist.error || "Wochenkarte konnte nicht gespeichert werden.",
+      persist.error || "Wochen-Favoriten konnten nicht gespeichert werden.",
     );
   }
   return { menu: next, persist };

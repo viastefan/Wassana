@@ -128,7 +128,8 @@ export function AdminFullMenuEditor({
 
       <Section title="Hinweis">
         <p className="text-sm text-[color:var(--admin-muted)]">
-          Das ist die feste Speisekarte unter der Wochenkarte. Mit ↑ ↓ sortierst
+          Das ist die feste Speisekarte unter den beliebten Gerichten der Woche.
+          Mit ↑ ↓ sortierst
           du Kategorien und Gerichte. Nach dem Veröffentlichen ist alles live
           auf /speisekarte.
         </p>

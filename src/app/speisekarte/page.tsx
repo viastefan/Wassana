@@ -13,12 +13,12 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Speisekarte Thai Imbiss Landshut",
   description:
-    "Speisekarte von Wassana in Landshut: Wochenkarte, Curries, Wok, Suppen, vegetarisch & Getränke. Frisch zubereitet, gerne zum Mitnehmen.",
+    "Speisekarte von Wassana in Landshut: beliebte Gerichte der Woche, Curries, Wok, Suppen, vegetarisch & Getränke. Frisch zubereitet, gerne zum Mitnehmen.",
   alternates: { canonical: "/speisekarte" },
   openGraph: {
     title: "Speisekarte | Wassana Thai Imbiss Landshut",
     description:
-      "Wochenkarte und alle Gerichte — Thai Essen in Landshut am Regierungsplatz.",
+      "Beliebte Gerichte der Woche und alle Klassiker — Thai Essen in Landshut am Regierungsplatz.",
     url: "/speisekarte",
   },
   robots: { index: true, follow: true },
@@ -56,8 +56,8 @@ export default async function SpeisekartePage() {
               Zum Mitnehmen & Teilen
             </p>
             <p className="mt-1 text-[color:var(--ink)]">
-              Die komplette Speisekarte als klares PDF — Wochenkarte und alle
-              Gerichte.
+              Die komplette Speisekarte als klares PDF — beliebte Gerichte der
+              Woche und alle Klassiker.
             </p>
           </div>
           <MenuPdfDownload label="Speisekarte als PDF" />

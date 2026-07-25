@@ -103,12 +103,12 @@ export function defaultStudentLunch(): StudentLunchOffer {
     popupTitle: "Mittag für Schüler & Azubis",
     popupLead: "Gericht inkl. Getränk — mittags bei Wassana.",
     popupBody:
-      "Mo–Fr mittags gibt’s ein Gericht der aktuellen Wochenkarte plus Softgetränk. Ideal zum Mitnehmen oder vor Ort abholen.",
+      "Mo–Fr mittags gibt’s ein Gericht der beliebten Gerichte der Woche plus Softgetränk. Ideal zum Mitnehmen oder vor Ort abholen.",
     popupBullets:
-      "Gericht der Wochenkarte\nSoftgetränk inklusive\nFür Schülerinnen, Schüler und Azubis\nGegen Vorlage vom Ausweis",
+      "Gericht der Woche\nSoftgetränk inklusive\nFür Schülerinnen, Schüler und Azubis\nGegen Vorlage vom Ausweis",
     popupPrice: site.studentLunch.price,
     popupNote: site.studentLunch.note,
-    popupCtaLabel: "Zur Wochenkarte",
+    popupCtaLabel: "Beliebte Gerichte",
     popupCtaHref: "/speisekarte#wochenkarte",
   };
 }

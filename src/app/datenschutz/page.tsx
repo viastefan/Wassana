@@ -474,7 +474,7 @@ export default async function DatenschutzPage() {
                 Push-Nachrichten.
               </p>
               <p className="mt-3">
-                Website-Inhalte aus dem Admin (z. B. Texte, Wochenkarte,
+                Website-Inhalte aus dem Admin (z. B. Texte, Gerichte der Woche,
                 Kochkurs-Termine —{" "}
                 <strong className="text-[color:var(--ink)]">
                   keine Kontaktanfragen / keine privaten Nachrichten

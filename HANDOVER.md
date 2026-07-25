@@ -14,7 +14,7 @@ Admin: https://www.wassana-thai-imbiss.de/admin
    - **Anfragen** — Kontakt-Datenbank (Status, Notizen, Archiv, Löschen)
    - **Banner** — Top-Leiste (Mittagsangebot): Text, Link, Farben
    - **Texte** — Startseite, Zeiten, Schüler-Mittag, Standort
-   - **Wochenkarte** — Mo–Fr Gerichte & Preise
+   - **Beliebte Gerichte der Woche** — Mo–Fr Gerichte & Preise
    - **Betrieb** — Inhaberdaten, Kontakt, Social, Benachrichtigungen / News senden
 
 ## Vercel (einmalig prüfen)

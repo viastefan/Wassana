@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Thai Essen mitnehmen Landshut",
   description:
-    "Thai Essen in Landshut mitnehmen: frisch gekocht am Regierungsplatz, Mo–Fr Abholen. Curries, Wok und Wochenkarte zum Mitnehmen.",
+    "Thai Essen in Landshut mitnehmen: frisch gekocht am Regierungsplatz, Mo–Fr Abholen. Curries, Wok und beliebte Gerichte der Woche zum Mitnehmen.",
   alternates: { canonical: "/mitnehmen" },
   openGraph: {
     title: "Thai Essen mitnehmen | Wassana Landshut",
@@ -58,15 +58,15 @@ export default async function MitnehmenPage() {
           {content.hours.weekdaysLong}. {content.hours.weekend}.
         </p>
         <p>
-          Besonders zur Mittagszeit lohnt sich ein Blick auf die aktuelle
-          Wochenkarte — viele Gerichte eignen sich gut zum Mitnehmen.
+          Besonders zur Mittagszeit lohnt sich ein Blick auf die aktuellen
+          beliebten Gerichte der Woche — viele eignen sich gut zum Mitnehmen.
         </p>
       </ContentBlock>
 
       <ContentBlock title="Was eignet sich zum Mitnehmen?">
         <p>
-          Curries mit Duftreis, Wok-Gerichte, Suppen und die Gerichte der
-          Wochenkarte lassen sich gut transportieren. Schärfe könnt ihr nach
+          Curries mit Duftreis, Wok-Gerichte, Suppen und die beliebten Gerichte
+          der Woche lassen sich gut transportieren. Schärfe könnt ihr nach
           Wunsch wählen.
         </p>
       </ContentBlock>

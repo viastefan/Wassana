@@ -873,7 +873,7 @@ export function AdminClient() {
   async function saveWeekly(event: FormEvent) {
     event.preventDefault();
     if (!weekly) return;
-    await runPublish("Wochenkarte veröffentlichen", async () => {
+    await runPublish("Wochen-Favoriten veröffentlichen", async () => {
       const res = await fetch("/api/admin/weekly-menu", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -896,7 +896,7 @@ export function AdminClient() {
         if (res.status === 401) setAuthed(false);
         return {
           ok: false,
-          error: data?.error || "Wochenkarte speichern fehlgeschlagen.",
+          error: data?.error || "Wochen-Favoriten speichern fehlgeschlagen.",
           persist: data?.persist,
         };
       }
@@ -911,7 +911,7 @@ export function AdminClient() {
         ok: true,
         warning: data?.warning,
         persist: data?.persist,
-        successMessage: "Online — Wochenkarte live",
+        successMessage: "Online — Wochen-Favoriten live",
       };
     });
   }
@@ -1459,7 +1459,7 @@ export function AdminClient() {
               </h1>
               <p className="text-[color:var(--admin-muted)] leading-relaxed">
                 Danach steuerst du Kochkurs, Anfragen, Banner, Texte und die
-                Wochenkarte — direkt als App.
+                Speisekarte — direkt als App.
               </p>
               <label className="block">
                 <span className="text-sm text-[color:var(--admin-muted)]">
@@ -1686,7 +1686,7 @@ export function AdminClient() {
                       ["inbox", "Anfragen-DB", unread > 0 ? `${unread} neu` : "Datenbank", `${analytics.total} aktiv · ${analytics.archived} Archiv`],
                       ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus", "Mittagsangebot über dem Menü"],
                       ["content", "Website", "Texte ändern", "Hero, Zeiten, Schüler-Mittag …"],
-                      ["menu", "Speisekarte", "Wochenkarte & alle Gerichte", "Texte, Preise, Reihenfolge"],
+                      ["menu", "Speisekarte", "Wochen-Favoriten & alle Gerichte", "Texte, Preise, Reihenfolge"],
                     ] as const
                   ).map(([id, kicker, title, meta]) => {
                     const Icon = ADMIN_TAB_ICONS[id];
@@ -2976,7 +2976,7 @@ export function AdminClient() {
                       void loadWeekly();
                     }}
                   >
-                    Wochenkarte
+                    Wochen-Favoriten
                   </button>
                   <button
                     type="button"
@@ -2996,7 +2996,7 @@ export function AdminClient() {
               <form onSubmit={saveWeekly} className="admin-form space-y-3">
                 <ScreenHeader
                   kicker="Speisekarte"
-                  title="Wochenkarte"
+                  title="Beliebte Gerichte der Woche"
                   description="Tage und Varianten per Pfeile sortieren — Reihenfolge erscheint so auf der Speisekarte."
                 />
                 <Section title="Allgemein">
@@ -3229,7 +3229,7 @@ export function AdminClient() {
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
-                  label="Wochenkarte veröffentlichen"
+                  label="Wochen-Favoriten veröffentlichen"
                 />
               </form>
                 ) : null}
@@ -3245,7 +3245,7 @@ export function AdminClient() {
                 ) : null}
 
                 {menuPanel === "weekly" && !weekly ? (
-                  <p className="admin-empty">Wochenkarte wird geladen …</p>
+                  <p className="admin-empty">Wochen-Favoriten werden geladen …</p>
                 ) : null}
                 {menuPanel === "full" && !fullMenu ? (
                   <p className="admin-empty">Speisekarte wird geladen …</p>

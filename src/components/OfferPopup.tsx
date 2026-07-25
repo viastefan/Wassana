@@ -99,7 +99,7 @@ export function OfferPopup() {
   const title = offer.popupTitle.trim() || offer.title;
   const lead = offer.popupLead.trim() || offer.text;
   const ctaHref = offer.popupCtaHref.trim() || "/speisekarte#wochenkarte";
-  const ctaLabel = offer.popupCtaLabel.trim() || "Zur Wochenkarte";
+  const ctaLabel = offer.popupCtaLabel.trim() || "Beliebte Gerichte";
 
   return (
     <div
