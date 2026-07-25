@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
 import { useOfferPopupOptional } from "@/components/OfferPopupContext";
 import type { SiteContent } from "@/lib/site-content-shared";
