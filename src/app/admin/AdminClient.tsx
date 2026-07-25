@@ -694,7 +694,7 @@ export function AdminClient() {
                   </legend>
                   <label className="block">
                     <span className="text-sm text-[color:var(--muted)]">
-                      Zeile über Wassana
+                      Begrüßung über Wassana (z. B. Willkommen bei)
                     </span>
                     <input
                       value={content.hero.eyebrow}

@@ -43,7 +43,7 @@ const TMP_PATH = path.join("/tmp", "wassana-site-content.json");
 export function defaultSiteContent(): SiteContent {
   return {
     hero: {
-      eyebrow: "Thai Imbiss · Landshut",
+      eyebrow: "Willkommen bei",
       lede: "Frisch gekocht am Regierungsplatz — Curry, Wok und Mitnehmen.",
     },
     meaning: site.meaning,
