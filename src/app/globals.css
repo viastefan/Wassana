@@ -176,6 +176,108 @@ a.btn-ghost:hover {
   border-color: rgba(255, 255, 255, 0.55);
 }
 
+/* Mobiles Menü: smooth ein-/ausfahren, zentriert */
+.mobile-nav {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mobile-nav.is-open {
+  grid-template-rows: 1fr;
+}
+
+.mobile-nav-clip {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.mobile-nav-panel {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--paper) 88%, white) 0%,
+      var(--bg) 100%
+    );
+  padding: 0.5rem 1.5rem 1.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.mobile-nav-list li {
+  width: min(16rem, 100%);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition:
+    opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mobile-nav.is-open .mobile-nav-list li {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.85rem 0.5rem;
+  color: var(--ink) !important;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.is-active {
+  color: var(--red) !important;
+  border-bottom-color: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+.mobile-nav-index {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+}
+
+.mobile-nav-meta {
+  margin: 1.4rem 0 0;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.mobile-nav-meta a {
+  color: var(--red) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav,
+  .mobile-nav-list li {
+    transition: none !important;
+  }
+
+  .mobile-nav-list li {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .chip {
   display: inline-flex;
   flex-shrink: 0;
