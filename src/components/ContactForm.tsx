@@ -149,6 +149,23 @@ export function ContactForm({
         >
           {status === "sending" ? "Wird gesendet …" : "Anfrage senden"}
         </button>
+        <p className="text-xs leading-relaxed text-[color:var(--muted)]">
+          Mit dem Absenden gelten unsere{" "}
+          <a
+            href="/agb"
+            className="text-[color:var(--red)] underline-offset-2 hover:underline"
+          >
+            AGB
+          </a>{" "}
+          und die{" "}
+          <a
+            href="/datenschutz"
+            className="text-[color:var(--red)] underline-offset-2 hover:underline"
+          >
+            Datenschutzerklärung
+          </a>
+          .
+        </p>
 
         {status === "sent" ? (
           <p className="text-sm leading-relaxed text-[color:var(--ink)]">

@@ -252,6 +252,13 @@ export default async function ImpressumPage() {
             <p className="text-sm text-[color:var(--muted)]">
               Siehe auch unsere{" "}
               <Link
+                href="/agb"
+                className="text-[color:var(--red)] underline-offset-2 hover:underline"
+              >
+                AGB
+              </Link>{" "}
+              und die{" "}
+              <Link
                 href="/datenschutz"
                 className="text-[color:var(--red)] underline-offset-2 hover:underline"
               >

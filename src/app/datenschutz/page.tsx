@@ -657,6 +657,13 @@ export default async function DatenschutzPage() {
                   className="text-[color:var(--red)] underline-offset-2 hover:underline"
                 >
                   Impressum
+                </Link>{" "}
+                und die{" "}
+                <Link
+                  href="/agb"
+                  className="text-[color:var(--red)] underline-offset-2 hover:underline"
+                >
+                  AGB
                 </Link>
                 .
               </p>
