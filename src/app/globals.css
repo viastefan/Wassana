@@ -1736,9 +1736,13 @@ a.btn-ghost:hover {
   text-decoration: none;
   background: color-mix(in srgb, var(--paper) 92%, white);
   border: 1px solid color-mix(in srgb, var(--gold) 22%, var(--line));
+  /* Keep text clear of the hover border/frame on every side */
+  padding: 0;
   transition:
     border-color 0.35s var(--ease-out),
-    transform 0.35s var(--ease-out);
+    transform 0.35s var(--ease-out),
+    background 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out);
 }
 
 @media (min-width: 768px) {
@@ -1752,6 +1756,7 @@ a.btn-ghost:hover {
   display: block;
   overflow: hidden;
   background: var(--ink);
+  margin: 0.7rem 0.7rem 0;
 }
 
 .offer-link-image {
@@ -1780,7 +1785,9 @@ a.btn-ghost:hover {
 .offer-link-body {
   display: flex;
   flex-direction: column;
-  padding: 1.25rem 1.2rem 1.35rem;
+  /* Generous inner padding — hover frame never clips text */
+  padding: 1.35rem 1.35rem 1.5rem;
+  box-sizing: border-box;
 }
 
 .offer-link-index {
