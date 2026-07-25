@@ -188,7 +188,7 @@ export default async function HomePage() {
               title: "Catering",
               text: "Events inkl. Geschirr — Menüplan von Wassana.",
               href: "/catering",
-              image: "/images/ingredients.jpg",
+              image: "/images/thai-feast.jpg",
             },
             {
               title: "Kochkurs",

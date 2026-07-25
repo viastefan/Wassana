@@ -1,19 +1,32 @@
 /** Client-safe cooking-course helpers (no Node/fs). */
 
 export const COURSE_IMAGE_OPTIONS = [
-  { src: "/images/ingredients.jpg", label: "Zutaten" },
+  { src: "/images/hero.jpg", label: "Pad Thai" },
   { src: "/images/curry.jpg", label: "Curry" },
-  { src: "/images/soup.jpg", label: "Suppe" },
-  { src: "/images/hero.jpg", label: "Nudelgericht" },
+  { src: "/images/soup.jpg", label: "Tom Yum" },
+  { src: "/images/thai-feast.jpg", label: "Thai Tafel" },
+  { src: "/images/ingredients.jpg", label: "Thai Essen" },
 ] as const;
 
 export const DEFAULT_COURSE_IMAGE = COURSE_IMAGE_OPTIONS[0].src;
 
+/**
+ * Second photo for the Kochkurs mid band.
+ * Prefer plated Thai dishes — never repeat the hero.
+ */
+const COURSE_ATMOSPHERE_IMAGES = [
+  "/images/curry.jpg",
+  "/images/soup.jpg",
+  "/images/thai-feast.jpg",
+  "/images/hero.jpg",
+  "/images/ingredients.jpg",
+] as const;
+
 /** Pick a second image so hero + mid section never show the same photo. */
 export function alternateCourseImage(primary: string): string {
   const current = sanitizeCourseImage(primary);
-  const alternate = COURSE_IMAGE_OPTIONS.find((item) => item.src !== current);
-  return alternate?.src || "/images/curry.jpg";
+  const alternate = COURSE_ATMOSPHERE_IMAGES.find((src) => src !== current);
+  return alternate || "/images/curry.jpg";
 }
 
 export type CookingCourseData = {
