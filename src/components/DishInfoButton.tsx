@@ -161,9 +161,7 @@ export function DishInfoButton({ day }: { day: WeeklyMenuDay }) {
                         </span>{" "}
                         {item.name}
                       </span>
-                      <span className="text-[color:var(--red)]">
-                        {item.price}
-                      </span>
+                      <span>{item.price}</span>
                     </li>
                   ))}
                 </ul>
