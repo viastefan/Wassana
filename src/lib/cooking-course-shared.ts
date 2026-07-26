@@ -9,11 +9,22 @@ export const COURSE_IMAGE_OPTIONS = [
 
 export const DEFAULT_COURSE_IMAGE = COURSE_IMAGE_OPTIONS[0].src;
 
+/**
+ * Second photo for the Kochkurs mid band.
+ * Prefer plated Thai dishes over the spice flat-lay, and never repeat the hero.
+ */
+const COURSE_ATMOSPHERE_IMAGES = [
+  "/images/hero.jpg",
+  "/images/curry.jpg",
+  "/images/soup.jpg",
+  "/images/ingredients.jpg",
+] as const;
+
 /** Pick a second image so hero + mid section never show the same photo. */
 export function alternateCourseImage(primary: string): string {
   const current = sanitizeCourseImage(primary);
-  const alternate = COURSE_IMAGE_OPTIONS.find((item) => item.src !== current);
-  return alternate?.src || "/images/curry.jpg";
+  const alternate = COURSE_ATMOSPHERE_IMAGES.find((src) => src !== current);
+  return alternate || "/images/hero.jpg";
 }
 
 export type CookingCourseData = {
