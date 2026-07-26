@@ -151,7 +151,7 @@ export default async function HomePage() {
       </section>
 
       <SplitMedia
-        src="/images/shop-front.jpg"
+        src="/images/location-wix.jpg"
         alt="Eingang von Wassana Thai Imbiss am Regierungsplatz in Landshut"
         imageRight
       >
