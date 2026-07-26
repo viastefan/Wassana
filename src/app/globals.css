@@ -748,6 +748,39 @@ button.admin-install-cta:hover {
   transform: translateY(-1px);
 }
 
+.admin-image-option--empty {
+  min-height: 6.2rem;
+  place-items: center;
+  text-align: center;
+}
+
+.admin-image-empty-preview {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 4.5rem;
+  border-radius: 0.2rem;
+  background: color-mix(in srgb, var(--admin-line) 55%, var(--admin-raised));
+  color: var(--admin-muted);
+  font-size: 1.25rem;
+}
+
+.admin-image-upload-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.admin-image-upload-btn {
+  cursor: pointer;
+}
+
+.admin-image-upload-btn.is-disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
 .admin-toast {
   margin-top: 1rem;
   padding: 0.85rem 0.95rem;
@@ -3338,6 +3371,35 @@ a.btn-ghost:hover {
 
 .media-band--short {
   min-height: 38svh;
+}
+
+.media-band--plain {
+  color: var(--ink);
+  background:
+    radial-gradient(
+      120% 80% at 12% 0%,
+      color-mix(in srgb, var(--gold) 14%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--paper) 92%, #fff) 0%,
+      var(--paper) 48%,
+      color-mix(in srgb, var(--paper) 88%, var(--gold)) 100%
+    );
+  border-bottom: 1px solid var(--line);
+}
+
+.media-band--plain .media-band-eyebrow {
+  color: var(--gold);
+}
+
+.media-band--plain .media-band-title {
+  color: var(--red);
+}
+
+.media-band--plain .media-band-text {
+  color: var(--muted);
 }
 
 .media-band-image {

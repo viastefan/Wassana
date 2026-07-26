@@ -1,5 +1,7 @@
 /** Client-safe cooking-course helpers (no Node/fs). */
 
+import { sanitizeMediaUrl } from "@/lib/media-url";
+
 export const COURSE_IMAGE_OPTIONS = [
   { src: "/images/ingredients.jpg", label: "Zutaten" },
   { src: "/images/curry.jpg", label: "Curry" },
@@ -12,6 +14,7 @@ export const DEFAULT_COURSE_IMAGE = COURSE_IMAGE_OPTIONS[0].src;
 /** Pick a second image so hero + mid section never show the same photo. */
 export function alternateCourseImage(primary: string): string {
   const current = sanitizeCourseImage(primary);
+  if (!current) return "";
   const alternate = COURSE_IMAGE_OPTIONS.find((item) => item.src !== current);
   return alternate?.src || "/images/curry.jpg";
 }
@@ -75,11 +78,14 @@ export type CookingCourseStoreData = {
   archive: CookingCourseArchiveEntry[];
 };
 
+/**
+ * Allow preset paths, uploaded media URLs, or empty (no decorative course photos).
+ */
 export function sanitizeCourseImage(value: string | undefined | null): string {
   const next = String(value || "").trim();
-  return COURSE_IMAGE_OPTIONS.some((item) => item.src === next)
-    ? next
-    : DEFAULT_COURSE_IMAGE;
+  if (!next) return "";
+  if (COURSE_IMAGE_OPTIONS.some((item) => item.src === next)) return next;
+  return sanitizeMediaUrl(next);
 }
 
 export function defaultCoursePageTitle() {

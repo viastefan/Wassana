@@ -5,7 +5,7 @@ import { allergens } from "@/lib/menu";
 import {
   dayHasExtraInfo,
   type WeeklyMenuDay,
-} from "@/lib/weekly-menu-store";
+} from "@/lib/weekly-menu-store-shared";
 
 function resolveAllergenLabels(codes?: string) {
   const parts = String(codes || "")

@@ -343,7 +343,15 @@ export function JsonLdCookingCourseEvent({
     endDate: course.date,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
-    image: [`${url}${course.image || "/images/ingredients.jpg"}`],
+    ...(course.image?.trim()
+      ? {
+          image: [
+            course.image.startsWith("http")
+              ? course.image
+              : `${url}${course.image}`,
+          ],
+        }
+      : {}),
     url: `${url}/kochkurs`,
     inLanguage: "de-DE",
     ...(Number.isFinite(maxSeats) && maxSeats > 0

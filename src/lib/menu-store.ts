@@ -7,6 +7,7 @@ import {
   type FullMenuItem,
   type FullMenuSection,
 } from "@/lib/menu-store-shared";
+import { sanitizeMediaUrl } from "@/lib/media-url";
 import {
   readJsonWithFallback,
   writeJsonWithFallback,
@@ -105,6 +106,9 @@ function normalize(raw: Partial<FullMenuData> | null): FullMenuData {
             description: sanitizeText(String(item?.description || ""), 400),
             price: sanitizeText(String(item?.price || ""), 80),
             allergens: sanitizeText(String(item?.allergens || ""), 120),
+            image: sanitizeMediaUrl(
+              String((item as FullMenuItem | undefined)?.image || ""),
+            ),
           }))
         : [blankMenuItem()],
     };
