@@ -243,10 +243,13 @@ export default async function DatenschutzPage() {
                   <strong className="text-[color:var(--ink)]">
                     Einwilligungsstatus
                   </strong>{" "}
-                  (localStorage-Schlüssel „wassana-consent-v1“) — speichert, ob
-                  Sie notwendige Einstellungen und optional Google Maps
-                  akzeptiert haben. Erforderlich zur Dokumentation Ihrer Wahl
+                  (localStorage-Schlüssel „wassana-consent-v1“ und optional
+                  HTTP-Cookie „wassana_consent“) — speichert Version und Inhalt
+                  Ihrer Wahl (notwendige Einstellungen sowie optional Google
+                  Maps). Erforderlich zur Dokumentation Ihrer Einwilligung
                   (§ 25 Abs. 2 TTDSG, Art. 6 Abs. 1 lit. f bzw. lit. c DSGVO).
+                  Speicherdauer: bis zu 12 Monate bzw. bis Sie Ihre Entscheidung
+                  ändern oder löschen.
                 </li>
                 <li>
                   <strong className="text-[color:var(--ink)]">

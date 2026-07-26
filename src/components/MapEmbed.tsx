@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import {
-  CONSENT_STORAGE_KEY,
-  parseConsent,
+  createConsent,
+  persistConsent,
+  readStoredConsent,
   type ConsentState,
 } from "@/lib/consent";
 import { useBusiness } from "@/components/BusinessContext";
@@ -23,11 +24,11 @@ export function MapEmbed({ title, src }: MapEmbedProps) {
       setMapsAllowed(Boolean(state?.maps));
     }
 
-    apply(parseConsent(localStorage.getItem(CONSENT_STORAGE_KEY)));
+    apply(readStoredConsent());
 
     function onConsent(event: Event) {
       const detail = (event as CustomEvent<ConsentState>).detail;
-      apply(detail);
+      apply(detail ?? readStoredConsent());
     }
 
     window.addEventListener("wassana-consent", onConsent);
@@ -35,16 +36,8 @@ export function MapEmbed({ title, src }: MapEmbedProps) {
   }, []);
 
   function acceptMaps() {
-    const next: ConsentState = {
-      necessary: true,
-      maps: true,
-      updatedAt: new Date().toISOString(),
-    };
-    localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(next));
-    window.dispatchEvent(
-      new CustomEvent("wassana-consent", { detail: next }),
-    );
-    setMapsAllowed(true);
+    const next = persistConsent(createConsent(true));
+    setMapsAllowed(next.maps);
   }
 
   if (!mapsAllowed) {
