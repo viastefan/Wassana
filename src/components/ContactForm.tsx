@@ -99,46 +99,46 @@ export function ContactForm({
           />
         </label>
 
-        <label className="block">
-          <span className="mb-2 block text-sm text-[color:var(--muted)]">Name</span>
+        <label className="field-wrap">
+          <span className="field-label">Name</span>
           <input
             name="name"
             required
             autoComplete="name"
-            className="w-full border-b border-[color:var(--line)] bg-transparent py-2.5 outline-none transition focus:border-[color:var(--red)] md:py-3"
+            className="field"
             placeholder="Dein Name"
           />
         </label>
-        <label className="block">
-          <span className="mb-2 block text-sm text-[color:var(--muted)]">E-Mail</span>
+        <label className="field-wrap">
+          <span className="field-label">E-Mail</span>
           <input
             type="email"
             name="email"
             required
             autoComplete="email"
-            className="w-full border-b border-[color:var(--line)] bg-transparent py-2.5 outline-none transition focus:border-[color:var(--red)] md:py-3"
+            className="field"
             placeholder="name@mail.de"
           />
         </label>
-        <label className="block">
-          <span className="mb-2 block text-sm text-[color:var(--muted)]">
-            Telefon <span className="text-[color:var(--gold)]">(optional)</span>
+        <label className="field-wrap">
+          <span className="field-label">
+            Telefon <span className="field-label-hint">(optional)</span>
           </span>
           <input
             type="tel"
             name="phone"
             autoComplete="tel"
-            className="w-full border-b border-[color:var(--line)] bg-transparent py-2.5 outline-none transition focus:border-[color:var(--red)] md:py-3"
+            className="field"
             placeholder="0871 …"
           />
         </label>
-        <label className="block">
-          <span className="mb-2 block text-sm text-[color:var(--muted)]">Nachricht</span>
+        <label className="field-wrap">
+          <span className="field-label">Nachricht</span>
           <textarea
             name="message"
             required
             rows={4}
-            className="w-full resize-y border-b border-[color:var(--line)] bg-transparent py-2.5 outline-none transition focus:border-[color:var(--red)] md:py-3"
+            className="field"
             placeholder="Dein Anliegen"
           />
         </label>

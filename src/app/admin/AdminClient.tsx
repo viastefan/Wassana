@@ -1574,10 +1574,8 @@ export function AdminClient() {
                 Danach steuerst du Kochkurs, Anfragen, Banner, Texte und die
                 Speisekarte — direkt als App.
               </p>
-              <label className="block">
-                <span className="text-sm text-[color:var(--admin-muted)]">
-                  Benutzer
-                </span>
+              <label className="admin-field-wrap">
+                <span className="admin-field-label">Benutzer</span>
                 <input
                   id="admin-username"
                   name="username"
@@ -1593,10 +1591,8 @@ export function AdminClient() {
                   required
                 />
               </label>
-              <label className="block">
-                <span className="text-sm text-[color:var(--admin-muted)]">
-                  Passwort
-                </span>
+              <label className="admin-field-wrap">
+                <span className="admin-field-label">Passwort</span>
                 <input
                   id="admin-password"
                   name="password"
