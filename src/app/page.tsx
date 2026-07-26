@@ -71,7 +71,7 @@ export default async function HomePage() {
           <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
             {heroEyebrow}
           </p>
-          <h1 className="hero-copy-delay font-display mt-3 text-[clamp(2.85rem,10vw,6.75rem)] leading-[0.92] text-white md:text-[clamp(3.4rem,11vw,6.75rem)]">
+          <h1 className="hero-copy-delay font-display mt-4 text-[clamp(2.85rem,10vw,6.75rem)] leading-[0.92] text-white md:text-[clamp(3.4rem,11vw,6.75rem)]">
             Willkommen
             <br />
             bei Wassana
