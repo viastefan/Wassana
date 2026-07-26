@@ -53,7 +53,7 @@ export default async function HomePage() {
     <main>
       <JsonLdBreadcrumbs items={[{ name: "Start", path: "/" }]} />
       <JsonLdFaqPage items={landshutFaqs} />
-      <section className="relative min-h-[80vh] overflow-hidden">
+      <section className="relative min-h-[80vh] overflow-hidden md:min-h-[100svh]">
         <Image
           src="/images/hero.jpg"
           alt="Thai-Gericht zum Mitnehmen bei Wassana Thai Imbiss in Landshut"
@@ -67,7 +67,7 @@ export default async function HomePage() {
           style={{ background: "var(--hero-overlay)" }}
           aria-hidden
         />
-        <div className="relative mx-auto flex min-h-[80vh] max-w-6xl flex-col justify-end px-5 pb-12 pt-[calc(var(--header-h)+var(--banner-h)+1rem)] md:px-8 md:pb-24 md:pt-28">
+        <div className="relative mx-auto flex min-h-[80vh] max-w-6xl flex-col justify-end px-5 pb-12 pt-[calc(var(--header-h)+var(--banner-h)+1rem)] md:min-h-[100svh] md:px-8 md:pb-24 md:pt-28">
           <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
             {heroEyebrow}
           </p>
@@ -116,35 +116,6 @@ export default async function HomePage() {
             <a href="#standort" className="btn-ghost">
               Auf der Karte
             </a>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
-        <div className="mx-auto grid max-w-6xl md:grid-cols-[1.1fr_0.9fr]">
-          <div className="relative min-h-[280px] overflow-hidden md:min-h-[380px]">
-            <Image
-              src="/images/shop-exterior.jpg"
-              alt={`Eingang von ${business.fullName} am ${business.street} in ${business.city}`}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 55vw"
-            />
-          </div>
-          <div className="flex flex-col justify-center px-5 py-10 md:px-10 md:py-14">
-            <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-              Direkt am Regierungsplatz
-            </p>
-            <h2 className="font-display mt-3 text-3xl leading-tight text-[color:var(--red)] md:text-4xl">
-              Komm einfach rein.
-            </h2>
-            <p className="mt-4 max-w-md leading-relaxed text-[color:var(--muted)]">
-              Unser Eingang liegt zentral in Landshut. Frisch gekocht, schnell
-              abgeholt — und natürlich auch zum Sitzen.
-            </p>
-            <Link href="/anfahrt" className="btn-gold mt-7 w-fit">
-              Anfahrt & Öffnungszeiten
-            </Link>
           </div>
         </div>
       </section>
