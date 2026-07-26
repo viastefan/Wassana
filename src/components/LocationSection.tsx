@@ -111,8 +111,8 @@ export function LocationSection({
           <div className="location-visual flex h-full flex-col border-t border-[color:var(--line)] md:border-t-0 md:py-16 md:pr-8">
             <div className="location-photo relative min-h-[260px] flex-1 overflow-hidden md:min-h-[320px] md:rounded-sm">
               <Image
-                src="/images/shop-exterior.jpg"
-                alt={`Eingang von ${business.fullName} am ${business.street} in ${business.city}`}
+                src="/images/shop-interior.jpg"
+                alt={`Innenraum von ${business.fullName} am ${business.street} in ${business.city}`}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
