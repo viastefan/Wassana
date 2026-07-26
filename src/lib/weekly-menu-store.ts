@@ -6,33 +6,17 @@ import {
   type PersistResult,
 } from "@/lib/persist-json";
 import { sanitizeText } from "@/lib/security";
+import type {
+  WeeklyMenuData,
+  WeeklyMenuDay,
+} from "@/lib/weekly-menu-store-shared";
 
-export type WeeklyMenuItem = {
-  nr: string;
-  name: string;
-  price: string;
-  allergens?: string;
-};
-
-export type WeeklyMenuDay = {
-  day: string;
-  dish: string;
-  description?: string;
-  allergens?: string;
-  /** Extra allergy / ingredient notes for the info popup */
-  info?: string;
-  kcal?: string;
-  protein?: string;
-  fat?: string;
-  carbs?: string;
-  items: WeeklyMenuItem[];
-};
-
-export type WeeklyMenuData = {
-  note: string;
-  days: WeeklyMenuDay[];
-  updatedAt: string;
-};
+export type {
+  WeeklyMenuData,
+  WeeklyMenuDay,
+  WeeklyMenuItem,
+} from "@/lib/weekly-menu-store-shared";
+export { dayHasExtraInfo } from "@/lib/weekly-menu-store-shared";
 
 const DATA_PATH = path.join(process.cwd(), "data", "weekly-menu.json");
 const TMP_PATH = path.join("/tmp", "wassana-weekly-menu.json");
@@ -40,18 +24,6 @@ const TMP_PATH = path.join("/tmp", "wassana-weekly-menu.json");
 function optionalField(value: unknown, max: number) {
   const next = sanitizeText(String(value || ""), max);
   return next || undefined;
-}
-
-export function dayHasExtraInfo(day: WeeklyMenuDay) {
-  return Boolean(
-    day.info ||
-      day.kcal ||
-      day.protein ||
-      day.fat ||
-      day.carbs ||
-      day.allergens ||
-      day.description,
-  );
 }
 
 export function defaultWeeklyMenu(): WeeklyMenuData {
