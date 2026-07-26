@@ -36,7 +36,7 @@ export default async function UeberUnsPage() {
       title="Über uns"
       lead="Frisch gekocht am Regierungsplatz — mit dem Wunsch nach Glück und gutem Schicksal."
       image="/images/ingredients.jpg"
-      imageAlt="Frische Zutaten der Thai-Küche bei Wassana in Landshut"
+      imageAlt="Thai-Gerichte und Beilagen — authentische Küche bei Wassana in Landshut"
     >
       <ContentBlock title="Was Wassana bedeutet">
         <p className="text-[color:var(--ink)]">{content.meaning}</p>

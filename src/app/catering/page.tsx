@@ -61,8 +61,8 @@ export default async function CateringPage() {
         ]}
       />
       <MediaBand
-        src="/images/soup.jpg"
-        alt="Thai-Gerichte fürs Catering von Wassana"
+        src="/images/thai-feast.jpg"
+        alt="Thai-Tafel für Catering von Wassana in Landshut — Curry, Nudeln und Beilagen"
         eyebrow="Catering Landshut"
         title="Feierlichkeiten mit Thai-Atmosphäre"
         text="Geburtstage, Firmenfeiern oder Hochzeiten — individueller Menüplan und passendes Geschirr."

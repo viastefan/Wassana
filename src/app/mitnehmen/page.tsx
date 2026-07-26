@@ -36,7 +36,7 @@ export default async function MitnehmenPage() {
       title="Frisch mitnehmen"
       lead="Curries, Wok und Klassiker — frisch aus der Küche, ideal für Büro, Pause oder zu Hause."
       image="/images/soup.jpg"
-      imageAlt="Thai-Gericht zum Mitnehmen bei Wassana in Landshut"
+      imageAlt="Tom Yum und Thai-Gerichte zum Mitnehmen bei Wassana in Landshut"
     >
       <ContentBlock title="So funktioniert Abholen">
         <p>
