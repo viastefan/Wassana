@@ -112,7 +112,8 @@ select:-webkit-autofill:focus {
 }
 
 .site-shell {
-  overflow-x: clip;
+  /* Do not set overflow-x here — non-visible overflow breaks position:sticky
+     for the catering/kochkurs side forms relative to the viewport. */
   min-height: 100svh;
   background:
     radial-gradient(900px 420px at 0% 0%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 60%),
@@ -2463,13 +2464,18 @@ a.btn-ghost:hover {
 
 .side-form-sticky {
   align-self: start;
+  width: 100%;
 }
 
 @media (min-width: 768px) {
   .side-form-sticky {
     position: sticky;
     top: calc(var(--header-h) + var(--banner-h) + 1rem);
-    z-index: 1;
+    z-index: 2;
+    max-height: calc(100svh - var(--header-h) - var(--banner-h) - 2rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
