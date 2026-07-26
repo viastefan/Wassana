@@ -2763,7 +2763,7 @@ export function AdminClient() {
                         })
                       }
                       className={fieldClass}
-                      placeholder="Schüler & Azubis mittags: Gericht inkl. Getränk"
+                      placeholder="Schüler & Azubis: mittags Gericht inkl. Getränk"
                     />
                   </Field>
                   <Field label="Hervorhebung (z. B. Preis)">
@@ -2936,7 +2936,7 @@ export function AdminClient() {
                       topBanner: {
                         ...content.topBanner,
                         active: true,
-                        text: "Schüler & Azubis mittags: Gericht inkl. Getränk",
+                        text: "Schüler & Azubis: mittags Gericht inkl. Getränk",
                         highlight: content.studentLunch.price,
                         linkHref: "#mittag",
                         linkLabel: "Mehr",

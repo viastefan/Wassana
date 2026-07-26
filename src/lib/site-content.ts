@@ -11,6 +11,7 @@ import {
   defaultTopBanner,
   sanitizeColor,
   sanitizeHref,
+  sanitizeTopBannerText,
   type SiteContent,
   type TopBanner,
 } from "@/lib/site-content-shared";
@@ -25,6 +26,7 @@ export {
   defaultStudentLunch,
   defaultTopBanner,
   isStudentLunchPopupHref,
+  sanitizeTopBannerText,
 } from "@/lib/site-content-shared";
 
 const DATA_PATH = path.join(process.cwd(), "data", "site-content.json");
@@ -165,9 +167,11 @@ function normalize(raw: Partial<SiteContent> | null): SiteContent {
         typeof bannerRaw.active === "boolean"
           ? bannerRaw.active
           : base.topBanner.active,
-      text: sanitizeText(
-        String(bannerRaw.text ?? base.topBanner.text),
-        180,
+      text: sanitizeTopBannerText(
+        sanitizeText(
+          String(bannerRaw.text ?? base.topBanner.text),
+          180,
+        ),
       ),
       highlight: sanitizeText(
         String(bannerRaw.highlight ?? base.topBanner.highlight),

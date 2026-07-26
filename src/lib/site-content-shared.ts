@@ -83,10 +83,15 @@ export function sanitizeHref(value: string, fallback: string): string {
   return fallback;
 }
 
+/** Strip redundant "in Landshut" after Schüler & Azubis (location stays in suffix). */
+export function sanitizeTopBannerText(text: string): string {
+  return text.replace(/Schüler & Azubis in Landshut/i, "Schüler & Azubis");
+}
+
 export function defaultTopBanner(): TopBanner {
   return {
     active: true,
-    text: "Schüler & Azubis mittags: Gericht inkl. Getränk",
+    text: "Schüler & Azubis: mittags Gericht inkl. Getränk",
     highlight: site.studentLunch.price,
     linkHref: STUDENT_LUNCH_POPUP_HREF,
     linkLabel: "Mehr",
