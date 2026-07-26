@@ -35,8 +35,8 @@ export default async function UeberUnsPage() {
       eyebrow="Wassana Landshut"
       title="Über uns"
       lead="Frisch gekocht am Regierungsplatz — mit dem Wunsch nach Glück und gutem Schicksal."
-      image="/images/ingredients.jpg"
-      imageAlt="Frische Zutaten der Thai-Küche bei Wassana in Landshut"
+      image="/images/shop-interior.jpg"
+      imageAlt="Innenraum und Eingang von Wassana Thai Imbiss in Landshut"
     >
       <ContentBlock title="Was Wassana bedeutet">
         <p className="text-[color:var(--ink)]">{content.meaning}</p>
