@@ -125,30 +125,28 @@ export default async function HomePage() {
         className="border-b border-[color:var(--line)] bg-[color:var(--paper)]"
       >
         <div className="mx-auto max-w-3xl px-5 py-[var(--section-y)] text-center md:px-8">
-          <Reveal>
-            <div className="brand-mark mx-auto">
-              <Image
-                src="/images/logo.png"
-                alt="Wassana Thai Imbiss Logo"
-                width={160}
-                height={160}
-                className="mx-auto h-28 w-28 rounded-full object-contain md:h-32 md:w-32"
-              />
-            </div>
-            <h2
-              id="wassana-heading"
-              className="font-display mt-8 text-[clamp(2.4rem,7vw,3.75rem)] leading-none text-[color:var(--red)] md:mt-9"
-            >
-              Wassana
-            </h2>
-            <p className="mt-4 text-sm tracking-[0.22em] text-[color:var(--gold)] uppercase">
-              Glück und gutes Schicksal
-            </p>
-            <div className="gold-rule mx-auto mt-8 max-w-xs" />
-            <p className="mt-8 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl">
-              {content.meaning}
-            </p>
-          </Reveal>
+          <div className="brand-mark mx-auto">
+            <Image
+              src="/images/logo.png"
+              alt="Wassana Thai Imbiss Logo"
+              width={160}
+              height={160}
+              className="mx-auto h-28 w-28 rounded-full object-contain md:h-32 md:w-32"
+            />
+          </div>
+          <h2
+            id="wassana-heading"
+            className="font-display mt-8 text-[clamp(2.4rem,7vw,3.75rem)] leading-none text-[color:var(--red)] md:mt-9"
+          >
+            Wassana
+          </h2>
+          <p className="mt-4 text-sm tracking-[0.22em] text-[color:var(--gold)] uppercase">
+            Glück und gutes Schicksal
+          </p>
+          <div className="gold-rule mx-auto mt-8 max-w-xs" />
+          <p className="mt-8 text-lg leading-relaxed text-[color:var(--ink)] md:text-xl">
+            {content.meaning}
+          </p>
         </div>
       </section>
 
