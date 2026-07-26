@@ -109,12 +109,12 @@ export function LocationSection({
 
         <Reveal delay={1} className="h-full">
           <div className="location-visual flex h-full flex-col border-t border-[color:var(--line)] md:border-t-0 md:py-16 md:pr-8">
-            <div className="location-photo relative min-h-[260px] flex-1 overflow-hidden md:min-h-[320px] md:rounded-sm">
+            <div className="location-photo relative min-h-[260px] flex-1 overflow-hidden bg-[color:var(--sand)] md:min-h-[520px] md:rounded-sm">
               <Image
-                src="/images/shop-interior.jpg"
-                alt={`Innenraum von ${business.fullName} am ${business.street} in ${business.city}`}
+                src="/images/location-wix.jpg"
+                alt={`Eingangsbereich von ${business.fullName} am ${business.street} in ${business.city}`}
                 fill
-                className="object-cover"
+                className="object-cover object-center md:object-contain"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
