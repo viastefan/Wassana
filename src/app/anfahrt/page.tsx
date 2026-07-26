@@ -37,8 +37,8 @@ export default async function AnfahrtPage() {
         eyebrow="Standort Landshut"
         title="So findet ihr uns"
         lead={`${business.street}, ${business.zip} ${business.city} — im Gewerbehaus am Regierungsplatz.`}
-        image="/images/hero.jpg"
-        imageAlt="Wassana Thai Imbiss am Regierungsplatz in Landshut"
+        image="/images/laden-eingang-heute.jpg"
+        imageAlt="Eingang von Wassana Thai Imbiss am Regierungsplatz in Landshut"
       >
         <ContentBlock title="Adresse">
           <p className="text-[color:var(--ink)]">

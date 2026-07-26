@@ -6,7 +6,7 @@ import {
   JsonLdBreadcrumbs,
   JsonLdFaqPage,
 } from "@/components/JsonLd";
-import { SplitMedia } from "@/components/Media";
+import { ImageStrip, SplitMedia } from "@/components/Media";
 import { LocationSection } from "@/components/LocationSection";
 import { Reveal } from "@/components/Reveal";
 import { Wochenkarte } from "@/components/Speisekarte";
@@ -148,8 +148,8 @@ export default async function HomePage() {
       </section>
 
       <SplitMedia
-        src="/images/curry.jpg"
-        alt="Thai-Curry bei Wassana Thai Imbiss in Landshut"
+        src="/images/atmosphaere-tisch.jpg"
+        alt="Atmosphäre am Tisch bei Wassana Thai Imbiss in Landshut"
         imageRight
       >
         <Reveal>
@@ -232,7 +232,7 @@ export default async function HomePage() {
 
       <section className="takeaway-band" aria-labelledby="takeaway-heading">
         <Image
-          src="/images/hero.jpg"
+          src="/images/laden-raum.jpg"
           alt="Frisch zubereitetes Thai-Gericht zum Mitnehmen bei Wassana"
           fill
           className="takeaway-band-image object-cover"
@@ -262,6 +262,29 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      <ImageStrip
+        items={[
+          {
+            src: "/images/laden-eingang-heute.jpg",
+            alt: "Eingang von Wassana Thai Imbiss am Regierungsplatz",
+            label: "Am Regierungsplatz",
+            href: "/anfahrt",
+          },
+          {
+            src: "/images/laden-raum.jpg",
+            alt: "Gastraum bei Wassana Thai Imbiss in Landshut",
+            label: "Bei uns im Laden",
+            href: "/ueber-uns",
+          },
+          {
+            src: "/images/einblicke-gerichte.jpg",
+            alt: "Einblicke in Gerichte bei Wassana — aus Gästefotos",
+            label: "Aus der Küche",
+            href: "/speisekarte",
+          },
+        ]}
+      />
 
       <LocationSection location={content.location} hours={content.hours} />
 
