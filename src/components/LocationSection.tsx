@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { MapEmbed } from "@/components/MapEmbed";
 import { Reveal } from "@/components/Reveal";
 import { useBusiness } from "@/components/BusinessContext";
-import type { SiteContent } from "@/lib/site-content";
+import type { SiteContent } from "@/lib/site-content-shared";
 
 export function LocationSection({
   location,
@@ -107,8 +108,17 @@ export function LocationSection({
         </Reveal>
 
         <Reveal delay={1} className="h-full">
-          <div className="flex h-full min-h-[340px] items-stretch border-t border-[color:var(--line)] md:min-h-0 md:border-t-0 md:py-16 md:pr-8">
-            <div className="relative h-full min-h-[340px] w-full overflow-hidden md:rounded-sm">
+          <div className="location-visual flex h-full flex-col border-t border-[color:var(--line)] md:border-t-0 md:py-16 md:pr-8">
+            <div className="location-photo relative min-h-[260px] flex-1 overflow-hidden md:min-h-[320px] md:rounded-sm">
+              <Image
+                src="/images/shop-exterior.jpg"
+                alt={`Eingang von ${business.fullName} am ${business.street} in ${business.city}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+            <div className="location-map-panel relative mt-3 h-[200px] overflow-hidden border-t border-[color:var(--line)] md:mt-4 md:h-[220px] md:rounded-sm md:border md:border-[color:var(--line)]">
               <MapEmbed
                 title={`Karte: ${business.fullName}, ${business.street}, ${business.city}`}
               />
