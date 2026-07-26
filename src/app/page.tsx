@@ -43,6 +43,12 @@ export default async function HomePage() {
     content.closing.text.trim() ||
     `${business.street}, ${business.city} — ${content.hours.weekdaysLong}. ${content.hours.weekend}.`;
 
+  // Avoid “Willkommen bei” twice (eyebrow + h1)
+  const rawEyebrow = content.hero.eyebrow.trim();
+  const heroEyebrow = /^willkommen\b/i.test(rawEyebrow)
+    ? ""
+    : rawEyebrow || "Thai Imbiss und Feinkost · Landshut";
+
   return (
     <main>
       <JsonLdBreadcrumbs items={[{ name: "Start", path: "/" }]} />
@@ -62,10 +68,11 @@ export default async function HomePage() {
           aria-hidden
         />
         <div className="relative mx-auto flex min-h-[78svh] max-w-6xl flex-col justify-end px-5 pb-12 pt-24 md:min-h-[100svh] md:px-8 md:pb-24 md:pt-28">
-          <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
-            {content.hero.eyebrow.trim() ||
-              "Thai Imbiss und Feinkost · Landshut"}
-          </p>
+          {heroEyebrow ? (
+            <p className="hero-copy text-sm tracking-[0.22em] text-[color:var(--gold-soft)] uppercase md:text-[0.95rem]">
+              {heroEyebrow}
+            </p>
+          ) : null}
           <h1 className="hero-copy-delay font-display mt-3 text-[clamp(2.85rem,10vw,6.75rem)] leading-[0.92] text-white md:text-[clamp(3.4rem,11vw,6.75rem)]">
             Willkommen
             <br />
