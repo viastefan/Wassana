@@ -78,14 +78,14 @@ export default async function HomePage() {
             href={business.maps.directions}
             target="_blank"
             rel="noreferrer"
-            className="hero-copy-delay-2 group mt-7 inline-flex max-w-fit items-start gap-2.5 text-white/88 transition hover:text-white"
+            className="hero-route-link hero-copy-delay-2 group mt-7"
           >
             <svg
               viewBox="0 0 24 24"
-              className="mt-0.5 h-[1.15rem] w-[1.15rem] shrink-0 text-[color:var(--gold-soft)] transition group-hover:translate-y-[-1px]"
+              className="hero-route-link-pin"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.6"
+              strokeWidth="1.7"
               aria-hidden
             >
               <path
@@ -95,11 +95,9 @@ export default async function HomePage() {
               />
               <circle cx="12" cy="10" r="2.25" />
             </svg>
-            <span className="text-left leading-snug">
-              <span className="block text-[0.95rem] tracking-wide md:text-base">
-                {business.street}
-              </span>
-              <span className="mt-0.5 block text-sm text-white/70">
+            <span className="hero-route-link-copy">
+              <span className="hero-route-link-street">{business.street}</span>
+              <span className="hero-route-link-meta">
                 {business.zip} {business.city} · Route öffnen
               </span>
             </span>

@@ -2485,6 +2485,90 @@ a.btn-ghost:hover {
   animation: rise-in 1s var(--ease-out) 0.22s both;
 }
 
+/* Adresse im Hero: lesbar auf hellen Bildstellen */
+.hero-route-link {
+  display: inline-flex;
+  max-width: fit-content;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.55rem 0.85rem 0.55rem 0.65rem;
+  color: #fff !important;
+  text-decoration: none;
+  border: 1px solid color-mix(in srgb, #fff 22%, transparent);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--ink) 62%, transparent),
+      color-mix(in srgb, var(--ink) 48%, transparent)
+    );
+  box-shadow:
+    0 8px 22px rgba(30, 33, 41, 0.22),
+    inset 0 1px 0 color-mix(in srgb, #fff 14%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    background 0.22s var(--ease-out),
+    border-color 0.22s var(--ease-out),
+    transform 0.22s var(--ease-out);
+}
+
+.hero-route-link:hover,
+.hero-route-link:focus-visible {
+  border-color: color-mix(in srgb, var(--gold-soft) 55%, transparent);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--ink) 72%, transparent),
+      color-mix(in srgb, var(--ink) 56%, transparent)
+    );
+  transform: translateY(-1px);
+}
+
+.hero-route-link-pin {
+  margin-top: 0.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+  color: var(--gold-soft);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  transition: transform 0.22s var(--ease-out);
+}
+
+.hero-route-link:hover .hero-route-link-pin,
+.hero-route-link:focus-visible .hero-route-link-pin {
+  transform: translateY(-1px);
+}
+
+.hero-route-link-copy {
+  text-align: left;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.hero-route-link-street {
+  display: block;
+  font-size: 0.98rem;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+}
+
+.hero-route-link-meta {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  color: color-mix(in srgb, #fff 82%, var(--gold-soft));
+}
+
+@media (min-width: 768px) {
+  .hero-route-link {
+    padding: 0.65rem 1rem 0.65rem 0.75rem;
+  }
+
+  .hero-route-link-street {
+    font-size: 1.05rem;
+  }
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;
