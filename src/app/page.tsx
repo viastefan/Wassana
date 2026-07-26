@@ -151,35 +151,8 @@ export default async function HomePage() {
       </section>
 
       <SplitMedia
-        src="/images/shop-interior.jpg"
-        alt="Innenraum und Eingang von Wassana Thai Imbiss in Landshut"
-      >
-        <Reveal>
-          <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-            Bei uns vor Ort
-          </p>
-          <h2 className="font-display mt-4 text-3xl text-[color:var(--red)] md:text-4xl">
-            Direkt am Regierungsplatz
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-[color:var(--ink)]">
-            Ob kurze Mittagspause oder entspanntes Essen vor Ort: Bei Wassana
-            sitzt ihr zentral in Landshut und bekommt frische Thai-Gerichte
-            direkt aus der Küche.
-          </p>
-          <p className="mt-4 text-[color:var(--muted)] leading-relaxed">
-            Unser Eingang und Gastraum liegen offen zum Platz — ideal zum
-            schnellen Mitnehmen oder für ein paar ruhige Minuten mit Curry,
-            Wok und Suppe.
-          </p>
-          <Link href="/ueber-uns" className="btn-gold mt-8 w-fit">
-            Mehr über Wassana
-          </Link>
-        </Reveal>
-      </SplitMedia>
-
-      <SplitMedia
-        src="/images/curry.jpg"
-        alt="Thai-Curry bei Wassana Thai Imbiss in Landshut"
+        src="/images/shop-front.jpg"
+        alt="Eingang von Wassana Thai Imbiss am Regierungsplatz in Landshut"
         imageRight
       >
         <Reveal>
