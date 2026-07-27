@@ -146,6 +146,9 @@ export function SiteFooter({ hours }: SiteFooterProps) {
             <Link href="/impressum" className="hover:text-[color:var(--red)]">
               Impressum
             </Link>
+            <Link href="/agb" className="hover:text-[color:var(--red)]">
+              AGB
+            </Link>
             <Link href="/datenschutz" className="hover:text-[color:var(--red)]">
               Datenschutz
             </Link>

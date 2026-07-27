@@ -31,6 +31,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   "/kochkurs": { changeFrequency: "weekly", priority: 0.85 },
   "/ueber-uns": { changeFrequency: "monthly", priority: 0.8 },
   "/impressum": { changeFrequency: "yearly", priority: 0.2 },
+  "/agb": { changeFrequency: "yearly", priority: 0.2 },
   "/datenschutz": { changeFrequency: "yearly", priority: 0.2 },
 };
 
