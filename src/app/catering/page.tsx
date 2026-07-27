@@ -61,8 +61,8 @@ export default async function CateringPage() {
         ]}
       />
       <MediaBand
-        src="/images/soup.jpg"
-        alt="Thai-Gerichte fürs Catering von Wassana"
+        src="/images/page-catering.jpg"
+        alt="Tom Yum und Thai-Gerichte fürs Catering von Wassana"
         eyebrow="Catering Landshut"
         title="Feierlichkeiten mit Thai-Atmosphäre"
         text="Geburtstage, Firmenfeiern oder Hochzeiten — individueller Menüplan und passendes Geschirr."

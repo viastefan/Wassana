@@ -43,8 +43,8 @@ export default async function SpeisekartePage() {
       />
       <JsonLdMenu sections={sections} businessName={business.shortName} />
       <MediaBand
-        src="/images/curry.jpg"
-        alt="Curry-Gerichte auf der Speisekarte bei Wassana Thai Imbiss in Landshut"
+        src="/images/page-speisekarte.jpg"
+        alt="Thai-Gericht von der Speisekarte bei Wassana Thai Imbiss in Landshut"
         eyebrow="Speisekarte Landshut"
         title="Unsere Gerichte"
         text="Frisch zubereitet in Landshut — Currys, Wok, Suppen und mehr. Gerne auch zum Mitnehmen."

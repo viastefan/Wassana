@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
 import {
@@ -11,12 +10,11 @@ import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
 import {
   formatCourseDate,
-  getCookingCourse,
+  getCookingCourseStore,
   isPublicPromoVisible,
   sanitizeCourseImage,
   splitCourseLines,
 } from "@/lib/cooking-course";
-import { alternateCourseImage } from "@/lib/cooking-course-shared";
 
 export const metadata: Metadata = {
   title: "Thai Kochkurs Landshut",
@@ -34,13 +32,16 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function KochkursPage() {
-  const [course, business] = await Promise.all([
-    getCookingCourse(),
+  const [store, business] = await Promise.all([
+    getCookingCourseStore(),
     getResolvedBusiness(),
   ]);
+  const course = store.current;
+  const archive = store.archive.filter(
+    (entry) => entry.fazit?.trim() || entry.dishFocus?.trim(),
+  );
   const showNext = isPublicPromoVisible(course);
   const image = sanitizeCourseImage(course.image);
-  const midImage = alternateCourseImage(image);
   const pageTitle =
     course.pageTitle?.trim() || "Thai-Küche näher kennenlernen";
   const pageText =
@@ -138,30 +139,19 @@ export default async function KochkursPage() {
         </section>
       ) : null}
 
-      <section className="border-b border-[color:var(--line)]">
-        <div className="mx-auto grid max-w-6xl items-stretch md:grid-cols-2">
-          <div className="relative min-h-[240px] md:min-h-[320px]">
-            <Image
-              src={midImage}
-              alt="Thai-Gerichte und Atmosphäre beim Kochkurs bei Wassana"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </div>
-          <div className="flex flex-col justify-center bg-[color:var(--paper)] px-5 py-12 md:px-10 md:py-16">
-            <Reveal>
-              <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
-                Bei Wassana
-              </p>
-              <h2 className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl">
-                {course.title || "Thai Kochkurs"}
-              </h2>
-              <p className="mt-4 max-w-md text-[color:var(--muted)] leading-relaxed">
-                {pageText}
-              </p>
-            </Reveal>
-          </div>
+      <section className="border-b border-[color:var(--line)] bg-[color:var(--paper)]">
+        <div className="mx-auto max-w-3xl px-5 py-12 text-center md:px-8 md:py-16">
+          <Reveal>
+            <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+              Bei Wassana
+            </p>
+            <h2 className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl">
+              {course.title || "Thai Kochkurs"}
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-[color:var(--muted)] leading-relaxed">
+              {pageText}
+            </p>
+          </Reveal>
         </div>
       </section>
 
@@ -293,6 +283,53 @@ export default async function KochkursPage() {
           </div>
         </div>
       </section>
+
+      {archive.length > 0 ? (
+        <section
+          className="course-archive-band"
+          aria-labelledby="course-archive-heading"
+        >
+          <div className="mx-auto max-w-6xl px-5 py-[var(--section-y)] md:px-8">
+            <Reveal>
+              <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
+                Archiv
+              </p>
+              <h2
+                id="course-archive-heading"
+                className="font-display mt-3 text-3xl text-[color:var(--red)] md:text-4xl"
+              >
+                Vergangene Kochkurse
+              </h2>
+              <p className="mt-4 max-w-xl text-[color:var(--muted)] leading-relaxed">
+                Ein Rückblick auf abgeschlossene Abende in unserer Küche — mit
+                Fazit vom letzten Kurs.
+              </p>
+            </Reveal>
+            <ol className="course-archive-list">
+              {archive.map((entry, index) => (
+                <Reveal key={entry.id} delay={(index % 3) as 0 | 1 | 2}>
+                  <li className="course-archive-item">
+                    <div className="course-archive-meta">
+                      <time dateTime={entry.date}>
+                        {formatCourseDate(entry.date)}
+                      </time>
+                      {entry.dishFocus?.trim() ? (
+                        <span className="course-archive-focus">
+                          {entry.dishFocus.trim()}
+                        </span>
+                      ) : null}
+                    </div>
+                    <h3 className="course-archive-title">{entry.title}</h3>
+                    {entry.fazit?.trim() ? (
+                      <p className="course-archive-fazit">{entry.fazit.trim()}</p>
+                    ) : null}
+                  </li>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }

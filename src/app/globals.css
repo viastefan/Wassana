@@ -2924,6 +2924,72 @@ a.btn-ghost:hover {
   color: var(--ink);
 }
 
+.course-archive-band {
+  border-top: 1px solid var(--line);
+  background:
+    linear-gradient(
+      180deg,
+      var(--paper) 0%,
+      color-mix(in srgb, var(--bg-soft) 70%, var(--paper)) 100%
+    );
+}
+
+.course-archive-list {
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .course-archive-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.course-archive-item {
+  padding: 1.35rem 1.4rem;
+  border: 1px solid color-mix(in srgb, var(--line) 85%, var(--gold));
+  border-radius: var(--radius-md, 0.75rem);
+  background: color-mix(in srgb, var(--paper) 94%, var(--gold));
+}
+
+.course-archive-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.85rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.course-archive-focus {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--gold) 16%, transparent);
+  color: var(--ink);
+  letter-spacing: 0.06em;
+}
+
+.course-archive-title {
+  margin: 0.65rem 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.35rem;
+  color: var(--red);
+  line-height: 1.25;
+}
+
+.course-archive-fazit {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 0.98rem;
+}
+
 .takeaway-band {
   position: relative;
   isolation: isolate;
