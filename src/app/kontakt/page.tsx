@@ -40,7 +40,7 @@ export default async function KontaktPage() {
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
             Kontakt Landshut
           </p>
-          <h1 className="font-display mt-3 text-4xl text-[color:var(--red)] md:text-5xl">
+          <h1 className="page-heading font-display mt-3 text-[color:var(--red)]">
             Schreib uns oder ruf an
           </h1>
           <p className="mt-5 max-w-md text-lg text-[color:var(--muted)]">

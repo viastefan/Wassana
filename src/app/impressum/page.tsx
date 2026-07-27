@@ -38,7 +38,7 @@ export default async function ImpressumPage() {
           <p className="text-sm tracking-[0.2em] text-[color:var(--gold)] uppercase">
             Rechtliches
           </p>
-          <h1 className="font-display mt-3 text-4xl text-[color:var(--red)] md:text-5xl">
+          <h1 className="page-heading font-display mt-3 text-[color:var(--red)]">
             Impressum
           </h1>
           <p className="mt-4 text-[color:var(--muted)]">

@@ -111,6 +111,23 @@ select:-webkit-autofill:focus {
   letter-spacing: 0.02em;
 }
 
+/* Long DE compound titles (Datenschutzerklärung …) must wrap on narrow screens */
+.page-heading {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  line-height: 1.12;
+  font-size: clamp(1.85rem, 7.2vw, 3rem);
+}
+
+@media (min-width: 768px) {
+  .page-heading {
+    font-size: clamp(2.4rem, 4vw, 3.15rem);
+  }
+}
+
 .site-shell {
   overflow-x: clip;
   min-height: 100svh;
