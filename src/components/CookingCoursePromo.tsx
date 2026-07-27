@@ -1,67 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { formatCourseDate } from "@/lib/cooking-course-format";
+import { useEffect, useRef } from "react";
+import { useCookingCourse } from "@/components/CookingCourseContext";
 
-type Course = {
-  active: boolean;
-  date: string;
-  title: string;
-  teaser: string;
-  price?: string;
-  startTime?: string;
-};
-
+/** Floating Kochkurs bar — docks into the footer when you reach the bottom. */
 export function CookingCoursePromo() {
-  const pathname = usePathname();
-  const [course, setCourse] = useState<Course | null>(null);
-  const [hidden, setHidden] = useState(true);
+  const { course, dateLabel, showFixed, dismiss } = useCookingCourse();
 
-  useEffect(() => {
-    if (pathname?.startsWith("/admin")) {
-      setHidden(true);
-      return;
-    }
-
-    const dismissed = sessionStorage.getItem("wassana-course-dismissed");
-    if (dismissed === "1") {
-      setHidden(true);
-      return;
-    }
-
-    let cancelled = false;
-    fetch("/api/cooking-course", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: Course | null) => {
-        if (cancelled || !data?.active || !data.date) {
-          setHidden(true);
-          return;
-        }
-        const end = new Date(`${data.date}T23:59:59`);
-        if (Number.isNaN(end.getTime()) || end.getTime() < Date.now()) {
-          setHidden(true);
-          return;
-        }
-        setCourse(data);
-        setHidden(false);
-      })
-      .catch(() => setHidden(true));
-
-    return () => {
-      cancelled = true;
-    };
-  }, [pathname]);
-
-  if (hidden || !course || pathname?.startsWith("/admin")) return null;
-
-  const dateLabel = formatCourseDate(course.date);
-
-  function dismiss() {
-    sessionStorage.setItem("wassana-course-dismissed", "1");
-    setHidden(true);
-  }
+  if (!showFixed || !course) return null;
 
   return (
     <aside
@@ -77,7 +24,6 @@ export function CookingCoursePromo() {
         ×
       </button>
 
-      {/* Compact bar — especially for mobile */}
       <Link href="/kochkurs" className="course-promo-compact">
         <span className="course-promo-compact-label">Kochkurs</span>
         <span className="course-promo-compact-date">{dateLabel}</span>
@@ -86,7 +32,6 @@ export function CookingCoursePromo() {
         </span>
       </Link>
 
-      {/* Fuller card — desktop */}
       <div className="course-promo-card">
         <p className="course-promo-eyebrow">Nächster Termin</p>
         <p className="course-promo-title">{course.title || "Kochkurs"}</p>
@@ -105,5 +50,76 @@ export function CookingCoursePromo() {
         </Link>
       </div>
     </aside>
+  );
+}
+
+/**
+ * Lives under the footer copyright. Shows when the floating bar is dismissed
+ * or when the user has scrolled to the page bottom (docked).
+ */
+export function CookingCourseFooterDock() {
+  const { course, dateLabel, showFooter, dismissed, setDocked, dismiss } =
+    useCookingCourse();
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || !course || dismissed) {
+      setDocked(false);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setDocked(entry.isIntersecting);
+      },
+      {
+        root: null,
+        // Start docking slightly before the absolute bottom so © stays clear
+        rootMargin: "0px 0px -12% 0px",
+        threshold: 0,
+      },
+    );
+
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      setDocked(false);
+    };
+  }, [setDocked, course, dismissed]);
+
+  return (
+    <div className="course-promo-dock">
+      {showFooter && course ? (
+        <div
+          className="course-promo-footer"
+          aria-label={`Nächster Kochkurs am ${dateLabel}`}
+        >
+          {!dismissed ? (
+            <button
+              type="button"
+              className="course-promo-footer-close"
+              aria-label="Hinweis schließen"
+              onClick={dismiss}
+            >
+              ×
+            </button>
+          ) : null}
+          <Link href="/kochkurs" className="course-promo-footer-link">
+            <span className="course-promo-compact-label">Kochkurs</span>
+            <span className="course-promo-compact-date">{dateLabel}</span>
+            <span className="course-promo-compact-go" aria-hidden>
+              →
+            </span>
+          </Link>
+        </div>
+      ) : null}
+      <div
+        ref={sentinelRef}
+        data-course-promo-sentinel
+        className="course-promo-sentinel"
+        aria-hidden
+      />
+    </div>
   );
 }

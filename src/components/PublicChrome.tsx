@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BusinessProvider } from "@/components/BusinessContext";
 import { CookieBanner } from "@/components/CookieBanner";
+import { CookingCourseProvider } from "@/components/CookingCourseContext";
 import { CookingCoursePromo } from "@/components/CookingCoursePromo";
 import { OfferPopup } from "@/components/OfferPopup";
 import { OfferPopupProvider } from "@/components/OfferPopupContext";
@@ -59,34 +60,36 @@ export function PublicChrome({
   return (
     <BusinessProvider business={business}>
       <OfferPopupProvider offer={content.studentLunch}>
-        <div
-          className={`site-shell${bannerVisible ? " has-top-banner" : ""}`}
-          style={
-            {
-              ["--banner-h" as string]: `${bannerH}px`,
-            } as React.CSSProperties
-          }
-        >
-          <a href="#main-content" className="skip-link">
-            Zum Inhalt springen
-          </a>
-          <div className="site-top-chrome">
-            {bannerConfigured ? (
-              <div ref={bannerRef}>
-                <TopOfferBanner
-                  banner={content.topBanner}
-                  onVisibilityChange={onBannerVisibilityChange}
-                />
-              </div>
-            ) : null}
-            <SiteHeader embedded hours={content.hours} />
+        <CookingCourseProvider>
+          <div
+            className={`site-shell${bannerVisible ? " has-top-banner" : ""}`}
+            style={
+              {
+                ["--banner-h" as string]: `${bannerH}px`,
+              } as React.CSSProperties
+            }
+          >
+            <a href="#main-content" className="skip-link">
+              Zum Inhalt springen
+            </a>
+            <div className="site-top-chrome">
+              {bannerConfigured ? (
+                <div ref={bannerRef}>
+                  <TopOfferBanner
+                    banner={content.topBanner}
+                    onVisibilityChange={onBannerVisibilityChange}
+                  />
+                </div>
+              ) : null}
+              <SiteHeader embedded hours={content.hours} />
+            </div>
+            <div id="main-content">{children}</div>
+            <SiteFooter hours={content.hours} />
+            <CookingCoursePromo />
+            <CookieBanner />
+            <OfferPopup />
           </div>
-          <div id="main-content">{children}</div>
-          <SiteFooter hours={content.hours} />
-          <CookingCoursePromo />
-          <CookieBanner />
-          <OfferPopup />
-        </div>
+        </CookingCourseProvider>
       </OfferPopupProvider>
     </BusinessProvider>
   );
