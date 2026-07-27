@@ -13,7 +13,10 @@ thai-feast.jpg
   Thai dishes on patterned tiles — Christopher Yiu Chung / Unsplash
   https://unsplash.com/photos/-wejEQuvw0E
 
-page-speisekarte.jpg / offer-speisekarte-real.jpg
+page-speisekarte.jpg
+  Green curry with rice — authentic Wassana customer review photo (photo-05)
+
+offer-speisekarte-real.jpg
   Real dish photo from Wassana customer reviews
 
 hero.jpg / curry.jpg
