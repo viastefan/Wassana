@@ -4,7 +4,7 @@ import type { SeoFaqItem } from "@/lib/seo-faq";
 export function FaqSection({ items }: { items: SeoFaqItem[] }) {
   return (
     <section
-      className="border-t border-[color:var(--line)] bg-[color:var(--paper)]"
+      className="surface-section border-t"
       aria-labelledby="faq-heading"
     >
       <div className="mx-auto max-w-3xl px-5 py-[var(--section-y)] md:px-8">

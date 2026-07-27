@@ -19,7 +19,7 @@ export function LocationSection({
     <section
       id="standort"
       aria-labelledby="standort-heading"
-      className="border-t border-[color:var(--line)] bg-[color:var(--paper)]"
+      className="surface-section border-t"
     >
       <div className="mx-auto grid max-w-6xl items-stretch md:grid-cols-2">
         <Reveal className="h-full">

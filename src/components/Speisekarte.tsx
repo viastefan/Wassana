@@ -21,7 +21,7 @@ function ItemRow({
   allergens?: string;
 }) {
   return (
-    <div className="grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-3 gap-y-1 border-b border-[color:var(--line)] py-4 last:border-b-0">
+    <div className="menu-item-row grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-3 gap-y-1 py-4">
       <span className="text-sm text-[color:var(--gold)]">{nr || "–"}</span>
       <div>
         <p className="text-[color:var(--ink)]">
@@ -165,7 +165,7 @@ export function SpeisekarteFull({
   return (
     <section className="bg-[color:var(--bg)]">
       <div className="mx-auto max-w-6xl px-5 pb-20 md:px-8 md:pb-28">
-        <div className="menu-sticky sticky z-20 -mx-5 mb-8 border-b border-[color:var(--line)] px-5 py-3 md:-mx-8 md:mb-10 md:px-8">
+        <div className="menu-sticky sticky z-20 -mx-5 mb-8 px-5 py-3 md:-mx-8 md:mb-10 md:px-8">
           <div className="menu-sticky-row">
             <div className="menu-sticky-chips">
               <a href="#wochenkarte" className="chip">
