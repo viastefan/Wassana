@@ -56,6 +56,9 @@ export function CookingCoursePromo() {
 
   if (hidden || !course || pathname?.startsWith("/admin")) return null;
 
+  // Floating promo only on the homepage — not on Speisekarte, Kontakt, etc.
+  if (pathname !== "/") return null;
+
   const dateLabel = formatCourseDate(course.date);
 
   function dismiss() {
