@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
 import { useBusiness } from "@/components/BusinessContext";
+import { reviewPlatforms } from "@/lib/reviews";
 import { site } from "@/lib/site";
 
 type SiteFooterProps = {
@@ -121,6 +122,22 @@ export function SiteFooter({ hours }: SiteFooterProps) {
               className="hover:text-[color:var(--red)]"
             >
               Instagram {business.instagramHandle}
+            </a>
+            <a
+              href={reviewPlatforms.google.href}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[color:var(--red)]"
+            >
+              Google · {reviewPlatforms.google.rating.toFixed(1)}★
+            </a>
+            <a
+              href={site.social.tripadvisor}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[color:var(--red)]"
+            >
+              Tripadvisor
             </a>
             <Link href="/kontakt" className="hover:text-[color:var(--red)]">
               Kontaktformular
