@@ -29,28 +29,16 @@ export function PublishFailDialog({
       });
       const data = (await res.json().catch(() => null)) as {
         message?: string;
-        resetUrl?: string;
         mailed?: boolean;
+        supportEmail?: string;
       } | null;
-      if (data?.resetUrl && !data.mailed) {
-        window.open(
-          buildSupportMailto({
-            ...report,
-            summary: `${report.summary}\n\nReset-Link:\n${data.resetUrl}`,
-            details: [
-              ...report.details,
-              `Reset-Link: ${data.resetUrl}`,
-              data.message || "",
-            ],
-          }),
-          "_blank",
-        );
-        return;
-      }
       window.alert(
         data?.message ||
-          `Reset angefordert. Prüfe ${SUPPORT_EMAIL} bzw. den Mailto-Dialog.`,
+          `Reset angefordert. Prüfe ${data?.supportEmail || SUPPORT_EMAIL}.`,
       );
+      if (!data?.mailed) {
+        window.open(mailto, "_blank");
+      }
     } catch {
       window.open(mailto, "_blank");
     }

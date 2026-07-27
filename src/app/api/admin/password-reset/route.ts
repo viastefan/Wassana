@@ -103,10 +103,11 @@ export async function POST(request: Request) {
     ok: true,
     mailed,
     mailError,
-    resetUrl,
+    // Never return resetUrl — leaking the token in JSON lets anyone
+    // who can call this same-origin endpoint take over admin.
     supportEmail: SUPPORT_EMAIL,
     message: mailed
       ? `Reset-Mail an ${SUPPORT_EMAIL} gesendet.`
-      : "SMTP nicht konfiguriert — Reset-Link unten / per mailto nutzen.",
+      : `SMTP nicht konfiguriert. Bitte ${SUPPORT_EMAIL} kontaktieren oder SMTP einrichten — der Reset-Link wird nur per E-Mail zugestellt.`,
   });
 }
