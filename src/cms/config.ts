@@ -28,7 +28,6 @@ export const cmsSite = {
 
 export const cmsHostingUrls = {
   stores: `https://vercel.com/${cmsSite.hosting.team}/${cmsSite.hosting.project}/stores`,
-  env: `https://vercel.com/${cmsSite.hosting.team}/${cmsSite.hosting.project}/settings/environment-variables`,
   deployments: `https://vercel.com/${cmsSite.hosting.team}/${cmsSite.hosting.project}/deployments`,
 } as const;
 
