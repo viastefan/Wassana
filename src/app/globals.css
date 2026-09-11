@@ -3990,6 +3990,42 @@ a.btn-ghost:hover {
   color: var(--ink);
 }
 
+.admin-advanced {
+  border: 1px solid var(--admin-line, var(--line));
+  border-radius: 0.85rem;
+  padding: 0.35rem 0.85rem 0.85rem;
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+}
+
+.admin-advanced > summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.65rem 0;
+  color: var(--admin-ink, var(--ink));
+}
+
+.admin-advanced > summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-advanced > summary::after {
+  content: " ▾";
+  color: var(--admin-gold-deep, var(--gold));
+  font-weight: 400;
+}
+
+.admin-advanced[open] > summary::after {
+  content: " ▴";
+}
+
+.admin-advanced-hint {
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
+  color: var(--admin-muted, var(--muted));
+}
+
 .admin-menu-table-wrap {
   overflow-x: auto;
 }

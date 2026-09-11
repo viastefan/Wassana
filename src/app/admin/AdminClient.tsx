@@ -100,7 +100,7 @@ const NAV_META: Record<Tab, { label: string; title: string }> = {
   course: { label: "Kurs", title: "Kochkurs" },
   inbox: { label: "Post", title: "Anfragen-DB" },
   banner: { label: "Banner", title: "Top-Banner" },
-  content: { label: "Texte", title: "Website-Texte" },
+  content: { label: "Texte", title: "Texte & Bilder" },
   menu: { label: "Menü", title: "Speisekarte" },
   settings: { label: "Betrieb", title: "Einstellungen" },
 };
@@ -1944,8 +1944,8 @@ export function AdminClient() {
                       ["course", "Kochkurs", course.title || "Termin", course.date ? formatCourseDate(course.date) : "Noch kein Datum"],
                       ["inbox", "Anfragen-DB", unread > 0 ? `${unread} neu` : "Datenbank", `${analytics.total} aktiv · ${analytics.archived} Archiv`],
                       ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus", "Mittagsangebot über dem Menü"],
-                      ["content", "Website", "Texte ändern", "Hero, Zeiten, Schüler-Mittag …"],
-                      ["menu", "Speisekarte", "Wochen-Favoriten & alle Gerichte", "Texte, Preise, Reihenfolge"],
+                      ["content", "Website", "Texte & Bilder", "Hero, Zeiten, Fotos tauschen …"],
+                      ["menu", "Speisekarte", "12-Zeilen-Tabelle & alle Gerichte", "Gericht, Preis, live auf .de"],
                     ] as const
                   ).map(([id, kicker, title, meta]) => {
                     const Icon = ADMIN_TAB_ICONS[id];
@@ -3224,7 +3224,7 @@ export function AdminClient() {
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
-                  label="Texte veröffentlichen"
+                  label="Texte & Bilder veröffentlichen"
                 />
               </form>
             ) : null}
@@ -3266,6 +3266,13 @@ export function AdminClient() {
                   description="12 Zeilen, 2 Spalten — Text ändern und unten veröffentlichen. Sofort live auf .de."
                 />
                 <AdminWeeklyTable weekly={weekly} setWeekly={setWeekly} />
+                <details className="admin-advanced">
+                  <summary>Erweiterte Tageskarten (optional)</summary>
+                  <p className="admin-advanced-hint">
+                    Die Tabelle oben ist live auf der Speisekarte. Diese
+                    Tageskarten nur öffnen, wenn du wieder die alte Ansicht
+                    mit Montag–Freitag brauchst.
+                  </p>
                 <Section title="Allgemein">
                   <Field label="Gericht suchen">
                     <input
@@ -3578,6 +3585,7 @@ export function AdminClient() {
                     </div>
                   </Section>
                 ))}
+                </details>
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
