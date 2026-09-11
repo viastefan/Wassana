@@ -1047,7 +1047,7 @@ button.admin-install-cta:hover {
 
 .admin-sticky-save {
   position: sticky;
-  bottom: calc(4.6rem + env(safe-area-inset-bottom));
+  bottom: 1rem;
   z-index: 25;
   margin-top: 1.25rem;
   padding-top: 0.35rem;
@@ -1911,7 +1911,242 @@ button.admin-install-cta:hover {
 }
 
 .admin-main {
-  padding-bottom: calc(6.4rem + env(safe-area-inset-bottom));
+  padding-bottom: 2.5rem;
+}
+
+/* viawen Site Manager — desktop software chrome, reusable per Mandant */
+.cms-frame {
+  display: grid;
+  min-height: 100svh;
+  grid-template-columns: 16.75rem minmax(0, 1fr);
+  background: #ece8df;
+}
+
+.cms-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding: 1.35rem 0.9rem 1rem;
+  background: #1e2129;
+  color: #f7f3ea;
+}
+
+.cms-brand-product {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.cms-brand-vendor {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #cbb892;
+}
+
+.cms-nav {
+  display: grid;
+  gap: 0.28rem;
+  margin-top: 1.5rem;
+  flex: 1;
+}
+
+.cms-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  border: 0;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: color-mix(in srgb, #f7f3ea 78%, transparent);
+  padding: 0.62rem 0.7rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cms-nav-btn.is-active {
+  background: color-mix(in srgb, #7a0c24 72%, #1e2129);
+  color: #f7f3ea;
+}
+
+.cms-nav-btn:hover:not(.is-active) {
+  background: color-mix(in srgb, white 7%, transparent);
+}
+
+.cms-nav-icon {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+}
+
+.cms-nav-svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.cms-nav-copy {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+}
+
+.cms-nav-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.cms-nav-hint {
+  font-size: 0.7rem;
+  color: color-mix(in srgb, #f7f3ea 55%, transparent);
+}
+
+.cms-nav-badge {
+  min-width: 1.15rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: #cbb892;
+  color: #1e2129;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.cms-sidebar-note {
+  margin: 1.5rem 0.35rem 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: color-mix(in srgb, #f7f3ea 62%, transparent);
+  flex: 1;
+}
+
+.cms-sidebar-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: auto;
+  padding: 0.85rem 0.45rem 0.2rem;
+  border-top: 1px solid color-mix(in srgb, #f7f3ea 12%, transparent);
+}
+
+.cms-sidebar-logo {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.45rem;
+  background: #f7f3ea;
+  object-fit: contain;
+}
+
+.cms-sidebar-site {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.cms-sidebar-city {
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+  color: color-mix(in srgb, #f7f3ea 55%, transparent);
+}
+
+.cms-stage {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.cms-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--admin-separator);
+  background: color-mix(in srgb, #f7f3ea 88%, white);
+}
+
+.cms-toolbar-kicker {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--admin-muted);
+}
+
+.cms-toolbar-heading {
+  margin: 0.12rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.cms-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cms-toolbar-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--admin-tint);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cms-body {
+  flex: 1;
+  padding: 1.5rem 1.6rem 3rem;
+  max-width: 58rem;
+}
+
+.cms-login {
+  max-width: 26rem;
+  margin: 2rem auto 0;
+}
+
+@media (max-width: 860px) {
+  .cms-frame {
+    grid-template-columns: 1fr;
+  }
+
+  .cms-sidebar {
+    min-height: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .cms-nav {
+    display: flex;
+    flex: 1 1 100%;
+    margin-top: 0.35rem;
+    overflow-x: auto;
+  }
+
+  .cms-nav-btn {
+    flex: 1 0 auto;
+  }
+
+  .cms-nav-hint,
+  .cms-sidebar-note {
+    display: none;
+  }
+
+  .cms-sidebar-foot {
+    display: none;
+  }
 }
 
 .admin-login-card .admin-screen-title {

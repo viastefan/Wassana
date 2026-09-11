@@ -40,8 +40,10 @@ import {
   Toggle,
   type PublishPhase,
 } from "./ui";
+import { cmsModuleMeta, cmsProduct, cmsSite } from "@/cms/config";
 import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
 import { AdminImageLibrary } from "./AdminImageLibrary";
+import { AdminShell } from "./AdminShell";
 import { AdminWeeklyTable } from "./AdminWeeklyTable";
 import { ADMIN_TAB_ICONS, IconChevron } from "./icons";
 import { PublishFailDialog } from "./PublishFailDialog";
@@ -94,16 +96,6 @@ function formatWhen(iso: string) {
 }
 
 const fieldClass = "admin-field";
-
-const NAV_META: Record<Tab, { label: string; title: string }> = {
-  home: { label: "Heute", title: "Heute" },
-  course: { label: "Kurs", title: "Kochkurs" },
-  inbox: { label: "Post", title: "Anfragen" },
-  banner: { label: "Angebot", title: "Angebote" },
-  content: { label: "Website", title: "Texte & Bilder" },
-  menu: { label: "Karte", title: "Speisekarte" },
-  settings: { label: "Mehr", title: "Mehr" },
-};
 
 export function AdminClient() {
   const [authed, setAuthed] = useState(false);
@@ -350,10 +342,6 @@ export function AdminClient() {
     async function boot() {
       const started = Date.now();
       try {
-        if ("serviceWorker" in navigator) {
-          void navigator.serviceWorker.register("/admin-sw.js").catch(() => null);
-        }
-
         const session = await fetch("/api/admin/session", {
           cache: "no-store",
         });
@@ -1410,14 +1398,34 @@ export function AdminClient() {
 
   const nav = useMemo(
     () =>
-      (["menu", "banner", "inbox", "settings"] as const).map((id) => ({
-        id,
-        label: NAV_META[id].label,
-        unread: id === "inbox" ? unread : 0,
-        Icon: ADMIN_TAB_ICONS[id],
-      })),
+      cmsSite.modules.map((mod) => {
+        const meta = cmsModuleMeta[mod];
+        return {
+          id: meta.tab,
+          label: meta.label,
+          hint: meta.hint,
+          unread: meta.tab === "inbox" ? unread : 0,
+          Icon: ADMIN_TAB_ICONS[meta.tab],
+        };
+      }),
     [unread],
   );
+
+  function openModule(id: string) {
+    const next = id as Tab;
+    setPublishPhase("idle");
+    setTab(next);
+    setError("");
+    setStatus("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (next === "banner") void loadContent();
+    if (next === "inbox") void loadInbox();
+    if (next === "menu") {
+      void loadWeekly();
+      void loadFullMenu();
+    }
+    if (next === "settings") void loadBusiness();
+  }
 
   const filteredWeeklyDays = useMemo(() => {
     if (!weekly) return [];
@@ -1503,50 +1511,6 @@ export function AdminClient() {
     };
   }, [inquiries, unread]);
 
-  const showInstallBanner = !installed && !installDismissed;
-
-  const installBlock = showInstallBanner ? (
-    <section className="admin-install-hero mb-5">
-      <button
-        type="button"
-        className="admin-install-close"
-        aria-label="Installationshinweis schließen"
-        onClick={dismissInstallBanner}
-      >
-        ×
-      </button>
-      <p className="admin-kicker !text-[color:var(--admin-gold-soft)]">Web-App</p>
-      <h2 className="font-display mt-2 text-2xl text-white md:text-[1.7rem]">
-        App jetzt herunterladen
-      </h2>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
-        Speichere die App aufs iPhone oder den Mac. Danach öffnet sie sich
-        ohne Browser — nur mit Inhaber-Passwort.
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {installEvent ? (
-          <button
-            type="button"
-            className="admin-install-cta"
-            onClick={() => void onInstall()}
-          >
-            App installieren
-          </button>
-        ) : (
-          <span className="admin-chip !bg-white/14 !text-[#f7f3ea] !border-white/25">
-            Bereit zum Speichern
-          </span>
-        )}
-      </div>
-      {!installEvent ? (
-        <p className="mt-3 text-xs leading-relaxed text-white/70">
-          iPhone: Teilen → „Zum Home-Bildschirm“. Android: Menü → „App
-          installieren“ / „Zum Startbildschirm“.
-        </p>
-      ) : null}
-    </section>
-  ) : null;
-
   return (
     <div className="admin-shell min-h-[100svh] text-[color:var(--admin-ink)]">
       {checking ? (
@@ -1562,8 +1526,8 @@ export function AdminClient() {
                 priority
               />
             </div>
-            <p className="admin-splash-title">Wassana</p>
-            <p className="admin-splash-sub">App startet …</p>
+            <p className="admin-splash-title">{cmsProduct.name}</p>
+            <p className="admin-splash-sub">{cmsSite.name}</p>
             <div className="admin-splash-bar" aria-hidden>
               <span className="admin-splash-bar-fill" />
             </div>
@@ -1581,60 +1545,20 @@ export function AdminClient() {
         />
       ) : null}
       {!checking ? (
-      <header className={`admin-topbar ${authed ? "" : "is-plain"}`}>
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2">
-          {authed ? (
-            <>
-              <p className="min-w-0 flex-1 truncate text-[17px] font-semibold tracking-tight">
-                {NAV_META[tab]?.title || "Wassana"}
-              </p>
-              <button
-                type="button"
-                className={`admin-chip ${
-                  cmsHealth?.blob
-                    ? "is-live"
-                    : cmsHealth
-                      ? "is-bad"
-                      : "is-warn"
-                }`}
-                onClick={() => {
-                  void checkRuntime();
-                  void loadCmsHealth();
-                }}
-              >
-                <StatusDot
-                  tone={
-                    cmsHealth?.blob ? "ok" : cmsHealth ? "bad" : "warn"
-                  }
-                />
-                {cmsHealth?.blob
-                  ? "Live"
-                  : cmsHealth
-                    ? "Offline"
-                    : "Prüfen"}
-              </button>
-              <button
-                type="button"
-                className="admin-nav-link"
-                onClick={onLogout}
-              >
-                Fertig
-              </button>
-            </>
-          ) : (
-            <p className="flex-1 text-center text-[17px] font-semibold tracking-tight">
-              Anmelden
-            </p>
-          )}
-        </div>
-      </header>
-      ) : null}
-
-      {!checking ? (
-      <main className="admin-main mx-auto max-w-3xl px-4 pt-5">
+      <AdminShell
+        authed={authed}
+        nav={nav}
+        tab={tab}
+        health={cmsHealth}
+        onNavigate={openModule}
+        onLogout={onLogout}
+        onRecheck={() => {
+          void checkRuntime();
+          void loadCmsHealth();
+        }}
+      >
         {!authed ? (
-          <div className="space-y-5">
-            {installBlock}
+          <div className="cms-login">
             <form
               onSubmit={onLogin}
               className="admin-login-card space-y-4"
@@ -1651,11 +1575,10 @@ export function AdminClient() {
                   priority
                 />
               </div>
-              <p className="admin-kicker">Wassana Thai Imbiss</p>
-              <h1 className="admin-screen-title">Anmelden</h1>
+              <p className="admin-kicker">{cmsProduct.vendor}</p>
+              <h1 className="admin-screen-title">{cmsProduct.name}</h1>
               <p className="admin-screen-desc">
-                Nur der Inhaber. Speisekarte, Angebote und Anfragen — tippen,
-                und es steht live auf der Website.
+                {cmsProduct.tagline} Mandant: {cmsSite.name}. Nur der Inhaber.
               </p>
               <label className="block">
                 <span className="text-sm text-[color:var(--admin-muted)]">
@@ -3727,49 +3650,7 @@ export function AdminClient() {
             ) : null}
           </>
         )}
-      </main>
-      ) : null}
-
-      {authed && !checking ? (
-        <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-40" aria-label="App">
-          <div className="admin-tabbar-inner">
-            {nav.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setPublishPhase("idle");
-                  setTab(item.id);
-                  setError("");
-                  setStatus("");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                  if (item.id === "banner") void loadContent();
-                  if (item.id === "inbox") void loadInbox();
-                  if (item.id === "menu") {
-                    void loadWeekly();
-                    void loadFullMenu();
-                  }
-                  if (item.id === "settings") void loadBusiness();
-                }}
-                className={`admin-tab ${tab === item.id ? "is-active" : ""}`}
-                aria-current={tab === item.id ? "page" : undefined}
-              >
-                <span className="admin-tab-glyph" aria-hidden>
-                  <item.Icon
-                    className="admin-tab-icon"
-                    filled={tab === item.id}
-                  />
-                </span>
-                <span className="admin-tab-label">{item.label}</span>
-                {item.unread > 0 ? (
-                  <span className="admin-tab-badge">
-                    {item.unread > 9 ? "9+" : item.unread}
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </div>
-        </nav>
+      </AdminShell>
       ) : null}
     </div>
   );
