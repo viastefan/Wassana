@@ -10,9 +10,11 @@ import type { SiteContent } from "@/lib/site-content-shared";
 export function LocationSection({
   location,
   hours,
+  imageSrc = "/images/location-wix.jpg",
 }: {
   location: SiteContent["location"];
   hours: SiteContent["hours"];
+  imageSrc?: string;
 }) {
   const business = useBusiness();
   return (
@@ -111,9 +113,10 @@ export function LocationSection({
           <div className="location-visual flex h-full flex-col border-t border-[color:var(--line)] md:border-t-0 md:py-16 md:pr-8">
             <div className="location-photo relative min-h-[260px] flex-1 overflow-hidden bg-[color:var(--sand)] md:min-h-[520px] md:rounded-sm">
               <Image
-                src="/images/location-wix.jpg"
+                src={imageSrc}
                 alt={`Eingangsbereich von ${business.fullName} am ${business.street} in ${business.city}`}
                 fill
+                unoptimized={/^https?:\/\//i.test(imageSrc)}
                 className="object-cover object-center md:object-contain"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />

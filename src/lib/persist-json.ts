@@ -1,6 +1,6 @@
-/** Durable CMS persistence: Vercel Blob (live) + optional GitHub backup + disk/tmp. */
+/** Durable CMS persistence: versioned Vercel Blob (live) + optional GitHub backup + disk/tmp. */
 
-import { head, put } from "@vercel/blob";
+import { del, head, list, put } from "@vercel/blob";
 
 export type PersistResult = {
   disk: boolean;
@@ -11,6 +11,14 @@ export type PersistResult = {
   error?: string;
 };
 
+type MemoryEntry = {
+  json: unknown;
+  writtenAt: number;
+};
+
+/** Same-isolate cache so a publish is visible on the next read immediately. */
+const memoryCache = new Map<string, MemoryEntry>();
+
 function blobToken() {
   return process.env.BLOB_READ_WRITE_TOKEN?.trim() || "";
 }
@@ -19,13 +27,162 @@ export function isBlobConfigured() {
   return Boolean(blobToken());
 }
 
-/** Blob pathname for a CMS file (stable, overwriteable). */
+function onVercel() {
+  return Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
+}
+
+/** Legacy overwriteable Blob pathname (CDN-cached, may be stale). */
 export function cmsBlobPath(githubPath: string) {
   const clean = githubPath.replace(/^\//, "");
   return clean.startsWith("cms/") ? clean : `cms/${clean}`;
 }
 
-async function writeToBlob(
+/** Versioned prefix — each publish gets a unique file, so CDN cache cannot serve an old overwrite. */
+export function cmsVersionPrefix(githubPath: string) {
+  return `cms/v/${githubPath.replace(/^\//, "")}/`;
+}
+
+function remember(githubPath: string, payload: string) {
+  try {
+    memoryCache.set(githubPath, {
+      json: JSON.parse(payload) as unknown,
+      writtenAt: Date.now(),
+    });
+  } catch {
+    // ignore invalid JSON
+  }
+}
+
+function fromMemory<T>(githubPath: string): T | null {
+  const hit = memoryCache.get(githubPath);
+  if (!hit) return null;
+  return hit.json as T;
+}
+
+async function fetchBlobJson<T>(url: string): Promise<T | null> {
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache" },
+  });
+  if (!res.ok) return null;
+  return (await res.json()) as T;
+}
+
+/**
+ * Read the newest versioned CMS blob via list() (Blob API, not CDN).
+ * Unique pathnames are immutable, so a cached unique URL is still the correct version.
+ */
+async function readJsonFromVersionedBlob<T>(
+  githubPath: string,
+): Promise<T | null> {
+  const token = blobToken();
+  if (!token) return null;
+
+  try {
+    const prefix = cmsVersionPrefix(githubPath);
+    const listed = await list({ prefix, token, limit: 20 });
+    if (!listed.blobs.length) return null;
+    const newest = [...listed.blobs].sort(
+      (a, b) => +new Date(b.uploadedAt) - +new Date(a.uploadedAt),
+    )[0];
+    if (!newest?.url) return null;
+    return await fetchBlobJson<T>(newest.url);
+  } catch {
+    return null;
+  }
+}
+
+/** Fallback for CMS files written before versioned publishes. */
+async function readJsonFromLegacyBlob<T>(
+  githubPath: string,
+): Promise<T | null> {
+  const token = blobToken();
+  if (!token) return null;
+
+  try {
+    const meta = await head(cmsBlobPath(githubPath), { token });
+    const bust = encodeURIComponent(
+      String(meta.uploadedAt || meta.pathname || Date.now()),
+    );
+    const url = `${meta.url}${meta.url.includes("?") ? "&" : "?"}v=${bust}`;
+    return await fetchBlobJson<T>(url);
+  } catch {
+    return null;
+  }
+}
+
+export async function readJsonFromBlob<T>(
+  githubPath: string,
+): Promise<T | null> {
+  const versioned = await readJsonFromVersionedBlob<T>(githubPath);
+  if (versioned) return versioned;
+  return readJsonFromLegacyBlob<T>(githubPath);
+}
+
+function updatedAtMs(value: unknown) {
+  if (!value || typeof value !== "object") return 0;
+  const stamp = (value as { updatedAt?: unknown }).updatedAt;
+  if (typeof stamp !== "string") return 0;
+  const ms = Date.parse(stamp);
+  return Number.isFinite(ms) ? ms : 0;
+}
+
+/**
+ * Live CMS read: memory (this isolate) → versioned Blob → /tmp → git disk.
+ * On Vercel the git checkout is a build snapshot and must not beat a Blob publish.
+ */
+export async function readJsonWithFallback<T>(
+  dataPath: string,
+  tmpPath: string,
+  githubPath: string,
+): Promise<T | null> {
+  try {
+    const { unstable_noStore } = await import("next/cache");
+    unstable_noStore();
+  } catch {
+    // not in a Next.js request
+  }
+
+  const fromMemoryHit = fromMemory<T>(githubPath);
+  const [fromBlob, fromTmp, fromDisk] = await Promise.all([
+    readJsonFromBlob<T>(githubPath),
+    readJsonFile<T>(tmpPath),
+    readJsonFile<T>(dataPath),
+  ]);
+
+  type Candidate = { data: T; ts: number; rank: number };
+  const candidates: Candidate[] = [];
+
+  if (fromMemoryHit) {
+    candidates.push({
+      data: fromMemoryHit,
+      ts: Math.max(updatedAtMs(fromMemoryHit), Date.now()),
+      rank: 0,
+    });
+  }
+  if (fromBlob) {
+    candidates.push({
+      data: fromBlob,
+      ts: Math.max(updatedAtMs(fromBlob), 1),
+      rank: 1,
+    });
+  }
+  if (fromTmp) {
+    candidates.push({ data: fromTmp, ts: updatedAtMs(fromTmp), rank: 2 });
+  }
+  if (fromDisk) {
+    // Git disk on Vercel is only a fallback when nothing else exists.
+    if (!onVercel() || (!fromBlob && !fromTmp && !fromMemoryHit)) {
+      candidates.push({ data: fromDisk, ts: updatedAtMs(fromDisk), rank: 3 });
+    }
+  }
+
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => b.ts - a.ts || a.rank - b.rank);
+  return candidates[0]?.data ?? null;
+}
+
+async function writeVersionedBlob(
   githubPath: string,
   content: string,
 ): Promise<{ ok: boolean; error?: string }> {
@@ -38,17 +195,19 @@ async function writeToBlob(
     };
   }
 
+  const prefix = cmsVersionPrefix(githubPath);
+  const pathname = `${prefix}${Date.now()}.json`;
+  const body = content.endsWith("\n") ? content : `${content}\n`;
+
   try {
-    await put(cmsBlobPath(githubPath), content.endsWith("\n") ? content : `${content}\n`, {
+    await put(pathname, body, {
       access: "public",
       token,
       contentType: "application/json",
       addRandomSuffix: false,
-      allowOverwrite: true,
-      // CMS must be readable immediately after Admin publish.
-      cacheControlMaxAge: 0,
+      // Unique pathname: long cache is safe and cheap.
+      cacheControlMaxAge: 60 * 60 * 24 * 365,
     });
-    return { ok: true };
   } catch (error) {
     return {
       ok: false,
@@ -58,63 +217,20 @@ async function writeToBlob(
           : "Blob-Speichern fehlgeschlagen.",
     };
   }
-}
 
-export async function readJsonFromBlob<T>(
-  githubPath: string,
-): Promise<T | null> {
-  const token = blobToken();
-  if (!token) return null;
-
+  // Keep a handful of versions; delete older ones so the store does not grow forever.
   try {
-    const meta = await head(cmsBlobPath(githubPath), { token });
-    const bust = encodeURIComponent(
-      String(meta.uploadedAt || meta.pathname || Date.now()),
+    const listed = await list({ prefix, token, limit: 30 });
+    const sorted = [...listed.blobs].sort(
+      (a, b) => +new Date(b.uploadedAt) - +new Date(a.uploadedAt),
     );
-    const url = `${meta.url}${meta.url.includes("?") ? "&" : "?"}v=${bust}`;
-    const res = await fetch(url, {
-      cache: "no-store",
-      headers: { "Cache-Control": "no-cache" },
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as T;
+    const stale = sorted.slice(8).map((blob) => blob.url);
+    if (stale.length) await del(stale, { token });
   } catch {
-    return null;
+    // cleanup is best-effort
   }
-}
 
-function updatedAtMs(value: unknown) {
-  if (!value || typeof value !== "object") return 0;
-  const stamp = (value as { updatedAt?: unknown }).updatedAt;
-  if (typeof stamp !== "string") return 0;
-  const ms = Date.parse(stamp);
-  return Number.isFinite(ms) ? ms : 0;
-}
-
-/**
- * Read order for live CMS: freshest among Blob, /tmp, and repo data file.
- * After an Admin save, Blob is usually newest — but CDN lag can briefly
- * leave Blob behind local/tmp writes, so we compare `updatedAt`.
- */
-export async function readJsonWithFallback<T>(
-  dataPath: string,
-  tmpPath: string,
-  githubPath: string,
-): Promise<T | null> {
-  const [fromBlob, fromTmp, fromDisk] = await Promise.all([
-    readJsonFromBlob<T>(githubPath),
-    readJsonFile<T>(tmpPath),
-    readJsonFile<T>(dataPath),
-  ]);
-
-  const candidates: T[] = [];
-  if (fromBlob) candidates.push(fromBlob);
-  if (fromTmp) candidates.push(fromTmp);
-  if (fromDisk) candidates.push(fromDisk);
-  if (!candidates.length) return null;
-
-  candidates.sort((a, b) => updatedAtMs(b) - updatedAtMs(a));
-  return candidates[0] ?? null;
+  return { ok: true };
 }
 
 export async function writeJsonWithFallback(
@@ -126,6 +242,8 @@ export async function writeJsonWithFallback(
 ): Promise<PersistResult> {
   const { promises: fs } = await import("fs");
   const path = await import("path");
+
+  remember(githubPath, payload);
 
   let disk = false;
   let tmp = false;
@@ -145,8 +263,7 @@ export async function writeJsonWithFallback(
     // ignore
   }
 
-  const blob = await writeToBlob(githubPath, payload);
-  // GitHub remains optional backup / history — not required for live .de
+  const blob = await writeVersionedBlob(githubPath, payload);
   const github = await maybeCommitToGitHub(githubPath, payload, commitMessage);
 
   const durable = disk || blob.ok || github.ok;
@@ -167,9 +284,6 @@ export async function writeJsonWithFallback(
     result.error =
       blob.error ||
       "Nur temporär gespeichert. BLOB_READ_WRITE_TOKEN in Vercel prüfen.";
-  } else if (blob.ok && !github.ok && process.env.VERCEL) {
-    // Soft note only — live works via Blob without GitHub.
-    result.error = undefined;
   }
 
   return result;
@@ -237,24 +351,24 @@ async function maybeCommitToGitHub(
       sha = body.sha;
     }
 
-    let put = await putWithSha(sha);
+    let putRes = await putWithSha(sha);
 
-    if (put.status === 409) {
+    if (putRes.status === 409) {
       const again = await fetch(
         `${apiFile}?ref=${encodeURIComponent(branch)}`,
         { headers, cache: "no-store" },
       );
       if (again.ok) {
         const body = (await again.json()) as { sha?: string };
-        put = await putWithSha(body.sha);
+        putRes = await putWithSha(body.sha);
       }
     }
 
-    if (!put.ok) {
-      const text = await put.text().catch(() => "");
+    if (!putRes.ok) {
+      const text = await putRes.text().catch(() => "");
       return {
         ok: false,
-        error: `GitHub-Backup fehlgeschlagen (${put.status}). ${text.slice(0, 120)}`,
+        error: `GitHub-Backup fehlgeschlagen (${putRes.status}). ${text.slice(0, 120)}`,
       };
     }
 
@@ -266,6 +380,39 @@ async function maybeCommitToGitHub(
         error instanceof Error
           ? error.message
           : "GitHub-Backup fehlgeschlagen.",
+    };
+  }
+}
+
+export async function putPublicMedia(params: {
+  pathname: string;
+  body: Buffer | Blob | File | string;
+  contentType: string;
+}): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  const token = blobToken();
+  if (!token) {
+    return {
+      ok: false,
+      error: "BLOB_READ_WRITE_TOKEN fehlt — Bilder können nicht gespeichert werden.",
+    };
+  }
+
+  try {
+    const stored = await put(params.pathname, params.body, {
+      access: "public",
+      token,
+      contentType: params.contentType,
+      addRandomSuffix: false,
+      cacheControlMaxAge: 60 * 60 * 24 * 365,
+    });
+    return { ok: true, url: stored.url };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? `Bild-Upload fehlgeschlagen: ${error.message}`
+          : "Bild-Upload fehlgeschlagen.",
     };
   }
 }

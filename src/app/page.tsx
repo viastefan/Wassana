@@ -55,10 +55,11 @@ export default async function HomePage() {
       <JsonLdFaqPage items={landshutFaqs} />
       <section className="relative min-h-[90vh] overflow-hidden md:min-h-[100svh]">
         <Image
-          src="/images/hero.jpg"
+          src={content.images.hero}
           alt="Thai-Gericht zum Mitnehmen bei Wassana Thai Imbiss in Landshut"
           fill
           priority
+          unoptimized={/^https?:\/\//i.test(content.images.hero)}
           className="hero-media object-cover"
           sizes="100vw"
         />
@@ -151,7 +152,7 @@ export default async function HomePage() {
       </section>
 
       <SplitMedia
-        src="/images/location-wix.jpg"
+        src={content.images.location}
         alt="Eingang von Wassana Thai Imbiss am Regierungsplatz in Landshut"
         imageRight
       >
@@ -185,19 +186,19 @@ export default async function HomePage() {
               title: "Speisekarte",
               text: "Beliebte Gerichte der Woche und Klassiker — frisch bei Wassana.",
               href: "/speisekarte",
-              image: "/images/offer-speisekarte-real.jpg",
+              image: content.images.offerSpeisekarte,
             },
             {
               title: "Catering",
               text: "Events inkl. Geschirr — Menüplan von Wassana.",
               href: "/catering",
-              image: "/images/page-catering.jpg",
+              image: content.images.catering,
             },
             {
               title: "Kochkurs",
               text: "Schritt für Schritt Thai kochen mit Wassana.",
               href: "/kochkurs",
-              image: "/images/page-kochkurs.jpg",
+              image: content.images.kochkurs,
             },
           ].map((item, index) => (
             <Reveal
@@ -211,6 +212,7 @@ export default async function HomePage() {
                     src={item.image}
                     alt=""
                     fill
+                    unoptimized={/^https?:\/\//i.test(item.image)}
                     className="offer-link-image object-cover"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
@@ -235,9 +237,10 @@ export default async function HomePage() {
 
       <section className="takeaway-band" aria-labelledby="takeaway-heading">
         <Image
-          src="/images/hero.jpg"
+          src={content.images.hero}
           alt="Frisch zubereitetes Thai-Gericht zum Mitnehmen bei Wassana"
           fill
+          unoptimized={/^https?:\/\//i.test(content.images.hero)}
           className="takeaway-band-image object-cover"
           sizes="100vw"
         />
@@ -266,7 +269,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <LocationSection location={content.location} hours={content.hours} />
+      <LocationSection
+        location={content.location}
+        hours={content.hours}
+        imageSrc={content.images.location}
+      />
 
       <section className="mx-auto max-w-6xl px-5 py-[var(--section-y)] md:px-8">
         <Wochenkarte compact menu={weekly} />

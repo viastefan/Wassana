@@ -5,6 +5,7 @@ import { JsonLdBreadcrumbs } from "@/components/JsonLd";
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { getSiteContent } from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
 
@@ -50,7 +51,10 @@ const offerings = [
 ] as const;
 
 export default async function CateringPage() {
-  const business = await getResolvedBusiness();
+  const [business, content] = await Promise.all([
+    getResolvedBusiness(),
+    getSiteContent(),
+  ]);
 
   return (
     <main>
@@ -61,7 +65,7 @@ export default async function CateringPage() {
         ]}
       />
       <MediaBand
-        src="/images/page-catering.jpg"
+        src={content.images.catering}
         alt="Tom Yum und Thai-Gerichte fürs Catering von Wassana"
         eyebrow="Catering Landshut"
         title="Feierlichkeiten mit Thai-Atmosphäre"

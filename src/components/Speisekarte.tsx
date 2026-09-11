@@ -6,6 +6,7 @@ import { MenuPdfDownload } from "@/components/MenuPdfDownload";
 import { allergens, type MenuSection } from "@/lib/menu";
 import { Reveal } from "@/components/Reveal";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store-shared";
+import { filledWeeklyTableRows } from "@/lib/weekly-menu-store-shared";
 
 function ItemRow({
   nr,
@@ -83,6 +84,26 @@ export function Wochenkarte({
           <div className="gold-rule mt-5" />
         </Motion>
 
+        {filledWeeklyTableRows(menu.table).length > 0 ? (
+          <div className="menu-week-table-wrap mt-10">
+            <table className="menu-week-table">
+              <thead>
+                <tr>
+                  <th>Gericht</th>
+                  <th>Preis</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filledWeeklyTableRows(menu.table).map((row, index) => (
+                  <tr key={`${row.dish}-${index}`}>
+                    <td>{row.dish}</td>
+                    <td>{row.price}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {menu.days.map((day, index) => (
             <Motion
@@ -139,6 +160,7 @@ export function Wochenkarte({
             </Motion>
           ))}
         </div>
+        )}
 
         {compact ? (
           <Motion animate={animate}>

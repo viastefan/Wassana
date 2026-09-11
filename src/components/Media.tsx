@@ -22,6 +22,7 @@ export function MediaBand({
   tone = "dark",
   height = "medium",
 }: MediaBandProps) {
+  const remote = /^https?:\/\//i.test(src);
   return (
     <section
       className={`media-band media-band--${height} ${
@@ -33,6 +34,7 @@ export function MediaBand({
         alt={alt}
         fill
         priority={priority}
+        unoptimized={remote}
         className="media-band-image object-cover"
         sizes="100vw"
       />
@@ -59,6 +61,7 @@ export function SplitMedia({
   children,
   imageRight = true,
 }: SplitMediaProps) {
+  const remote = /^https?:\/\//i.test(src);
   return (
     <section
       className={`split-media ${imageRight ? "split-media--image-right" : ""}`}
@@ -69,6 +72,7 @@ export function SplitMedia({
           src={src}
           alt={alt}
           fill
+          unoptimized={remote}
           className="object-cover"
           sizes="(max-width: 768px) 100vw, 50vw"
         />
@@ -90,6 +94,7 @@ export function ImageStrip({ items }: ImageStripProps) {
             src={item.src}
             alt={item.alt}
             fill
+            unoptimized={/^https?:\/\//i.test(item.src)}
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 33vw"
           />

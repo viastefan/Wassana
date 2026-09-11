@@ -46,12 +46,14 @@ Nach Änderungen an Env-Variablen: Redeploy.
 
 Auf Vercel speichert der Admin so:
 
-1. **Vercel Blob** (dauerhaft, sofort live — kein Redeploy nötig)
-2. kurz zusätzlich in `/tmp`
+1. **Vercel Blob, versioniert** (jede Veröffentlichung = neue Datei, kein CDN-Altstand)
+2. kurz zusätzlich in `/tmp` und im Speicher der Function
 3. optional GitHub-Backup, falls `GITHUB_TOKEN` gesetzt ist
 
-`BLOB_READ_WRITE_TOKEN` ist Pflicht für Live-Änderungen (Banner, Texte, Menü, Kochkurs, Betrieb).  
+`BLOB_READ_WRITE_TOKEN` ist Pflicht für Live-Änderungen (Banner, Texte, Menü, Kochkurs, Betrieb, Bilder).  
 Ohne Blob bleibt nur temporäres `/tmp` — dann ändert sich `.de` nicht zuverlässig.
+
+Alte überschreibende Blob-Dateien (`cms/data/...`) werden nur noch als Fallback gelesen. Neue Saves liegen unter `cms/v/data/.../<zeitstempel>.json`.
 
 Optional: `GITHUB_TOKEN` für Versionshistorie im Repo (nicht mehr nötig für Live).
 

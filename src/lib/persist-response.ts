@@ -1,9 +1,25 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import {
   queueAdminChangeNotify,
   type AdminChangeNotify,
 } from "@/lib/admin-change-notify";
 import type { PersistResult } from "@/lib/persist-json";
+
+export function revalidatePublicSite() {
+  try {
+    revalidatePath("/", "layout");
+    revalidatePath("/speisekarte");
+    revalidatePath("/catering");
+    revalidatePath("/kochkurs");
+    revalidatePath("/mitnehmen");
+    revalidatePath("/ueber-uns");
+    revalidatePath("/anfahrt");
+    revalidatePath("/kontakt");
+  } catch {
+    // outside a Next.js request
+  }
+}
 
 /** On Vercel, /tmp alone is not enough — CMS must hit Blob, disk, or GitHub. */
 export function isEphemeralHosting() {
@@ -40,6 +56,10 @@ export function persistWarningOrFail<T extends Record<string, unknown>>(
       },
       { status: 503 },
     );
+  }
+
+  if (persist.durable) {
+    revalidatePublicSite();
   }
 
   if (persist.durable && notify?.action) {

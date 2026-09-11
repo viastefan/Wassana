@@ -6,14 +6,24 @@ import {
   type PersistResult,
 } from "@/lib/persist-json";
 import { sanitizeText } from "@/lib/security";
-import type { WeeklyMenuData, WeeklyMenuDay } from "@/lib/weekly-menu-store-shared";
+import {
+  emptyWeeklyTable,
+  flattenDaysToTable,
+  type WeeklyMenuData,
+  type WeeklyMenuDay,
+} from "@/lib/weekly-menu-store-shared";
 
 export type {
   WeeklyMenuData,
   WeeklyMenuDay,
   WeeklyMenuItem,
+  WeeklyTableRow,
 } from "@/lib/weekly-menu-store-shared";
-export { dayHasExtraInfo } from "@/lib/weekly-menu-store-shared";
+export {
+  WEEKLY_TABLE_SIZE,
+  dayHasExtraInfo,
+  filledWeeklyTableRows,
+} from "@/lib/weekly-menu-store-shared";
 
 const DATA_PATH = path.join(process.cwd(), "data", "weekly-menu.json");
 const TMP_PATH = path.join("/tmp", "wassana-weekly-menu.json");
@@ -24,20 +34,22 @@ function optionalField(value: unknown, max: number) {
 }
 
 export function defaultWeeklyMenu(): WeeklyMenuData {
+  const days = fallbackWeekly.days.map((day) => ({
+    day: day.day,
+    dish: day.dish,
+    description: "description" in day ? day.description : "",
+    allergens: "allergens" in day ? day.allergens : undefined,
+    items: day.items.map((item) => ({
+      nr: item.nr,
+      name: item.name,
+      price: item.price,
+      allergens: "allergens" in item ? item.allergens : undefined,
+    })),
+  }));
   return {
     note: fallbackWeekly.note,
-    days: fallbackWeekly.days.map((day) => ({
-      day: day.day,
-      dish: day.dish,
-      description: "description" in day ? day.description : "",
-      allergens: "allergens" in day ? day.allergens : undefined,
-      items: day.items.map((item) => ({
-        nr: item.nr,
-        name: item.name,
-        price: item.price,
-        allergens: "allergens" in item ? item.allergens : undefined,
-      })),
-    })),
+    days,
+    table: flattenDaysToTable(days),
     updatedAt: new Date().toISOString(),
   };
 }
@@ -70,9 +82,21 @@ function normalize(raw: Partial<WeeklyMenuData> | null): WeeklyMenuData {
         }))
       : [],
   }));
+  const tableSource = Array.isArray(raw.table)
+    ? raw.table
+    : flattenDaysToTable(days);
+  const table = emptyWeeklyTable().map((blank, index) => {
+    const row = tableSource[index];
+    if (!row) return blank;
+    return {
+      dish: sanitizeText(String(row.dish || ""), 200),
+      price: sanitizeText(String(row.price || ""), 40),
+    };
+  });
   return {
     note: sanitizeText(String(raw.note ?? base.note), 600),
     days,
+    table,
     updatedAt: String(raw.updatedAt || new Date().toISOString()),
   };
 }

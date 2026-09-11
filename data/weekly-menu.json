@@ -54,5 +54,19 @@
       ]
     }
   ],
-  "updatedAt": "2026-07-25T00:00:00.000Z"
+  "updatedAt": "2026-07-25T00:00:00.000Z",
+  "table": [
+    { "dish": "Montag · Gelbes Curry · Huhn, Schwein", "price": "8,90 €" },
+    { "dish": "Montag · Gelbes Curry · Rind", "price": "9,90 €" },
+    { "dish": "Montag · Gelbes Curry · vegetarisch", "price": "7,90 €" },
+    { "dish": "Dienstag · Massaman Curry · Huhn, Schwein", "price": "8,90 €" },
+    { "dish": "Dienstag · Massaman Curry · Rind", "price": "9,90 €" },
+    { "dish": "Dienstag · Massaman Curry · vegetarisch", "price": "7,90 €" },
+    { "dish": "Mittwoch · Fischcurry · Sojasauce", "price": "9,50 €" },
+    { "dish": "Mittwoch · Fischcurry · Kokoscurry", "price": "9,50 €" },
+    { "dish": "Donnerstag · Pad ka pao · Huhn, Schwein", "price": "8,90 €" },
+    { "dish": "Donnerstag · Pad ka pao · Rind", "price": "9,90 €" },
+    { "dish": "Donnerstag · Pad ka pao · vegetarisch", "price": "7,90 €" },
+    { "dish": "Freitag · Tilapia (Buntbarsch) · Sojasauce", "price": "9,50 €" }
+  ]
 }

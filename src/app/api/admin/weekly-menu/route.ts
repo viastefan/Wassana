@@ -58,6 +58,7 @@ export async function PUT(request: Request) {
     const { menu, persist } = await saveWeeklyMenuData({
       note: body.note || "",
       days: body.days,
+      table: body.table || [],
     });
 
     return persistWarningOrFail({ ...menu }, persist, {

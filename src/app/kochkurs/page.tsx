@@ -8,6 +8,7 @@ import {
 import { MediaBand } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
 import { getResolvedBusiness } from "@/lib/business-profile";
+import { getSiteContent } from "@/lib/site-content";
 import {
   formatCourseDate,
   getCookingCourseStore,
@@ -15,6 +16,7 @@ import {
   sanitizeCourseImage,
   splitCourseLines,
 } from "@/lib/cooking-course";
+import { DEFAULT_COURSE_IMAGE } from "@/lib/cooking-course-shared";
 
 export const metadata: Metadata = {
   title: "Thai Kochkurs Landshut",
@@ -32,16 +34,20 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function KochkursPage() {
-  const [store, business] = await Promise.all([
+  const [store, business, content] = await Promise.all([
     getCookingCourseStore(),
     getResolvedBusiness(),
+    getSiteContent(),
   ]);
   const course = store.current;
   const archive = store.archive.filter(
     (entry) => entry.fazit?.trim() || entry.dishFocus?.trim(),
   );
   const showNext = isPublicPromoVisible(course);
-  const image = sanitizeCourseImage(course.image);
+  const image =
+    sanitizeCourseImage(course.image) === DEFAULT_COURSE_IMAGE
+      ? content.images.kochkurs
+      : sanitizeCourseImage(course.image);
   const pageTitle =
     course.pageTitle?.trim() || "Thai-Küche näher kennenlernen";
   const pageText =
