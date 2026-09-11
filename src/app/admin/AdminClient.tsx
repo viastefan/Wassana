@@ -1170,12 +1170,9 @@ export function AdminClient() {
                     </p>
                   ) : (
                     <p>
-                      Speicherung aktiv
                       {inboxStorage === "tmp"
-                        ? " (Server-/tmp — auf Vercel mit Blob dauerhaft machen)"
-                        : " (lokal)"}
-                      . Für Live-Dauerhaftigkeit:{" "}
-                      <code>BLOB_READ_WRITE_TOKEN</code> in Vercel setzen.
+                        ? "Anfragen liegen nur vorübergehend auf dem Server — solange der Speicher nicht verbunden ist, können sie verloren gehen."
+                        : "Anfragen liegen lokal auf diesem Rechner."}
                     </p>
                   )}
                 </div>
@@ -2064,10 +2061,10 @@ export function AdminClient() {
             {tab === "settings" && business ? (
               <form onSubmit={saveBusiness} className="admin-form space-y-3">
                 <ScreenHeader
-                  title="Mehr"
-                  description="Live-Status und Abmelden. Der Rest bleibt im Hintergrund."
+                  title="Betrieb"
+                  description="Live-Status, Stammdaten und Abmelden."
                 />
-                <Section title="Diese App">
+                <Section title="Live-Speicher">
                   <div className="admin-status-grid">
                     <div className="admin-status-item">
                       <p className="admin-status-label">
