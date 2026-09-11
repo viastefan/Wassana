@@ -51,7 +51,7 @@ Auf Vercel speichert der Admin so:
 3. optional GitHub-Backup, falls `GITHUB_TOKEN` gesetzt ist
 
 `BLOB_READ_WRITE_TOKEN` ist Pflicht für Live-Änderungen (Banner, Texte, Menü, Kochkurs, Betrieb, Bilder).  
-Ohne Blob bleibt nur temporäres `/tmp` — dann ändert sich `.de` nicht zuverlässig.
+Auf Vercel zählt **nur Blob** als live — GitHub-Backup und `/tmp` allein reichen nicht. Ohne Token sagt der Admin klar „Speicher fehlt“ und speichert nicht als live.
 
 Alte überschreibende Blob-Dateien (`cms/data/...`) werden nur noch als Fallback gelesen. Neue Saves liegen unter `cms/v/data/.../<zeitstempel>.json`.
 

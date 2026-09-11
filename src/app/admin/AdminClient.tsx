@@ -548,7 +548,11 @@ export function AdminClient() {
 
       if (result.persist) setLastPersist(result.persist);
 
-      if (!result.ok || result.persist?.durable === false) {
+      if (
+        !result.ok ||
+        result.persist?.durable === false ||
+        (cmsHealth?.vercel && result.persist && result.persist.blob !== true)
+      ) {
         const report = await finalizeFailReport({
           action,
           error: result.error || result.warning,
@@ -1717,6 +1721,20 @@ export function AdminClient() {
                     <p className="mt-3 text-sm text-[color:var(--admin-muted)]">
                       {cmsHealth.summary}
                     </p>
+                  ) : null}
+                  {cmsHealth && !cmsHealth.blob ? (
+                    <div className="admin-live-alert" role="alert">
+                      <p>
+                        <strong>Live-Speicher fehlt.</strong> Was du hier
+                        veröffentlichst, kommt nicht auf die Website.
+                      </p>
+                      <p>
+                        In Vercel beim Projekt <strong>wassana</strong> die
+                        Variable <code>BLOB_READ_WRITE_TOKEN</code> für
+                        Production setzen (Storage → Blob → Token), dann
+                        Redeploy.
+                      </p>
+                    </div>
                   ) : null}
                 </div>
 
