@@ -19,6 +19,17 @@ export const cmsSite = {
   accent: "#7a0c24",
   logoSrc: "/images/logo.png",
   modules: ["menu", "offers", "inbox", "settings"] as const satisfies readonly CmsModuleId[],
+  /** Used to deep-link the owner into the right hosting screens during setup. */
+  hosting: {
+    team: "festag",
+    project: "wassana",
+  },
+} as const;
+
+export const cmsHostingUrls = {
+  stores: `https://vercel.com/${cmsSite.hosting.team}/${cmsSite.hosting.project}/stores`,
+  env: `https://vercel.com/${cmsSite.hosting.team}/${cmsSite.hosting.project}/settings/environment-variables`,
+  deployments: `https://vercel.com/${cmsSite.hosting.team}/${cmsSite.hosting.project}/deployments`,
 } as const;
 
 export const cmsModuleMeta: Record<
