@@ -41,6 +41,8 @@ import {
   type PublishPhase,
 } from "./ui";
 import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
+import { AdminImageLibrary } from "./AdminImageLibrary";
+import { AdminWeeklyTable } from "./AdminWeeklyTable";
 import { ADMIN_TAB_ICONS } from "./icons";
 import { PublishFailDialog } from "./PublishFailDialog";
 import {
@@ -98,7 +100,7 @@ const NAV_META: Record<Tab, { label: string; title: string }> = {
   course: { label: "Kurs", title: "Kochkurs" },
   inbox: { label: "Post", title: "Anfragen-DB" },
   banner: { label: "Banner", title: "Top-Banner" },
-  content: { label: "Texte", title: "Website-Texte" },
+  content: { label: "Texte", title: "Texte & Bilder" },
   menu: { label: "Menü", title: "Speisekarte" },
   settings: { label: "Betrieb", title: "Einstellungen" },
 };
@@ -904,6 +906,7 @@ export function AdminClient() {
           topBanner: data.topBanner,
           location: data.location,
           closing: data.closing,
+          images: data.images,
           updatedAt: data.updatedAt,
         });
       }
@@ -950,6 +953,7 @@ export function AdminClient() {
         setWeekly({
           note: data.note,
           days: data.days,
+          table: data.table || weekly.table,
           updatedAt: data.updatedAt,
         });
       }
@@ -1024,14 +1028,19 @@ export function AdminClient() {
     });
   }
 
-  async function saveFullMenu(event: FormEvent) {
-    event.preventDefault();
-    if (!fullMenu) return;
-    await runPublish("Speisekarte veröffentlichen", async () => {
+  async function saveFullMenu(
+    event?: FormEvent,
+    override?: FullMenuData,
+  ) {
+    event?.preventDefault();
+    const payload = override || fullMenu;
+    if (!payload) return false;
+    return Boolean(
+      await runPublish("Speisekarte veröffentlichen", async () => {
       const res = await fetch("/api/admin/menu-sections", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fullMenu),
+        body: JSON.stringify(payload),
       });
       const data = (await res.json().catch(() => null)) as
         | (FullMenuData & {
@@ -1066,7 +1075,8 @@ export function AdminClient() {
         persist: data?.persist,
         successMessage: "Online — gesamte Speisekarte live",
       };
-    });
+    }),
+    );
   }
 
   async function setBannerLive(active: boolean) {
@@ -1110,6 +1120,7 @@ export function AdminClient() {
             topBanner: data.topBanner,
             location: data.location,
             closing: data.closing,
+            images: data.images,
             updatedAt: data.updatedAt,
           });
         }
@@ -1933,8 +1944,8 @@ export function AdminClient() {
                       ["course", "Kochkurs", course.title || "Termin", course.date ? formatCourseDate(course.date) : "Noch kein Datum"],
                       ["inbox", "Anfragen-DB", unread > 0 ? `${unread} neu` : "Datenbank", `${analytics.total} aktiv · ${analytics.archived} Archiv`],
                       ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus", "Mittagsangebot über dem Menü"],
-                      ["content", "Website", "Texte ändern", "Hero, Zeiten, Schüler-Mittag …"],
-                      ["menu", "Speisekarte", "Wochen-Favoriten & alle Gerichte", "Texte, Preise, Reihenfolge"],
+                      ["content", "Website", "Texte & Bilder", "Hero, Zeiten, Fotos tauschen …"],
+                      ["menu", "Speisekarte", "12-Zeilen-Tabelle & alle Gerichte", "Gericht, Preis, live auf .de"],
                     ] as const
                   ).map(([id, kicker, title, meta]) => {
                     const Icon = ADMIN_TAB_ICONS[id];
@@ -2959,8 +2970,12 @@ export function AdminClient() {
               <form onSubmit={saveContent} className="admin-form space-y-3">
                 <ScreenHeader
                   kicker="Website"
-                  title="Texte"
-                  description="Öffentliche Texte ändern. Veröffentlichen geht sofort live (inkl. Banner-Daten)."
+                  title="Texte & Bilder"
+                  description="Texte anpassen, Fotos tauschen, unten veröffentlichen — gilt sofort auf der Website."
+                />
+                <AdminImageLibrary
+                  content={content}
+                  setContent={setContent}
                 />
                 <Section title="Hero Startseite">
                   <Field label="Begrüßung über Wassana">
@@ -3209,7 +3224,7 @@ export function AdminClient() {
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
-                  label="Texte veröffentlichen"
+                  label="Texte & Bilder veröffentlichen"
                 />
               </form>
             ) : null}
@@ -3248,8 +3263,16 @@ export function AdminClient() {
                 <ScreenHeader
                   kicker="Speisekarte"
                   title="Beliebte Gerichte der Woche"
-                  description="Suchen, Allergene & Nährwerte pflegen — Veröffentlichen geht sofort live."
+                  description="12 Zeilen, 2 Spalten — Text ändern und unten veröffentlichen. Sofort live auf .de."
                 />
+                <AdminWeeklyTable weekly={weekly} setWeekly={setWeekly} />
+                <details className="admin-advanced">
+                  <summary>Erweiterte Tageskarten (optional)</summary>
+                  <p className="admin-advanced-hint">
+                    Die Tabelle oben ist live auf der Speisekarte. Diese
+                    Tageskarten nur öffnen, wenn du wieder die alte Ansicht
+                    mit Montag–Freitag brauchst.
+                  </p>
                 <Section title="Allgemein">
                   <Field label="Gericht suchen">
                     <input
@@ -3562,6 +3585,7 @@ export function AdminClient() {
                     </div>
                   </Section>
                 ))}
+                </details>
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
@@ -3577,6 +3601,7 @@ export function AdminClient() {
                     saving={saving}
                     publishPhase={publishPhase}
                     onSave={saveFullMenu}
+                    onPublishMenu={(next) => saveFullMenu(undefined, next)}
                   />
                 ) : null}
 

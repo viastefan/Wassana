@@ -30,6 +30,79 @@ export type StudentLunchOffer = {
   popupCtaHref: string;
 };
 
+export type SiteImageKey =
+  | "hero"
+  | "speisekarte"
+  | "catering"
+  | "kochkurs"
+  | "location"
+  | "shopFront"
+  | "shopInterior"
+  | "takeaway"
+  | "offerSpeisekarte";
+
+export type SiteImages = Record<SiteImageKey, string>;
+
+export const DEFAULT_SITE_IMAGES: SiteImages = {
+  hero: "/images/hero.jpg",
+  speisekarte: "/images/page-speisekarte.jpg",
+  catering: "/images/page-catering.jpg",
+  kochkurs: "/images/page-kochkurs.jpg",
+  location: "/images/location-wix.jpg",
+  shopFront: "/images/shop-front.jpg",
+  shopInterior: "/images/shop-interior.jpg",
+  takeaway: "/images/thai-feast.jpg",
+  offerSpeisekarte: "/images/offer-speisekarte-real.jpg",
+};
+
+export const SITE_IMAGE_FIELDS: {
+  key: SiteImageKey;
+  label: string;
+  hint: string;
+}[] = [
+  { key: "hero", label: "Startseite Hero", hint: "Großes Bild oben auf der Startseite" },
+  { key: "speisekarte", label: "Speisekarte", hint: "Kopfbild der Speisekarte" },
+  { key: "catering", label: "Catering", hint: "Kopfbild Catering" },
+  { key: "kochkurs", label: "Kochkurs", hint: "Kopfbild Kochkurs (wenn kein Kursbild gewählt)" },
+  { key: "location", label: "Standort", hint: "Foto am Standort-Block" },
+  { key: "shopFront", label: "Ladenfront", hint: "Über uns / Außenansicht" },
+  { key: "shopInterior", label: "Innenraum", hint: "Anfahrt / Innenraum" },
+  { key: "takeaway", label: "Mitnehmen", hint: "Seite Mitnehmen" },
+  {
+    key: "offerSpeisekarte",
+    label: "Kachel Speisekarte",
+    hint: "Kleine Kachel auf der Startseite",
+  },
+];
+
+export function defaultSiteImages(): SiteImages {
+  return { ...DEFAULT_SITE_IMAGES };
+}
+
+export function sanitizeImageSrc(value: string, fallback: string): string {
+  const next = String(value || "").trim();
+  if (!next) return fallback;
+  if (next.startsWith("/images/") && !next.includes("..")) {
+    return next.slice(0, 300);
+  }
+  try {
+    const url = new URL(next);
+    if (
+      url.protocol === "https:" &&
+      url.hostname.endsWith(".blob.vercel-storage.com")
+    ) {
+      return url.toString().slice(0, 500);
+    }
+  } catch {
+    // ignore
+  }
+  return fallback;
+}
+
+export function isRemoteCmsSrc(src: string) {
+  return /^https?:\/\//i.test(src);
+}
+
 export type SiteContent = {
   hero: {
     eyebrow: string;
@@ -52,6 +125,7 @@ export type SiteContent = {
     title: string;
     text: string;
   };
+  images: SiteImages;
   updatedAt: string;
 };
 

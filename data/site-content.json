@@ -44,5 +44,16 @@
     "title": "Bis bald bei Wassana",
     "text": ""
   },
+  "images": {
+    "hero": "/images/hero.jpg",
+    "speisekarte": "/images/page-speisekarte.jpg",
+    "catering": "/images/page-catering.jpg",
+    "kochkurs": "/images/page-kochkurs.jpg",
+    "location": "/images/location-wix.jpg",
+    "shopFront": "/images/shop-front.jpg",
+    "shopInterior": "/images/shop-interior.jpg",
+    "takeaway": "/images/thai-feast.jpg",
+    "offerSpeisekarte": "/images/offer-speisekarte-real.jpg"
+  },
   "updatedAt": "2026-07-25T13:18:18.070Z"
 }

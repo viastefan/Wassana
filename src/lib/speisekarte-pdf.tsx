@@ -12,6 +12,7 @@ import type { ResolvedBusiness } from "@/lib/business-profile-shared";
 import type { MenuSection } from "@/lib/menu";
 import { allergens } from "@/lib/menu";
 import type { WeeklyMenuData } from "@/lib/weekly-menu-store";
+import { filledWeeklyTableRows } from "@/lib/weekly-menu-store-shared";
 
 Font.register({
   family: "SpecialElite",
@@ -175,6 +176,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 10,
+  },
+  weekTableRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+    paddingTop: 6,
+    paddingBottom: 6,
+    borderBottomWidth: 0.6,
+    borderBottomColor: colors.line,
+  },
+  weekTableDish: {
+    flexGrow: 1,
+    flexShrink: 1,
+    fontSize: 9,
+    color: colors.ink,
+  },
+  weekTablePrice: {
+    fontSize: 9,
+    color: colors.red,
   },
   weekVariantName: {
     flexGrow: 1,
@@ -368,6 +388,20 @@ export function SpeisekartePdfDocument({
             <Text style={styles.sectionNote}>{weekly.note.trim()}</Text>
           ) : null}
           <View style={styles.ruleSoft} />
+          {filledWeeklyTableRows(weekly.table).length > 0 ? (
+            <View style={styles.weekGrid}>
+              {filledWeeklyTableRows(weekly.table).map((row, index) => (
+                <View
+                  key={`${row.dish}-${index}`}
+                  style={styles.weekTableRow}
+                  wrap={false}
+                >
+                  <Text style={styles.weekTableDish}>{row.dish}</Text>
+                  <Text style={styles.weekTablePrice}>{row.price}</Text>
+                </View>
+              ))}
+            </View>
+          ) : (
           <View style={styles.weekGrid}>
             {weekly.days.map((day, index) => (
               <View
@@ -410,6 +444,7 @@ export function SpeisekartePdfDocument({
               </View>
             ))}
           </View>
+          )}
         </View>
 
         {sections.map((section) => (

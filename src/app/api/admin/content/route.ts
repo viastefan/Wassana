@@ -10,6 +10,7 @@ import {
 } from "@/lib/security";
 import { persistWarningOrFail } from "@/lib/persist-response";
 import {
+  defaultSiteImages,
   defaultTopBanner,
   getSiteContent,
   saveSiteContent,
@@ -106,6 +107,7 @@ export async function PUT(request: Request) {
         title: body.closing?.title || "Bis bald bei Wassana",
         text: body.closing?.text || "",
       },
+      images: { ...defaultSiteImages(), ...(body.images || {}) },
     });
 
     return persistWarningOrFail({ ...content }, persist, {

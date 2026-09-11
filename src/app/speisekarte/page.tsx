@@ -43,7 +43,7 @@ export default async function SpeisekartePage() {
       />
       <JsonLdMenu sections={sections} businessName={business.shortName} />
       <MediaBand
-        src="/images/page-speisekarte.jpg"
+        src={content.images.speisekarte}
         alt="Grünes Thai-Curry mit Reis — frisch bei Wassana in Landshut"
         eyebrow="Speisekarte Landshut"
         title="Unsere Gerichte"

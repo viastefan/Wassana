@@ -33,22 +33,20 @@ type EditTarget =
   | { kind: "section"; sectionIndex: number }
   | null;
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export function AdminFullMenuEditor({
   menu,
   setMenu,
   saving,
   publishPhase,
   onSave,
+  onPublishMenu,
 }: {
   menu: FullMenuData;
   setMenu: Dispatch<SetStateAction<FullMenuData | null>>;
   saving: boolean;
   publishPhase: PublishPhase;
   onSave: (event: FormEvent) => void;
+  onPublishMenu: (next: FullMenuData) => Promise<boolean>;
 }) {
   const [search, setSearch] = useState("");
   const [editTarget, setEditTarget] = useState<EditTarget>(null);
@@ -166,36 +164,35 @@ export function AdminFullMenuEditor({
   async function saveSheet() {
     if (!editTarget || sheetSaving) return;
     setSheetSaving(true);
-    await sleep(2000);
 
+    let nextMenu = menu;
     if (editTarget.kind === "item" && draftItem) {
       const { sectionIndex, itemIndex } = editTarget;
-      updateSections((sections) => {
-        const section = sections[sectionIndex];
-        if (!section) return sections;
+      const sections = menu.sections.map((section, index) => {
+        if (index !== sectionIndex) return section;
         const items = [...section.items];
         items[itemIndex] = { ...draftItem };
-        const copy = [...sections];
-        copy[sectionIndex] = { ...section, items };
-        return copy;
+        return { ...section, items };
       });
+      nextMenu = { ...menu, sections };
     }
 
     if (editTarget.kind === "section" && draftSection) {
       const { sectionIndex } = editTarget;
-      updateSections((sections) => {
-        const copy = [...sections];
-        const current = copy[sectionIndex];
-        if (!current) return sections;
-        copy[sectionIndex] = {
-          ...current,
+      const sections = menu.sections.map((section, index) => {
+        if (index !== sectionIndex) return section;
+        return {
+          ...section,
           title: draftSection.title,
           id: draftSection.id || slugifyMenuId(draftSection.title),
           note: draftSection.note || "",
         };
-        return copy;
       });
+      nextMenu = { ...menu, sections };
     }
+
+    setMenu(nextMenu);
+    await onPublishMenu(nextMenu);
 
     setSheetSaving(false);
     setEditTarget(null);
@@ -279,8 +276,8 @@ export function AdminFullMenuEditor({
             <li>
               <span className="admin-live-step-num">2</span>
               <span>
-                <strong>Bearbeiten</strong> öffnet das Sheet — Speichern dauert
-                ca. 2 Sekunden
+                <strong>Bearbeiten</strong> öffnet das Sheet — Speichern & live
+                schreibt sofort auf die Website
               </span>
             </li>
             <li>
@@ -620,19 +617,19 @@ export function AdminFullMenuEditor({
               <button
                 type="button"
                 className={`btn-primary admin-sheet-save ${
-                  sheetSaving ? "is-loading" : ""
+                  sheetSaving || saving ? "is-loading" : ""
                 }`}
-                disabled={sheetSaving}
+                disabled={sheetSaving || saving}
                 onClick={() => void saveSheet()}
               >
                 <span
                   className={`admin-sticky-save-fill ${
-                    sheetSaving ? "is-active" : ""
+                    sheetSaving || saving ? "is-active" : ""
                   }`}
                   aria-hidden
                 />
                 <span className="admin-sticky-save-label">
-                  {sheetSaving ? "Speichern …" : "Speichern"}
+                {sheetSaving || saving ? "Live speichern …" : "Speichern & live"}
                 </span>
               </button>
             </div>

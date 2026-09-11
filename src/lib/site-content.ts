@@ -9,23 +9,33 @@ import { sanitizeText } from "@/lib/security";
 import {
   defaultStudentLunch,
   defaultTopBanner,
+  defaultSiteImages,
   sanitizeColor,
   sanitizeHref,
+  sanitizeImageSrc,
   sanitizeTopBannerText,
   type SiteContent,
+  type SiteImages,
   type TopBanner,
 } from "@/lib/site-content-shared";
 
 export type {
   SiteContent,
+  SiteImageKey,
+  SiteImages,
   StudentLunchOffer,
   TopBanner,
 } from "@/lib/site-content-shared";
 export {
+  DEFAULT_SITE_IMAGES,
+  SITE_IMAGE_FIELDS,
   STUDENT_LUNCH_POPUP_HREF,
+  defaultSiteImages,
   defaultStudentLunch,
   defaultTopBanner,
+  isRemoteCmsSrc,
   isStudentLunchPopupHref,
+  sanitizeImageSrc,
   sanitizeTopBannerText,
 } from "@/lib/site-content-shared";
 
@@ -55,6 +65,7 @@ export function defaultSiteContent(): SiteContent {
       title: "Bis bald bei Wassana",
       text: "",
     },
+    images: defaultSiteImages(),
     updatedAt: new Date().toISOString(),
   };
 }
@@ -226,6 +237,16 @@ function normalize(raw: Partial<SiteContent> | null): SiteContent {
         600,
       ),
     },
+    images: (Object.keys(base.images) as (keyof SiteImages)[]).reduce(
+      (acc, key) => {
+        acc[key] = sanitizeImageSrc(
+          String(raw.images?.[key] ?? base.images[key]),
+          base.images[key],
+        );
+        return acc;
+      },
+      { ...base.images },
+    ),
     updatedAt: String(raw.updatedAt ?? base.updatedAt),
   };
 }
