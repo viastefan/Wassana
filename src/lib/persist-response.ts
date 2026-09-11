@@ -16,12 +16,13 @@ export function revalidatePublicSite() {
     revalidatePath("/ueber-uns");
     revalidatePath("/anfahrt");
     revalidatePath("/kontakt");
+    revalidatePath("/schueler-mittagessen");
   } catch {
     // outside a Next.js request
   }
 }
 
-/** On Vercel, /tmp alone is not enough — CMS must hit Blob, disk, or GitHub. */
+/** On Vercel, /tmp, git disk and GitHub backup are not the live site — Blob is. */
 export function isEphemeralHosting() {
   return Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
 }

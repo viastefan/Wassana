@@ -200,7 +200,7 @@ async function writeVersionedBlob(
   const body = content.endsWith("\n") ? content : `${content}\n`;
 
   try {
-    await put(pathname, body, {
+    const uploaded = await put(pathname, body, {
       access: "public",
       token,
       contentType: "application/json",
@@ -208,6 +208,28 @@ async function writeVersionedBlob(
       // Unique pathname: long cache is safe and cheap.
       cacheControlMaxAge: 60 * 60 * 24 * 365,
     });
+
+    let readable = false;
+    try {
+      const listed = await list({ prefix, token, limit: 20 });
+      readable = listed.blobs.some(
+        (blob) =>
+          blob.pathname === uploaded.pathname || blob.url === uploaded.url,
+      );
+    } catch {
+      readable = false;
+    }
+    if (!readable) {
+      const check = await fetchBlobJson(uploaded.url);
+      readable = Boolean(check);
+    }
+    if (!readable) {
+      return {
+        ok: false,
+        error:
+          "Blob gespeichert, aber nicht lesbar. BLOB_READ_WRITE_TOKEN / Store prüfen.",
+      };
+    }
   } catch (error) {
     return {
       ok: false,
@@ -243,8 +265,6 @@ export async function writeJsonWithFallback(
   const { promises: fs } = await import("fs");
   const path = await import("path");
 
-  remember(githubPath, payload);
-
   let disk = false;
   let tmp = false;
 
@@ -266,7 +286,11 @@ export async function writeJsonWithFallback(
   const blob = await writeVersionedBlob(githubPath, payload);
   const github = await maybeCommitToGitHub(githubPath, payload, commitMessage);
 
-  const durable = disk || blob.ok || github.ok;
+  // On Vercel the git checkout and GitHub commits are not the live site.
+  // Only a readable Blob version makes Admin changes appear on .de.
+  const durable = onVercel() ? blob.ok : disk || blob.ok;
+  if (durable) remember(githubPath, payload);
+
   const result: PersistResult = {
     disk,
     tmp,
@@ -275,15 +299,12 @@ export async function writeJsonWithFallback(
     durable,
   };
 
-  if (!tmp && !disk && !blob.ok && !github.ok) {
+  if (!durable) {
     result.error =
       blob.error ||
-      github.error ||
-      "Speichern fehlgeschlagen — weder Blob noch Dateisystem erreichbar.";
-  } else if (!durable) {
-    result.error =
-      blob.error ||
-      "Nur temporär gespeichert. BLOB_READ_WRITE_TOKEN in Vercel prüfen.";
+      (onVercel()
+        ? "Nicht live gespeichert. BLOB_READ_WRITE_TOKEN in Vercel (Production) setzen und neu deployen."
+        : "Speichern fehlgeschlagen — Datei konnte nicht geschrieben werden.");
   }
 
   return result;
