@@ -1811,6 +1811,21 @@ button.admin-install-cta:hover {
   color: var(--admin-muted);
 }
 
+.admin-chevron {
+  width: 0.82rem;
+  height: 0.82rem;
+  color: #c7c7cc;
+  flex-shrink: 0;
+}
+
+.admin-toast-link {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--admin-tint);
+}
+
 .admin-nav-link {
   appearance: none;
   border: 0;

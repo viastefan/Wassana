@@ -43,7 +43,7 @@ import {
 import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
 import { AdminImageLibrary } from "./AdminImageLibrary";
 import { AdminWeeklyTable } from "./AdminWeeklyTable";
-import { ADMIN_TAB_ICONS } from "./icons";
+import { ADMIN_TAB_ICONS, IconChevron } from "./icons";
 import { PublishFailDialog } from "./PublishFailDialog";
 import {
   enableAdminPushNotifications,
@@ -362,7 +362,7 @@ export function AdminClient() {
           await loadAll();
         }
       } finally {
-        const wait = Math.max(0, 2000 - (Date.now() - started));
+        const wait = Math.max(0, 400 - (Date.now() - started));
         if (wait) await sleep(wait);
         if (!cancelled) setChecking(false);
       }
@@ -540,11 +540,8 @@ export function AdminClient() {
     setStatus("");
     setLastPersist(null);
     setPublishPhase("publishing");
-    const started = Date.now();
     try {
       const result = await execute();
-      const wait = Math.max(0, 2000 - (Date.now() - started));
-      if (wait) await sleep(wait);
 
       if (result.persist) setLastPersist(result.persist);
 
@@ -573,8 +570,6 @@ export function AdminClient() {
       }, 2500);
       return true;
     } catch (error) {
-      const wait = Math.max(0, 2000 - (Date.now() - started));
-      if (wait) await sleep(wait);
       const report = await finalizeFailReport({
         action,
         error:
@@ -923,6 +918,20 @@ export function AdminClient() {
     });
   }
 
+  async function confirmLiveSpeisekarte(needle: string) {
+    const probe = needle.trim().slice(0, 60);
+    if (probe.length < 3) return true;
+    try {
+      await sleep(200);
+      const res = await fetch("/speisekarte", { cache: "no-store" });
+      if (!res.ok) return false;
+      const html = await res.text();
+      return html.includes(probe);
+    } catch {
+      return false;
+    }
+  }
+
   async function saveWeekly(event: FormEvent) {
     event.preventDefault();
     if (!weekly) return;
@@ -961,11 +970,27 @@ export function AdminClient() {
           updatedAt: data.updatedAt,
         });
       }
+      const probe =
+        (data?.table || weekly.table || []).find((row) => row.dish.trim())
+          ?.dish || "";
+      let live = await confirmLiveSpeisekarte(probe);
+      if (!live) {
+        await sleep(600);
+        live = await confirmLiveSpeisekarte(probe);
+      }
+      if (!live) {
+        return {
+          ok: false,
+          error:
+            "Gespeichert, aber die Speisekarte zeigt es noch nicht. Nochmal veröffentlichen.",
+          persist: data?.persist,
+        };
+      }
       return {
         ok: true,
         warning: data?.warning,
         persist: data?.persist,
-        successMessage: "Online — Wochen-Favoriten live",
+        successMessage: "Live auf der Speisekarte",
       };
     });
   }
@@ -1693,17 +1718,11 @@ export function AdminClient() {
                   <ol className="admin-live-steps">
                     <li>
                       <span className="admin-live-step-num">1</span>
-                      <span>Bereich wählen (Banner, Texte, Menü …)</span>
+                      <span>Menü oder Website öffnen</span>
                     </li>
                     <li>
                       <span className="admin-live-step-num">2</span>
-                      <span>Ändern und unten „Veröffentlichen“ tippen</span>
-                    </li>
-                    <li>
-                      <span className="admin-live-step-num">3</span>
-                      <span>
-                        Grün = online. Rot = Fehler mit klarer Diagnose.
-                      </span>
+                      <span>Ändern und Veröffentlichen — steht sofort auf der Speisekarte</span>
                     </li>
                   </ol>
                   {cmsHealth ? (
@@ -1973,6 +1992,7 @@ export function AdminClient() {
                           <span className="admin-card-title">{title}</span>
                           <span className="admin-card-meta">{meta}</span>
                         </span>
+                        <IconChevron className="admin-chevron" />
                       </button>
                     );
                   })}
@@ -3638,6 +3658,7 @@ export function AdminClient() {
                         <span className="admin-card-title">Kochkurs</span>
                         <span className="admin-card-meta">Termin und Texte</span>
                       </span>
+                      <IconChevron className="admin-chevron" />
                     </button>
                     <button
                       type="button"
@@ -3652,6 +3673,7 @@ export function AdminClient() {
                         <span className="admin-card-title">Top-Banner</span>
                         <span className="admin-card-meta">Leiste über der Website</span>
                       </span>
+                      <IconChevron className="admin-chevron" />
                     </button>
                   </div>
                 </Section>
@@ -3878,6 +3900,14 @@ export function AdminClient() {
             {status ? (
               <div className="admin-toast is-ok">
                 <p>{status}</p>
+                <a
+                  className="admin-toast-link"
+                  href="/speisekarte"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Speisekarte ansehen
+                </a>
                 <PersistChips persist={lastPersist} />
               </div>
             ) : null}
@@ -3911,7 +3941,10 @@ export function AdminClient() {
                 aria-current={tab === item.id ? "page" : undefined}
               >
                 <span className="admin-tab-glyph" aria-hidden>
-                  <item.Icon className="admin-tab-icon" />
+                  <item.Icon
+                    className="admin-tab-icon"
+                    filled={tab === item.id}
+                  />
                 </span>
                 <span className="admin-tab-label">{item.label}</span>
                 {item.unread > 0 ? (
