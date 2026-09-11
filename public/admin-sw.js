@@ -1,5 +1,5 @@
 /* Wassana Admin PWA — offline shell + notifications for /admin */
-const CACHE = "wassana-admin-v3";
+const CACHE = "wassana-admin-v4";
 const PRECACHE = [
   "/admin",
   "/admin.webmanifest",

@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
   createPasswordResetToken,
@@ -5,6 +6,10 @@ import {
   setAdminPasswordOverride,
 } from "@/lib/admin-password-store";
 import { SUPPORT_EMAIL } from "@/lib/admin-support";
+import {
+  COOKING_COURSE_COOKIE,
+  verifyAdminSessionToken,
+} from "@/lib/cooking-course";
 import { getSiteUrl } from "@/lib/site";
 import { isMailConfigured, sendMail } from "@/lib/mail";
 import {
@@ -68,6 +73,10 @@ export async function POST(request: Request) {
   const token = await createPasswordResetToken();
   const resetUrl = `${getSiteUrl()}/admin/reset?token=${encodeURIComponent(token)}`;
   const report = String(parsed.data.report || "").slice(0, 6000);
+  const jar = await cookies();
+  const ownerSession = verifyAdminSessionToken(
+    jar.get(COOKING_COURSE_COOKIE)?.value,
+  );
 
   const text = [
     "Wassana Admin — Neues Passwort erstellen",
@@ -103,10 +112,12 @@ export async function POST(request: Request) {
     ok: true,
     mailed,
     mailError,
-    resetUrl,
     supportEmail: SUPPORT_EMAIL,
+    ...(ownerSession && !mailed ? { resetUrl } : {}),
     message: mailed
-      ? `Reset-Mail an ${SUPPORT_EMAIL} gesendet.`
-      : "SMTP nicht konfiguriert — Reset-Link unten / per mailto nutzen.",
+      ? `Reset-Mail nur an ${SUPPORT_EMAIL} (Inhaber).`
+      : ownerSession
+        ? "SMTP nicht konfiguriert — Reset-Link nur für die angemeldete Inhaber-Sitzung."
+        : "Reset angefordert. Der Link geht nur an den Inhaber per E-Mail.",
   });
 }

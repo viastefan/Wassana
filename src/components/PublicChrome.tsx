@@ -7,6 +7,7 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { CookingCoursePromo } from "@/components/CookingCoursePromo";
 import { OfferPopup } from "@/components/OfferPopup";
 import { OfferPopupProvider } from "@/components/OfferPopupContext";
+import { PageFade } from "@/components/PageFade";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TopOfferBanner } from "@/components/TopOfferBanner";
@@ -81,7 +82,9 @@ export function PublicChrome({
             ) : null}
             <SiteHeader embedded hours={content.hours} />
           </div>
-          <div id="main-content">{children}</div>
+          <div id="main-content">
+            <PageFade>{children}</PageFade>
+          </div>
           <SiteFooter hours={content.hours} />
           <CookingCoursePromo />
           <CookieBanner />

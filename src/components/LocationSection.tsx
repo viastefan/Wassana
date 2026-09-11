@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { MapEmbed } from "@/components/MapEmbed";
 import { Reveal } from "@/components/Reveal";
 import { useBusiness } from "@/components/BusinessContext";
@@ -42,15 +41,7 @@ export function LocationSection({
 
               <address className="mt-10 not-italic">
                 <p className="text-lg text-[color:var(--ink)]">
-                  <Link
-                    href="/admin"
-                    rel="nofollow"
-                    className="text-[color:var(--ink)] transition hover:text-[color:var(--ink)]"
-                    title="Intern"
-                    aria-label="Intern: Kochkurs verwalten"
-                  >
                     {business.fullName}
-                  </Link>
                 </p>
                 <p className="mt-2 text-[color:var(--muted)]">
                   {business.street}

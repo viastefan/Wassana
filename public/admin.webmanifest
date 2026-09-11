@@ -1,17 +1,19 @@
 {
   "id": "/admin",
-  "name": "Wassana Verwaltung",
+  "name": "Wassana",
   "short_name": "Wassana",
-  "description": "Speisekarte und Angebote für Wassana live ändern.",
+  "description": "Inhaber-App: Speisekarte, Angebote und Anfragen live steuern.",
   "start_url": "/admin",
   "scope": "/admin",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#f2f2f7",
   "theme_color": "#f2f2f7",
   "lang": "de",
   "categories": ["business", "food", "productivity"],
   "prefer_related_applications": false,
+  "launch_handler": { "client_mode": "focus-existing" },
   "icons": [
     {
       "src": "/admin/icon-192.png",

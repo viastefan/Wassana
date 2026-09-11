@@ -1410,13 +1410,13 @@ export function AdminClient() {
 
   const nav = useMemo(
     () =>
-      (["menu", "banner", "settings"] as const).map((id) => ({
+      (["menu", "banner", "inbox", "settings"] as const).map((id) => ({
         id,
         label: NAV_META[id].label,
-        unread: 0,
+        unread: id === "inbox" ? unread : 0,
         Icon: ADMIN_TAB_ICONS[id],
       })),
-    [],
+    [unread],
   );
 
   const filteredWeeklyDays = useMemo(() => {
@@ -1520,8 +1520,8 @@ export function AdminClient() {
         App jetzt herunterladen
       </h2>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
-        Speichere die Verwaltung auf dem Homescreen. Danach startet sie ohne
-        Browser-Leiste — ideal fürs Handy im Laden.
+        Speichere die App aufs iPhone oder den Mac. Danach öffnet sie sich
+        ohne Browser — nur mit Inhaber-Passwort.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {installEvent ? (
@@ -1654,8 +1654,8 @@ export function AdminClient() {
               <p className="admin-kicker">Wassana Thai Imbiss</p>
               <h1 className="admin-screen-title">Anmelden</h1>
               <p className="admin-screen-desc">
-                Speisekarte und Angebote ändern — tippen, und es steht live
-                auf der Website.
+                Nur der Inhaber. Speisekarte, Angebote und Anfragen — tippen,
+                und es steht live auf der Website.
               </p>
               <label className="block">
                 <span className="text-sm text-[color:var(--admin-muted)]">
@@ -1709,6 +1709,7 @@ export function AdminClient() {
           </div>
         ) : (
           <>
+            <div key={tab} className="admin-page-enter">
             {tab === "home" ? (
               <section className="space-y-4">
                 <ScreenHeader
@@ -2219,9 +2220,8 @@ export function AdminClient() {
             {tab === "inbox" ? (
               <section className="space-y-3">
                 <ScreenHeader
-                  kicker="Datenbank"
-                  title="Kontaktanfragen"
-                  description="Eingehende Anfragen aus Kontakt, Catering und Kochkurs — speichern, bearbeiten, archivieren."
+                  title="Anfragen"
+                  description="Nur der Inhaber sieht das. Status setzen oder archivieren."
                   action={
                     unread > 0 ? (
                       <button
@@ -3707,6 +3707,7 @@ export function AdminClient() {
               </form>
             ) : null}
 
+            </div>
             {error ? (
               <p className="admin-toast is-error">{error}</p>
             ) : null}
@@ -3743,6 +3744,7 @@ export function AdminClient() {
                   setStatus("");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                   if (item.id === "banner") void loadContent();
+                  if (item.id === "inbox") void loadInbox();
                   if (item.id === "menu") {
                     void loadWeekly();
                     void loadFullMenu();

@@ -528,7 +528,7 @@ button.admin-install-cta:hover {
 
 .admin-tabbar-inner {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   max-width: 28rem;
   margin: 0 auto;
   padding: 0.2rem 0.35rem max(0.28rem, env(safe-area-inset-bottom));
@@ -558,6 +558,10 @@ button.admin-install-cta:hover {
   color: var(--admin-tint);
   transform: none;
   box-shadow: none;
+}
+
+.admin-tab:active {
+  transform: scale(0.9);
 }
 
 .admin-tab-glyph {
@@ -845,6 +849,7 @@ button.admin-install-cta:hover {
   border-radius: var(--admin-radius-sm);
   background: var(--admin-surface);
   font-size: 0.88rem;
+  animation: page-enter 0.38s var(--ease-out) both;
 }
 
 .admin-toast.is-error {
@@ -2625,10 +2630,11 @@ a.btn-ghost:hover {
 
 .reveal {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translate3d(0, 18px, 0);
   transition:
-    opacity 0.9s var(--ease-out),
-    transform 0.9s var(--ease-out);
+    opacity 0.55s var(--ease-out),
+    transform 0.55s var(--ease-out);
+  will-change: opacity, transform;
 }
 
 .reveal.is-visible {
@@ -2637,11 +2643,38 @@ a.btn-ghost:hover {
 }
 
 .reveal-delay-1 {
-  transition-delay: 0.12s;
+  transition-delay: 0.08s;
 }
 
 .reveal-delay-2 {
-  transition-delay: 0.22s;
+  transition-delay: 0.16s;
+}
+
+.page-enter,
+.admin-page-enter {
+  animation: page-enter 0.48s var(--ease-out) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .page-enter,
+  .admin-page-enter {
+    animation: none;
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .side-form-sticky {
@@ -2796,10 +2829,10 @@ a.btn-ghost:hover {
   /* Keep text clear of the hover border/frame on every side */
   padding: 0;
   transition:
-    border-color 0.35s var(--ease-out),
-    transform 0.35s var(--ease-out),
-    background 0.35s var(--ease-out),
-    box-shadow 0.35s var(--ease-out);
+    border-color 0.45s var(--ease-out),
+    transform 0.45s var(--ease-out),
+    background 0.45s var(--ease-out),
+    box-shadow 0.45s var(--ease-out);
 }
 
 @media (min-width: 768px) {

@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: {
     absolute: "Wassana Verwaltung",
   },
-  description: "Speisekarte und Angebote live ändern.",
+  description: "Nur für den Inhaber: Speisekarte, Angebote und Anfragen live steuern.",
   robots: { index: false, follow: false },
   manifest: "/admin.webmanifest",
   applicationName: "Wassana Verwaltung",
