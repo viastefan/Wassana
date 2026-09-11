@@ -973,7 +973,11 @@ export function AdminClient() {
       const probe =
         (data?.table || weekly.table || []).find((row) => row.dish.trim())
           ?.dish || "";
-      const live = await confirmLiveSpeisekarte(probe);
+      let live = await confirmLiveSpeisekarte(probe);
+      if (!live) {
+        await sleep(600);
+        live = await confirmLiveSpeisekarte(probe);
+      }
       if (!live) {
         return {
           ok: false,
