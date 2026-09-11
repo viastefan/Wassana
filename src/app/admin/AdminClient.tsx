@@ -98,11 +98,11 @@ const fieldClass = "admin-field";
 const NAV_META: Record<Tab, { label: string; title: string }> = {
   home: { label: "Home", title: "Übersicht" },
   course: { label: "Kurs", title: "Kochkurs" },
-  inbox: { label: "Post", title: "Anfragen-DB" },
+  inbox: { label: "Post", title: "Anfragen" },
   banner: { label: "Banner", title: "Top-Banner" },
-  content: { label: "Texte", title: "Texte & Bilder" },
+  content: { label: "Website", title: "Texte & Bilder" },
   menu: { label: "Menü", title: "Speisekarte" },
-  settings: { label: "Betrieb", title: "Einstellungen" },
+  settings: { label: "Mehr", title: "Einstellungen" },
 };
 
 export function AdminClient() {
@@ -1358,16 +1358,12 @@ export function AdminClient() {
 
   const nav = useMemo(
     () =>
-      (["home", "course", "inbox", "banner", "content", "menu", "settings"] as const).map(
-        (id) => ({
-          id,
-          label:
-            id === "inbox" && unread > 0
-              ? `${NAV_META[id].label} ${unread}`
-              : NAV_META[id].label,
-          Icon: ADMIN_TAB_ICONS[id],
-        }),
-      ),
+      (["home", "menu", "content", "inbox", "settings"] as const).map((id) => ({
+        id,
+        label: NAV_META[id].label,
+        unread: id === "inbox" ? unread : 0,
+        Icon: ADMIN_TAB_ICONS[id],
+      })),
     [unread],
   );
 
@@ -1534,34 +1530,32 @@ export function AdminClient() {
       ) : null}
       {!checking ? (
       <header className="admin-topbar">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3.5">
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2.5">
           <div className="admin-brand-mark">
             <Image
               src="/images/logo.png"
               alt="Wassana"
               width={40}
               height={40}
-              className="h-9 w-9 rounded-full object-contain bg-[color:var(--admin-raised)] p-0.5"
+              className="h-8 w-8 rounded-[0.65rem] object-contain bg-[color:var(--admin-raised)] p-0.5"
               priority
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-lg text-[color:var(--admin-burgundy)]">
-              Wassana Verwaltung
+            <p className="truncate text-[17px] font-semibold tracking-tight">
+              Wassana
             </p>
             <p className="truncate text-xs text-[color:var(--admin-muted)]">
-              {authed
-                ? "Ändern → Veröffentlichen → sofort live"
-                : "Laden-App · Banner, Menü, Anfragen"}
+              {authed ? "Sofort live auf der Website" : "Verwaltung"}
             </p>
           </div>
           {authed ? (
             <button
               type="button"
-              className="btn-gold !px-3 !py-2 text-sm"
+              className="admin-nav-link"
               onClick={onLogout}
             >
-              Raus
+              Abmelden
             </button>
           ) : (
             <span className="admin-chip is-live">App</span>
@@ -1581,13 +1575,11 @@ export function AdminClient() {
               autoComplete="on"
               name="admin-login"
             >
-              <p className="admin-kicker">Zugang</p>
-              <h1 className="font-display text-3xl text-[color:var(--admin-burgundy)]">
-                Anmelden
-              </h1>
-              <p className="text-[color:var(--admin-muted)] leading-relaxed">
-                Danach steuerst du Kochkurs, Anfragen, Banner, Texte und die
-                Speisekarte — direkt als App.
+              <p className="admin-kicker">Wassana</p>
+              <h1 className="admin-screen-title">Anmelden</h1>
+              <p className="admin-screen-desc">
+                Danach steuerst du Speisekarte, Texte, Fotos und Anfragen —
+                wie in einer iPhone-App, live auf der Website.
               </p>
               <label className="block">
                 <span className="text-sm text-[color:var(--admin-muted)]">
@@ -1638,8 +1630,8 @@ export function AdminClient() {
                 </p>
               )}
               <div className="flex flex-wrap gap-2">
-                <button type="submit" className="btn-primary" disabled={saving}>
-                  {saving ? "Prüfen …" : "In die Verwaltung"}
+                <button type="submit" className="btn-primary w-full" disabled={saving}>
+                  {saving ? "Prüfen …" : "Anmelden"}
                 </button>
                 <button
                   type="button"
@@ -1956,22 +1948,22 @@ export function AdminClient() {
                   )}
                 </Section>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="admin-ios-list">
                   {(
                     [
-                      ["course", "Kochkurs", course.title || "Termin", course.date ? formatCourseDate(course.date) : "Noch kein Datum"],
-                      ["inbox", "Anfragen-DB", unread > 0 ? `${unread} neu` : "Datenbank", `${analytics.total} aktiv · ${analytics.archived} Archiv`],
-                      ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus", "Mittagsangebot über dem Menü"],
-                      ["content", "Website", "Texte & Bilder", "Hero, Zeiten, Fotos tauschen …"],
-                      ["menu", "Speisekarte", "12-Zeilen-Tabelle & alle Gerichte", "Gericht, Preis, live auf .de"],
+                      ["menu", "Speisekarte", "12 Zeilen, Preise, alle Gerichte"],
+                      ["content", "Texte & Bilder", "Startseite, Fotos tauschen"],
+                      ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus"],
+                      ["inbox", "Anfragen", unread > 0 ? `${unread} neu` : "Posteingang"],
+                      ["course", "Kochkurs", course.date ? formatCourseDate(course.date) : "Termin setzen"],
                     ] as const
-                  ).map(([id, kicker, title, meta]) => {
+                  ).map(([id, title, meta]) => {
                     const Icon = ADMIN_TAB_ICONS[id];
                     return (
                       <button
                         key={id}
                         type="button"
-                        className={`admin-card ${id === "menu" ? "sm:col-span-2" : ""}`}
+                        className="admin-card"
                         onClick={() => {
                           setPublishPhase("idle");
                           setTab(id);
@@ -1980,15 +1972,10 @@ export function AdminClient() {
                         <span className="admin-card-icon">
                           <Icon className="admin-icon" />
                         </span>
-                        <p className="mt-3 text-sm text-[color:var(--admin-gold-deep)]">
-                          {kicker}
-                        </p>
-                        <p className="mt-1 font-display text-xl text-[color:var(--admin-burgundy)]">
-                          {title}
-                        </p>
-                        <p className="mt-1 text-sm text-[color:var(--admin-muted)]">
-                          {meta}
-                        </p>
+                        <span className="admin-card-copy">
+                          <span className="admin-card-title">{title}</span>
+                          <span className="admin-card-meta">{meta}</span>
+                        </span>
                       </button>
                     );
                   })}
@@ -3636,10 +3623,41 @@ export function AdminClient() {
             {tab === "settings" && business ? (
               <form onSubmit={saveBusiness} className="admin-form space-y-3">
                 <ScreenHeader
-                  kicker="Einstellungen"
-                  title="Betrieb & Inhaber"
-                  description="Stammdaten für Website und Impressum — Veröffentlichen geht sofort live."
+                  kicker="Mehr"
+                  title="Einstellungen"
+                  description="Betrieb, Kochkurs und Banner — Veröffentlichen geht sofort live."
                 />
+                <Section title="Weitere Bereiche">
+                  <div className="admin-ios-list -mx-4">
+                    <button
+                      type="button"
+                      className="admin-card"
+                      onClick={() => {
+                        setPublishPhase("idle");
+                        setTab("course");
+                      }}
+                    >
+                      <span className="admin-card-copy">
+                        <span className="admin-card-title">Kochkurs</span>
+                        <span className="admin-card-meta">Termin und Texte</span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-card"
+                      onClick={() => {
+                        setPublishPhase("idle");
+                        setTab("banner");
+                        void loadContent();
+                      }}
+                    >
+                      <span className="admin-card-copy">
+                        <span className="admin-card-title">Top-Banner</span>
+                        <span className="admin-card-meta">Leiste über der Website</span>
+                      </span>
+                    </button>
+                  </div>
+                </Section>
                 <Section title="Betrieb">
                   <Field label="Betriebsname">
                     <input
@@ -3873,7 +3891,7 @@ export function AdminClient() {
 
       {authed && !checking ? (
         <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-40">
-          <div className="mx-auto grid max-w-3xl grid-cols-7 gap-0.5 px-1.5 py-2 pb-[max(0.55rem,env(safe-area-inset-bottom))]">
+          <div className="mx-auto grid max-w-3xl grid-cols-5 px-1 pt-1 pb-[max(0.35rem,env(safe-area-inset-bottom))]">
             {nav.map((item) => (
               <button
                 key={item.id}
@@ -3885,9 +3903,7 @@ export function AdminClient() {
                   setStatus("");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                   if (item.id === "inbox") void loadInbox();
-                  if (item.id === "content" || item.id === "banner") {
-                    void loadContent();
-                  }
+                  if (item.id === "content") void loadContent();
                   if (item.id === "menu") {
                     void loadWeekly();
                     void loadFullMenu();
@@ -3901,6 +3917,11 @@ export function AdminClient() {
                   <item.Icon className="admin-tab-icon" />
                 </span>
                 <span className="admin-tab-label">{item.label}</span>
+                {item.unread > 0 ? (
+                  <span className="admin-tab-badge">
+                    {item.unread > 9 ? "9+" : item.unread}
+                  </span>
+                ) : null}
               </button>
             ))}
           </div>
