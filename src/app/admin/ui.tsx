@@ -9,7 +9,7 @@ export function ScreenHeader({
   description,
   action,
 }: {
-  kicker: string;
+  kicker?: string;
   title: string;
   description?: string;
   action?: ReactNode;
@@ -17,7 +17,7 @@ export function ScreenHeader({
   return (
     <div className="admin-screen-header">
       <div className="min-w-0 flex-1">
-        <p className="admin-kicker">{kicker}</p>
+        {kicker ? <p className="admin-kicker">{kicker}</p> : null}
         <h1 className="admin-screen-title">{title}</h1>
         {description ? (
           <p className="admin-screen-desc">{description}</p>
@@ -144,7 +144,7 @@ export function StickySave({
   label,
   disabled,
   phase = "idle",
-  hint = "Speichert und geht sofort live auf der Website.",
+  hint = "Tippen — steht danach sofort auf der Website.",
 }: {
   saving: boolean;
   label: string;

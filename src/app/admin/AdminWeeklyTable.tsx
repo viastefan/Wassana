@@ -26,16 +26,9 @@ export function AdminWeeklyTable({
   }
 
   return (
-    <Section
-      title="12-Zeilen-Tabelle"
-      action={
-        <span className="text-xs text-[color:var(--admin-muted)]">
-          Gericht · Preis
-        </span>
-      }
-    >
+    <Section title="Diese Woche">
       <Field
-        label="Hinweis über der Tabelle"
+        label="Hinweis über der Karte"
         hint="z. B. Alle Speisen werden mit Duftreis serviert"
       >
         <input

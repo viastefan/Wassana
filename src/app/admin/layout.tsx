@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: {
     absolute: "Wassana Verwaltung",
   },
-  description: "Kochkurs, Anfragen und Website-Inhalte — speichern heißt live.",
+  description: "Speisekarte und Angebote live ändern.",
   robots: { index: false, follow: false },
   manifest: "/admin.webmanifest",
   applicationName: "Wassana Verwaltung",
@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#f2f2f7",
+  userScalable: false,
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
