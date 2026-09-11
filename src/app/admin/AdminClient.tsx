@@ -1655,12 +1655,9 @@ export function AdminClient() {
                   <div className="admin-live-hero-top">
                     <div>
                       <p className="admin-kicker">Dashboard</p>
-                      <h1 className="font-display mt-1 text-3xl text-[color:var(--admin-burgundy)]">
-                        Übersicht
-                      </h1>
-                      <p className="mt-2 max-w-md text-sm leading-relaxed text-[color:var(--admin-muted)]">
-                        Hier steuerst du die Website. Speichern heißt immer:
-                        sofort live auf wassana-thai-imbiss.de.
+                      <h1 className="admin-screen-title">Übersicht</h1>
+                      <p className="admin-screen-desc">
+                        Ändern, veröffentlichen — sofort auf der Website.
                       </p>
                     </div>
                     <button
