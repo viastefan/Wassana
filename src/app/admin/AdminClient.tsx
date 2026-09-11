@@ -40,8 +40,10 @@ import {
   Toggle,
   type PublishPhase,
 } from "./ui";
+import { cmsModuleMeta, cmsProduct, cmsSite } from "@/cms/config";
 import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
 import { AdminImageLibrary } from "./AdminImageLibrary";
+import { AdminShell } from "./AdminShell";
 import { AdminWeeklyTable } from "./AdminWeeklyTable";
 import { ADMIN_TAB_ICONS, IconChevron } from "./icons";
 import { PublishFailDialog } from "./PublishFailDialog";
@@ -95,16 +97,6 @@ function formatWhen(iso: string) {
 
 const fieldClass = "admin-field";
 
-const NAV_META: Record<Tab, { label: string; title: string }> = {
-  home: { label: "Home", title: "Übersicht" },
-  course: { label: "Kurs", title: "Kochkurs" },
-  inbox: { label: "Post", title: "Anfragen" },
-  banner: { label: "Banner", title: "Top-Banner" },
-  content: { label: "Website", title: "Texte & Bilder" },
-  menu: { label: "Menü", title: "Speisekarte" },
-  settings: { label: "Mehr", title: "Einstellungen" },
-};
-
 export function AdminClient() {
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -112,7 +104,7 @@ export function AdminClient() {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [savedLoginReady, setSavedLoginReady] = useState(false);
-  const [tab, setTab] = useState<Tab>("home");
+  const [tab, setTab] = useState<Tab>("menu");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -350,10 +342,6 @@ export function AdminClient() {
     async function boot() {
       const started = Date.now();
       try {
-        if ("serviceWorker" in navigator) {
-          void navigator.serviceWorker.register("/admin-sw.js").catch(() => null);
-        }
-
         const session = await fetch("/api/admin/session", {
           cache: "no-store",
         });
@@ -687,7 +675,7 @@ export function AdminClient() {
       setPassword("");
       setSavedLoginReady(false);
       setAuthed(true);
-      setTab("home");
+      setTab("menu");
       await loadAll();
     } catch {
       setLoginError("Netzwerkfehler. Bitte erneut versuchen.");
@@ -699,7 +687,7 @@ export function AdminClient() {
   async function onLogout() {
     await fetch("/api/admin/login", { method: "DELETE" });
     setAuthed(false);
-    setTab("home");
+    setTab("menu");
     setInquiries([]);
     setUnread(0);
   }
@@ -909,27 +897,54 @@ export function AdminClient() {
           updatedAt: data.updatedAt,
         });
       }
+      const probe =
+        data?.topBanner?.text ||
+        data?.studentLunch?.price ||
+        data?.studentLunch?.title ||
+        content.topBanner.text ||
+        content.studentLunch.price ||
+        "";
+      let live = await confirmLiveHtml("/", probe);
+      if (!live) {
+        await sleep(600);
+        live = await confirmLiveHtml("/", probe);
+      }
+      if (!live) {
+        live = await confirmLiveHtml("/speisekarte", probe);
+      }
+      if (!live) {
+        return {
+          ok: false,
+          error:
+            "Gespeichert, aber die Website zeigt es noch nicht. Nochmal veröffentlichen.",
+          persist: data?.persist,
+        };
+      }
       return {
         ok: true,
         warning: data?.warning,
         persist: data?.persist,
-        successMessage: "Online — Texte/Banner live auf .de",
+        successMessage: "Live auf der Website",
       };
     });
   }
 
-  async function confirmLiveSpeisekarte(needle: string) {
+  async function confirmLiveHtml(path: string, needle: string) {
     const probe = needle.trim().slice(0, 60);
     if (probe.length < 3) return true;
     try {
       await sleep(200);
-      const res = await fetch("/speisekarte", { cache: "no-store" });
+      const res = await fetch(path, { cache: "no-store" });
       if (!res.ok) return false;
       const html = await res.text();
       return html.includes(probe);
     } catch {
       return false;
     }
+  }
+
+  async function confirmLiveSpeisekarte(needle: string) {
+    return confirmLiveHtml("/speisekarte", needle);
   }
 
   async function saveWeekly(event: FormEvent) {
@@ -1383,14 +1398,34 @@ export function AdminClient() {
 
   const nav = useMemo(
     () =>
-      (["home", "menu", "content", "inbox", "settings"] as const).map((id) => ({
-        id,
-        label: NAV_META[id].label,
-        unread: id === "inbox" ? unread : 0,
-        Icon: ADMIN_TAB_ICONS[id],
-      })),
+      cmsSite.modules.map((mod) => {
+        const meta = cmsModuleMeta[mod];
+        return {
+          id: meta.tab,
+          label: meta.label,
+          hint: meta.hint,
+          unread: meta.tab === "inbox" ? unread : 0,
+          Icon: ADMIN_TAB_ICONS[meta.tab],
+        };
+      }),
     [unread],
   );
+
+  function openModule(id: string) {
+    const next = id as Tab;
+    setPublishPhase("idle");
+    setTab(next);
+    setError("");
+    setStatus("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (next === "banner") void loadContent();
+    if (next === "inbox") void loadInbox();
+    if (next === "menu") {
+      void loadWeekly();
+      void loadFullMenu();
+    }
+    if (next === "settings") void loadBusiness();
+  }
 
   const filteredWeeklyDays = useMemo(() => {
     if (!weekly) return [];
@@ -1476,50 +1511,6 @@ export function AdminClient() {
     };
   }, [inquiries, unread]);
 
-  const showInstallBanner = !installed && !installDismissed;
-
-  const installBlock = showInstallBanner ? (
-    <section className="admin-install-hero mb-5">
-      <button
-        type="button"
-        className="admin-install-close"
-        aria-label="Installationshinweis schließen"
-        onClick={dismissInstallBanner}
-      >
-        ×
-      </button>
-      <p className="admin-kicker !text-[color:var(--admin-gold-soft)]">Web-App</p>
-      <h2 className="font-display mt-2 text-2xl text-white md:text-[1.7rem]">
-        App jetzt herunterladen
-      </h2>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
-        Speichere die Verwaltung auf dem Homescreen. Danach startet sie ohne
-        Browser-Leiste — ideal fürs Handy im Laden.
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {installEvent ? (
-          <button
-            type="button"
-            className="admin-install-cta"
-            onClick={() => void onInstall()}
-          >
-            App installieren
-          </button>
-        ) : (
-          <span className="admin-chip !bg-white/14 !text-[#f7f3ea] !border-white/25">
-            Bereit zum Speichern
-          </span>
-        )}
-      </div>
-      {!installEvent ? (
-        <p className="mt-3 text-xs leading-relaxed text-white/70">
-          iPhone: Teilen → „Zum Home-Bildschirm“. Android: Menü → „App
-          installieren“ / „Zum Startbildschirm“.
-        </p>
-      ) : null}
-    </section>
-  ) : null;
-
   return (
     <div className="admin-shell min-h-[100svh] text-[color:var(--admin-ink)]">
       {checking ? (
@@ -1535,8 +1526,8 @@ export function AdminClient() {
                 priority
               />
             </div>
-            <p className="admin-splash-title">Wassana</p>
-            <p className="admin-splash-sub">Verwaltung startet …</p>
+            <p className="admin-splash-title">{cmsProduct.name}</p>
+            <p className="admin-splash-sub">{cmsSite.name}</p>
             <div className="admin-splash-bar" aria-hidden>
               <span className="admin-splash-bar-fill" />
             </div>
@@ -1554,57 +1545,40 @@ export function AdminClient() {
         />
       ) : null}
       {!checking ? (
-      <header className="admin-topbar">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2.5">
-          <div className="admin-brand-mark">
-            <Image
-              src="/images/logo.png"
-              alt="Wassana"
-              width={40}
-              height={40}
-              className="h-8 w-8 rounded-[0.65rem] object-contain bg-[color:var(--admin-raised)] p-0.5"
-              priority
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[17px] font-semibold tracking-tight">
-              Wassana
-            </p>
-            <p className="truncate text-xs text-[color:var(--admin-muted)]">
-              {authed ? "Sofort live auf der Website" : "Verwaltung"}
-            </p>
-          </div>
-          {authed ? (
-            <button
-              type="button"
-              className="admin-nav-link"
-              onClick={onLogout}
-            >
-              Abmelden
-            </button>
-          ) : (
-            <span className="admin-chip is-live">App</span>
-          )}
-        </div>
-      </header>
-      ) : null}
-
-      {!checking ? (
-      <main className="admin-main mx-auto max-w-3xl px-4 pt-5">
+      <AdminShell
+        authed={authed}
+        nav={nav}
+        tab={tab}
+        health={cmsHealth}
+        onNavigate={openModule}
+        onLogout={onLogout}
+        onRecheck={() => {
+          void checkRuntime();
+          void loadCmsHealth();
+        }}
+      >
         {!authed ? (
-          <div className="space-y-5">
-            {installBlock}
+          <div className="cms-login">
             <form
               onSubmit={onLogin}
               className="admin-login-card space-y-4"
               autoComplete="on"
               name="admin-login"
             >
-              <p className="admin-kicker">Wassana</p>
-              <h1 className="admin-screen-title">Anmelden</h1>
+              <div className="admin-login-logo">
+                <Image
+                  src="/images/logo.png"
+                  alt="Wassana"
+                  width={88}
+                  height={88}
+                  className="h-full w-full object-contain p-1.5"
+                  priority
+                />
+              </div>
+              <p className="admin-kicker">{cmsProduct.vendor}</p>
+              <h1 className="admin-screen-title">{cmsProduct.name}</h1>
               <p className="admin-screen-desc">
-                Danach steuerst du Speisekarte, Texte, Fotos und Anfragen —
-                wie in einer iPhone-App, live auf der Website.
+                {cmsProduct.tagline} Mandant: {cmsSite.name}. Nur der Inhaber.
               </p>
               <label className="block">
                 <span className="text-sm text-[color:var(--admin-muted)]">
@@ -1643,30 +1617,14 @@ export function AdminClient() {
                   required
                 />
               </label>
+              <button type="submit" className="btn-primary w-full" disabled={saving}>
+                {saving ? "Prüfen …" : "Anmelden"}
+              </button>
               {savedLoginReady ? (
-                <p className="text-sm text-[color:var(--admin-muted)]">
-                  Gespeichertes Passwort geladen — nur noch anmelden tippen.
+                <p className="text-center text-sm text-[color:var(--admin-muted)]">
+                  Passwort ist geladen — Anmelden tippen.
                 </p>
-              ) : (
-                <p className="text-sm text-[color:var(--admin-muted)]">
-                  Nach dem ersten Login fragt das Handy oft „Passwort
-                  speichern?“ — annehmen. Die Sitzung bleibt danach ca. 14 Tage
-                  aktiv.
-                </p>
-              )}
-              <div className="flex flex-wrap gap-2">
-                <button type="submit" className="btn-primary w-full" disabled={saving}>
-                  {saving ? "Prüfen …" : "Anmelden"}
-                </button>
-                <button
-                  type="button"
-                  className="btn-gold"
-                  disabled={saving}
-                  onClick={() => void loadSavedCredentials()}
-                >
-                  Gespeichertes laden
-                </button>
-              </div>
+              ) : null}
               {loginError ? (
                 <p className="text-sm text-[color:var(--admin-burgundy)]">{loginError}</p>
               ) : null}
@@ -1674,360 +1632,61 @@ export function AdminClient() {
           </div>
         ) : (
           <>
+            <div key={tab} className="admin-page-enter">
             {tab === "home" ? (
               <section className="space-y-4">
-                <div className="admin-live-hero">
-                  <div className="admin-live-hero-top">
-                    <div>
-                      <p className="admin-kicker">Dashboard</p>
-                      <h1 className="admin-screen-title">Übersicht</h1>
-                      <p className="admin-screen-desc">
-                        Ändern, veröffentlichen — sofort auf der Website.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      className={`admin-chip ${
-                        cmsHealth?.blob
-                          ? "is-live"
-                          : cmsHealth
-                            ? "is-bad"
-                            : "is-warn"
-                      }`}
-                      onClick={() => {
-                        void checkRuntime();
-                        void loadCmsHealth();
-                      }}
-                    >
-                      <StatusDot
-                        tone={
-                          cmsHealth?.blob
-                            ? "ok"
-                            : cmsHealth
-                              ? "bad"
-                              : "warn"
-                        }
-                      />
-                      {cmsHealth?.blob
-                        ? "Live bereit"
-                        : cmsHealth
-                          ? "Speicher fehlt"
-                          : "Prüfen"}
-                    </button>
+                <ScreenHeader
+                  title="Heute"
+                  description="Zwei Dinge — ändern und live schalten."
+                />
+                {cmsHealth && !cmsHealth.blob ? (
+                  <div className="admin-live-alert" role="alert">
+                    <p>
+                      <strong>Noch nicht live.</strong> Speichern bleibt nur
+                      hier — nicht auf der Website.
+                    </p>
                   </div>
-                  <ol className="admin-live-steps">
-                    <li>
-                      <span className="admin-live-step-num">1</span>
-                      <span>Menü oder Website öffnen</span>
-                    </li>
-                    <li>
-                      <span className="admin-live-step-num">2</span>
-                      <span>Ändern und Veröffentlichen — steht sofort auf der Speisekarte</span>
-                    </li>
-                  </ol>
-                  {cmsHealth ? (
-                    <p className="mt-3 text-sm text-[color:var(--admin-muted)]">
-                      {cmsHealth.summary}
-                    </p>
-                  ) : null}
-                  {cmsHealth && !cmsHealth.blob ? (
-                    <div className="admin-live-alert" role="alert">
-                      <p>
-                        <strong>Live-Speicher fehlt.</strong> Was du hier
-                        veröffentlichst, kommt nicht auf die Website.
-                      </p>
-                      <p>
-                        In Vercel beim Projekt <strong>wassana</strong> die
-                        Variable <code>BLOB_READ_WRITE_TOKEN</code> für
-                        Production setzen (Storage → Blob → Token), dann
-                        Redeploy.
-                      </p>
-                    </div>
-                  ) : null}
-                </div>
-
-                {notifPermission === "default" || notifPermission === "unknown" ? (
-                  <Section title="Mitteilungen">
-                    <p className="text-sm text-[color:var(--admin-muted)]">
-                      App-Benachrichtigungen für Kochkurse und News aktivieren —
-                      erscheint wie bei einer echten Handy-App.
-                    </p>
-                    <button
-                      type="button"
-                      className="btn-primary mt-3 w-full"
-                      onClick={() => void enableNotifications()}
-                      disabled={saving}
-                    >
-                      Benachrichtigungen erlauben
-                    </button>
-                  </Section>
                 ) : null}
-                <Section title="Schnell live schalten">
-                  <Toggle
-                    checked={Boolean(content?.topBanner.active)}
-                    onChange={(active) => void setBannerLive(active)}
-                    label="Top-Banner live"
-                    hint={
-                      liveBusy === "banner"
-                        ? "Geht gerade live …"
-                        : "Sofort auf der Website sichtbar"
-                    }
-                  />
-                  <Toggle
-                    checked={course.active}
-                    onChange={(active) => void setCourseLive(active)}
-                    label="Kochkurs-Widget live"
-                    hint={
-                      liveBusy === "course"
-                        ? "Geht gerade live …"
-                        : course.date
-                          ? `Termin: ${formatCourseDate(course.date)}`
-                          : "Kein Datum gesetzt"
-                    }
-                  />
-                </Section>
-
-                <Section
-                  title="Live-Status"
-                  action={
-                    <button
-                      type="button"
-                      className="admin-chip"
-                      onClick={() => {
-                        void checkRuntime();
-                        void loadCmsHealth();
-                      }}
-                    >
-                      Neu prüfen
-                    </button>
-                  }
-                >
-                  <div className="admin-status-grid">
-                    <div className="admin-status-item">
-                      <p className="admin-status-label">
-                        <StatusDot
-                          tone={
-                            runtime?.online
-                              ? "ok"
-                              : runtime
-                                ? "bad"
-                                : "neutral"
-                          }
-                        />
-                        Website
-                      </p>
-                      <p className="admin-status-value">
-                        {runtime
-                          ? runtime.online
-                            ? "Erreichbar"
-                            : "Nicht erreichbar"
-                          : "—"}
-                      </p>
-                      <p className="admin-status-meta">
-                        {runtime?.latencyMs != null
-                          ? `${runtime.latencyMs} ms`
-                          : "noch nicht geprüft"}
-                      </p>
-                    </div>
-                    <div className="admin-status-item">
-                      <p className="admin-status-label">
-                        <StatusDot
-                          tone={
-                            cmsHealth?.blob
-                              ? "ok"
-                              : cmsHealth
-                                ? "bad"
-                                : "neutral"
-                          }
-                        />
-                        Live-Speicher
-                      </p>
-                      <p className="admin-status-value">
-                        {cmsHealth
-                          ? cmsHealth.blob
-                            ? "Bereit"
-                            : "Fehlt"
-                          : "—"}
-                      </p>
-                      <p className="admin-status-meta">
-                        {cmsHealth?.githubToken
-                          ? "Backup optional aktiv"
-                          : "Blob = Pflicht für .de"}
-                      </p>
-                    </div>
-                    <div className="admin-status-item">
-                      <p className="admin-status-label">
-                        <StatusDot
-                          tone={content?.topBanner.active ? "ok" : "neutral"}
-                        />
-                        Banner
-                      </p>
-                      <p className="admin-status-value">
-                        {content?.topBanner.active ? "Live" : "Aus"}
-                      </p>
-                      <p className="admin-status-meta">
-                        {content?.topBanner.text
-                          ? content.topBanner.text.slice(0, 42)
-                          : "kein Text"}
-                      </p>
-                    </div>
-                    <div className="admin-status-item">
-                      <p className="admin-status-label">
-                        <StatusDot tone={course.active ? "ok" : "neutral"} />
-                        Kochkurs
-                      </p>
-                      <p className="admin-status-value">
-                        {course.active ? "Live" : "Aus"}
-                      </p>
-                      <p className="admin-status-meta">
-                        {course.updatedAt
-                          ? `Stand ${formatWhen(course.updatedAt)}`
-                          : "noch nicht gespeichert"}
-                      </p>
-                    </div>
-                    <div className="admin-status-item">
-                      <p className="admin-status-label">
-                        <StatusDot
-                          tone={content?.updatedAt ? "ok" : "neutral"}
-                        />
-                        Texte
-                      </p>
-                      <p className="admin-status-value">
-                        {content?.updatedAt ? "Aktuell" : "—"}
-                      </p>
-                      <p className="admin-status-meta">
-                        {content?.updatedAt
-                          ? formatWhen(content.updatedAt)
-                          : "keine Daten"}
-                      </p>
-                    </div>
-                    <div className="admin-status-item">
-                      <p className="admin-status-label">
-                        <StatusDot
-                          tone={
-                            weekly?.updatedAt || fullMenu?.updatedAt
-                              ? "ok"
-                              : "neutral"
-                          }
-                        />
-                        Menü
-                      </p>
-                      <p className="admin-status-value">
-                        {weekly?.updatedAt || fullMenu?.updatedAt
-                          ? "Aktuell"
-                          : "—"}
-                      </p>
-                      <p className="admin-status-meta">
-                        {weekly?.updatedAt
-                          ? `Woche ${formatWhen(weekly.updatedAt)}`
-                          : fullMenu?.updatedAt
-                            ? `Karte ${formatWhen(fullMenu.updatedAt)}`
-                            : "noch nicht geprüft"}
-                      </p>
-                    </div>
-                  </div>
-                  {lastPersist ? <PersistChips persist={lastPersist} /> : null}
-                </Section>
-
-                <Section title="Anfragen">
-                  <div className="admin-status-grid">
-                    <div className="admin-status-item">
-                      <p className="admin-status-label">7 Tage</p>
-                      <p className="admin-status-value">
-                        {analytics.weekTotal}
-                      </p>
-                      <p className="admin-status-meta">Anfragen</p>
-                    </div>
-                    <div className="admin-status-item">
-                      <p className="admin-status-label">Ungelesen</p>
-                      <p className="admin-status-value">{analytics.unread}</p>
-                      <p className="admin-status-meta">
-                        von {analytics.total} gesamt
-                      </p>
-                    </div>
-                  </div>
-                  {Object.keys(analytics.bySource).length ? (
-                    <ul className="admin-source-list">
-                      {Object.entries(analytics.bySource)
-                        .sort((a, b) => b[1] - a[1])
-                        .map(([source, count]) => (
-                          <li key={source}>
-                            <span>{source}</span>
-                            <strong>{count}</strong>
-                          </li>
-                        ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-[color:var(--admin-muted)]">
-                      In den letzten 7 Tagen keine Anfragen.
-                    </p>
-                  )}
-                </Section>
-
                 <div className="admin-ios-list">
-                  {(
-                    [
-                      ["menu", "Speisekarte", "12 Zeilen, Preise, alle Gerichte"],
-                      ["content", "Texte & Bilder", "Startseite, Fotos tauschen"],
-                      ["banner", "Top-Banner", content?.topBanner?.active ? "Sichtbar" : "Aus"],
-                      ["inbox", "Anfragen", unread > 0 ? `${unread} neu` : "Posteingang"],
-                      ["course", "Kochkurs", course.date ? formatCourseDate(course.date) : "Termin setzen"],
-                    ] as const
-                  ).map(([id, title, meta]) => {
-                    const Icon = ADMIN_TAB_ICONS[id];
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        className="admin-card"
-                        onClick={() => {
-                          setPublishPhase("idle");
-                          setTab(id);
-                        }}
-                      >
-                        <span className="admin-card-icon">
-                          <Icon className="admin-icon" />
-                        </span>
-                        <span className="admin-card-copy">
-                          <span className="admin-card-title">{title}</span>
-                          <span className="admin-card-meta">{meta}</span>
-                        </span>
-                        <IconChevron className="admin-chevron" />
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    className="btn-gold inline-flex"
-                    onClick={() => setTab("settings")}
-                  >
-                    Einstellungen
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-primary inline-flex"
+                    className="admin-card"
                     onClick={() => {
-                      setCourse(createBlankCourse());
-                      setTab("course");
-                      setError("");
-                      setStatus(
-                        "Neuer Kochkurs vorbereitet — Datum prüfen und speichern.",
-                      );
+                      setPublishPhase("idle");
+                      setTab("menu");
+                      void loadWeekly();
                     }}
                   >
-                    + Neuer Kochkurs
+                    <span className="admin-card-icon">
+                      <ADMIN_TAB_ICONS.menu className="admin-icon" />
+                    </span>
+                    <span className="admin-card-copy">
+                      <span className="admin-card-title">Speisekarte</span>
+                      <span className="admin-card-meta">
+                        12 Gerichte, Preise, Veröffentlichen
+                      </span>
+                    </span>
+                    <IconChevron className="admin-chevron" />
                   </button>
-                  <Link href="/" className="btn-gold inline-flex" target="_blank">
-                    Website öffnen
-                  </Link>
                   <button
                     type="button"
-                    className="btn-gold inline-flex"
-                    onClick={() => void loadAll()}
+                    className="admin-card"
+                    onClick={() => {
+                      setPublishPhase("idle");
+                      setTab("banner");
+                      void loadContent();
+                    }}
                   >
-                    Status aktualisieren
+                    <span className="admin-card-icon">
+                      <ADMIN_TAB_ICONS.banner className="admin-icon" />
+                    </span>
+                    <span className="admin-card-copy">
+                      <span className="admin-card-title">Angebote</span>
+                      <span className="admin-card-meta">
+                        Banner und Schüler-Mittag
+                      </span>
+                    </span>
+                    <IconChevron className="admin-chevron" />
                   </button>
                 </div>
               </section>
@@ -2484,9 +2143,8 @@ export function AdminClient() {
             {tab === "inbox" ? (
               <section className="space-y-3">
                 <ScreenHeader
-                  kicker="Datenbank"
-                  title="Kontaktanfragen"
-                  description="Eingehende Anfragen aus Kontakt, Catering und Kochkurs — speichern, bearbeiten, archivieren."
+                  title="Anfragen"
+                  description="Nur der Inhaber sieht das. Status setzen oder archivieren."
                   action={
                     unread > 0 ? (
                       <button
@@ -2767,11 +2425,10 @@ export function AdminClient() {
             {tab === "banner" && content ? (
               <form onSubmit={saveContent} className="admin-form space-y-3">
                 <ScreenHeader
-                  kicker="Top-Leiste"
-                  title="Banner"
-                  description="Über dem Menü auf allen Seiten. Veröffentlichen schreibt Banner und Website-Texte gemeinsam live."
+                  title="Angebote"
+                  description="Banner und Schüler-Mittag. Veröffentlichen schreibt beides live auf die Website."
                 />
-                <Section title="Inhalt">
+                <Section title="Top-Banner">
                   <Toggle
                     checked={content.topBanner.active}
                     onChange={(active) =>
@@ -2871,6 +2528,8 @@ export function AdminClient() {
                   </Field>
                 </Section>
 
+                <details className="admin-advanced">
+                  <summary>Farben</summary>
                 <Section title="Farben">
                   <div className="admin-color-row">
                     {BANNER_PRESETS.map((preset) => (
@@ -2925,6 +2584,7 @@ export function AdminClient() {
                     </label>
                   ))}
                 </Section>
+                </details>
 
                 <div className="admin-preview" aria-hidden>
                   <p className="admin-preview-label">Vorschau</p>
@@ -2960,30 +2620,65 @@ export function AdminClient() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="btn-gold w-full"
-                  onClick={() =>
-                    setContent({
-                      ...content,
-                      topBanner: {
-                        ...content.topBanner,
-                        active: true,
-                        text: "Schüler & Azubis: mittags Gericht inkl. Getränk",
-                        highlight: content.studentLunch.price,
-                        linkHref: "#mittag",
-                        linkLabel: "Mehr",
-                        suffix: ". Wo? In Landshut am Regierungsplatz",
-                      },
-                    })
-                  }
-                >
-                  Aus Schüler-Mittag übernehmen
-                </button>
+                <Section title="Schüler-Mittag">
+                  {(
+                    [
+                      ["title", "Titel"],
+                      ["price", "Preis"],
+                      ["text", "Kurztext"],
+                      ["note", "Hinweis"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <Field key={key} label={label}>
+                      <input
+                        value={content.studentLunch[key]}
+                        onChange={(e) =>
+                          setContent({
+                            ...content,
+                            studentLunch: {
+                              ...content.studentLunch,
+                              [key]: e.target.value,
+                            },
+                          })
+                        }
+                        className={fieldClass}
+                      />
+                    </Field>
+                  ))}
+                </Section>
+
+                <details className="admin-advanced">
+                  <summary>Mittag-Popup (Mehr-Button)</summary>
+                  {(
+                    [
+                      ["popupTitle", "Popup-Titel"],
+                      ["popupLead", "Kurztext oben"],
+                      ["popupPrice", "Preis im Popup"],
+                      ["popupNote", "Hinweis im Popup"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <Field key={key} label={label}>
+                      <input
+                        value={content.studentLunch[key]}
+                        onChange={(e) =>
+                          setContent({
+                            ...content,
+                            studentLunch: {
+                              ...content.studentLunch,
+                              [key]: e.target.value,
+                            },
+                          })
+                        }
+                        className={fieldClass}
+                      />
+                    </Field>
+                  ))}
+                </details>
+
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
-                  label="Banner veröffentlichen"
+                  label="Angebot live schalten"
                 />
               </form>
             ) : null}
@@ -3253,7 +2948,16 @@ export function AdminClient() {
 
             {tab === "menu" ? (
               <div className="space-y-3">
-                <div className="admin-menu-switch" role="tablist" aria-label="Menübereich">
+                {weekly ? (
+              <form onSubmit={saveWeekly} className="admin-form space-y-3">
+                <ScreenHeader
+                  title="Speisekarte"
+                  description="Gericht und Preis tippen, unten live schalten. Steht sofort auf der Website."
+                />
+                <AdminWeeklyTable weekly={weekly} setWeekly={setWeekly} />
+                <details className="admin-advanced">
+                  <summary>Alle Gerichte und Tageskarten</summary>
+                  <div className="admin-menu-switch" role="tablist" aria-label="Menübereich">
                   <button
                     type="button"
                     role="tab"
@@ -3264,7 +2968,7 @@ export function AdminClient() {
                       void loadWeekly();
                     }}
                   >
-                    Wochen-Favoriten
+                    Tageskarten
                   </button>
                   <button
                     type="button"
@@ -3279,22 +2983,6 @@ export function AdminClient() {
                     Alle Gerichte
                   </button>
                 </div>
-
-                {menuPanel === "weekly" && weekly ? (
-              <form onSubmit={saveWeekly} className="admin-form space-y-3">
-                <ScreenHeader
-                  kicker="Speisekarte"
-                  title="Beliebte Gerichte der Woche"
-                  description="12 Zeilen, 2 Spalten — Text ändern und unten veröffentlichen. Sofort live auf .de."
-                />
-                <AdminWeeklyTable weekly={weekly} setWeekly={setWeekly} />
-                <details className="admin-advanced">
-                  <summary>Erweiterte Tageskarten (optional)</summary>
-                  <p className="admin-advanced-hint">
-                    Die Tabelle oben ist live auf der Speisekarte. Diese
-                    Tageskarten nur öffnen, wenn du wieder die alte Ansicht
-                    mit Montag–Freitag brauchst.
-                  </p>
                 <Section title="Allgemein">
                   <Field label="Gericht suchen">
                     <input
@@ -3611,7 +3299,7 @@ export function AdminClient() {
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
-                  label="Wochen-Favoriten veröffentlichen"
+                  label="Speisekarte live schalten"
                 />
               </form>
                 ) : null}
@@ -3640,10 +3328,57 @@ export function AdminClient() {
             {tab === "settings" && business ? (
               <form onSubmit={saveBusiness} className="admin-form space-y-3">
                 <ScreenHeader
-                  kicker="Mehr"
-                  title="Einstellungen"
-                  description="Betrieb, Kochkurs und Banner — Veröffentlichen geht sofort live."
+                  title="Mehr"
+                  description="Live-Status und Abmelden. Der Rest bleibt im Hintergrund."
                 />
+                <Section title="Diese App">
+                  <div className="admin-status-grid">
+                    <div className="admin-status-item">
+                      <p className="admin-status-label">
+                        <StatusDot
+                          tone={
+                            cmsHealth?.blob
+                              ? "ok"
+                              : cmsHealth
+                                ? "bad"
+                                : "neutral"
+                          }
+                        />
+                        Live
+                      </p>
+                      <p className="admin-status-value">
+                        {cmsHealth?.blob
+                          ? "Bereit"
+                          : cmsHealth
+                            ? "Fehlt"
+                            : "—"}
+                      </p>
+                      <p className="admin-status-meta">
+                        Speisekarte und Angebote gehen direkt auf die Website.
+                      </p>
+                    </div>
+                  </div>
+                  {lastPersist ? <PersistChips persist={lastPersist} /> : null}
+                  <Link href="/" className="btn-gold mt-3 w-full" target="_blank">
+                    Website öffnen
+                  </Link>
+                  <Link
+                    href="/speisekarte"
+                    className="btn-gold mt-2 w-full"
+                    target="_blank"
+                  >
+                    Speisekarte öffnen
+                  </Link>
+                  <button
+                    type="button"
+                    className="btn-primary mt-2 w-full"
+                    onClick={onLogout}
+                  >
+                    Abmelden
+                  </button>
+                </Section>
+                <details className="admin-advanced">
+                  <summary>Betrieb (Adresse, Telefon)</summary>
                 <Section title="Weitere Bereiche">
                   <div className="admin-ios-list -mx-4">
                     <button
@@ -3886,6 +3621,7 @@ export function AdminClient() {
                   </button>
                 </Section>
 
+                </details>
                 <StickySave
                   saving={saving}
                   phase={publishPhase}
@@ -3894,6 +3630,7 @@ export function AdminClient() {
               </form>
             ) : null}
 
+            </div>
             {error ? (
               <p className="admin-toast is-error">{error}</p>
             ) : null}
@@ -3902,60 +3639,18 @@ export function AdminClient() {
                 <p>{status}</p>
                 <a
                   className="admin-toast-link"
-                  href="/speisekarte"
+                  href={tab === "banner" ? "/" : "/speisekarte"}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Speisekarte ansehen
+                  {tab === "banner" ? "Website ansehen" : "Speisekarte ansehen"}
                 </a>
                 <PersistChips persist={lastPersist} />
               </div>
             ) : null}
           </>
         )}
-      </main>
-      ) : null}
-
-      {authed && !checking ? (
-        <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-40">
-          <div className="mx-auto grid max-w-3xl grid-cols-5 px-1 pt-1 pb-[max(0.35rem,env(safe-area-inset-bottom))]">
-            {nav.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setPublishPhase("idle");
-                  setTab(item.id);
-                  setError("");
-                  setStatus("");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                  if (item.id === "inbox") void loadInbox();
-                  if (item.id === "content") void loadContent();
-                  if (item.id === "menu") {
-                    void loadWeekly();
-                    void loadFullMenu();
-                  }
-                  if (item.id === "settings") void loadBusiness();
-                }}
-                className={`admin-tab ${tab === item.id ? "is-active" : ""}`}
-                aria-current={tab === item.id ? "page" : undefined}
-              >
-                <span className="admin-tab-glyph" aria-hidden>
-                  <item.Icon
-                    className="admin-tab-icon"
-                    filled={tab === item.id}
-                  />
-                </span>
-                <span className="admin-tab-label">{item.label}</span>
-                {item.unread > 0 ? (
-                  <span className="admin-tab-badge">
-                    {item.unread > 9 ? "9+" : item.unread}
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </div>
-        </nav>
+      </AdminShell>
       ) : null}
     </div>
   );

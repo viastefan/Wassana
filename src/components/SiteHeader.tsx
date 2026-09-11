@@ -103,11 +103,11 @@ export function SiteHeader({
     <header
       className={`${
         embedded ? "relative w-full" : "fixed inset-x-0 top-0 z-50"
-      } transition-all duration-400 ${
+      } transition-[background-color,border-color,color,backdrop-filter] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
         onHero ? "site-header-hero bg-transparent" : ""
       } ${
         solid
-          ? "border-b border-[color:var(--line)] bg-[color:var(--bg)]/98 backdrop-blur-[6px]"
+          ? "border-b border-[color:var(--line)] bg-[color:var(--bg)]/92 backdrop-blur-xl"
           : ""
       }`}
     >

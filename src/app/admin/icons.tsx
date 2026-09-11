@@ -119,11 +119,19 @@ export function IconChart({ className }: IconProps) {
   );
 }
 
+export function IconOffer({ className, filled }: IconProps) {
+  return (
+    <Svg className={className} filled={filled}>
+      <path d="M12.2 3.6 20.4 11.8a1.7 1.7 0 0 1 0 2.4l-6.2 6.2a1.7 1.7 0 0 1-2.4 0L3.6 12.2V3.6h8.6Zm-6 3.2a1.35 1.35 0 1 0 0 2.7 1.35 1.35 0 0 0 0-2.7Z" />
+    </Svg>
+  );
+}
+
 export const ADMIN_TAB_ICONS = {
   home: IconHome,
   course: IconCourse,
   inbox: IconInbox,
-  banner: IconBanner,
+  banner: IconOffer,
   content: IconTexts,
   menu: IconMenu,
   settings: IconSettings,

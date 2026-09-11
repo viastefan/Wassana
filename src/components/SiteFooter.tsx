@@ -48,15 +48,7 @@ export function SiteFooter({ hours }: SiteFooterProps) {
             {site.tagline}
           </p>
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-[color:var(--muted)]">
-            <Link
-              href="/admin"
-              rel="nofollow"
-              className="text-[color:var(--muted)] transition hover:text-[color:var(--muted)]"
-              title="Intern"
-              aria-label="Intern: Verwaltung"
-            >
               {business.fullName}
-            </Link>
             <br />
             Inhaber: {business.owner}
             <br />
