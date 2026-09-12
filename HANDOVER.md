@@ -6,16 +6,18 @@ Admin: https://www.wassana-thai-imbiss.de/admin
 
 ## Für den Besitzer
 
-1. **Admin-App** unter `/admin` öffnen und Passwort eingeben.
-2. Auf dem Handy als App speichern (Android: installieren / iPhone: Teilen → Home-Bildschirm).
-3. In der App **Benachrichtigungen erlauben** (Home oder Betrieb) — dann kommen Hinweise zu Kochkursen und News wie bei einer echten App.
-4. Unten navigieren:
-   - **Kochkurs** — Termin & Texte
-   - **Anfragen** — Kontakt-Datenbank (Status, Notizen, Archiv, Löschen)
-   - **Banner** — Top-Leiste (Mittagsangebot): Text, Link, Farben
-   - **Texte** — Startseite, Zeiten, Schüler-Mittag, Standort **und Fotos tauschen**
-   - **Menü** — 12-Zeilen-Tabelle (Gericht | Preis) für die Wochenkarte; darunter optional Tageskarten; Tab „Alle Gerichte“ für die volle Speisekarte
-   - **Betrieb** — Inhaberdaten, Kontakt, Social, Benachrichtigungen / News senden
+Das Verwaltungsprogramm heißt **Site Manager** und läuft im Browser unter `/admin`.
+Links steht die Navigation mit genau vier Bereichen:
+
+| Bereich | Was du damit machst |
+|---|---|
+| **Speisekarte** | Wochenkarte (Gericht, Preis) und darunter die komplette Speisekarte |
+| **Angebote** | Top-Banner über der Website und das Schüler-Mittag-Angebot |
+| **Anfragen** | Kontaktanfragen: Status, Notizen, Archiv, Löschen |
+| **Betrieb** | Öffnungszeiten, Inhaber- und Kontaktdaten, Live-Status, Abmelden |
+
+Nach jedem Veröffentlichen prüft das Programm selbst, ob der neue Text
+tatsächlich auf der Website steht, und meldet Erfolg erst dann.
 
 ## Vercel (einmalig prüfen)
 
@@ -28,17 +30,11 @@ Project **wassana** → Settings → Environment Variables:
 | `NEXT_PUBLIC_SITE_URL` | `https://www.wassana-thai-imbiss.de` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | E-Mail-Versand Kontaktformular |
 | `CONTACT_TO` | Empfänger (Inhaber-Mail) |
-| `BLOB_READ_WRITE_TOKEN` | **Pflicht** — Admin-CMS live auf `.de` (Banner, Texte, Menü, …) |
+| `BLOB_READ_WRITE_TOKEN` | **Pflicht** — ohne diesen Speicher geht keine Änderung live. Wird automatisch gesetzt, sobald ein Blob-Store am Projekt hängt (Storage → Create Database → Blob). Nicht von Hand eintragen. |
 | `GITHUB_TOKEN` (+ optional `GITHUB_REPO`) | Optional — Backup der CMS-JSONs ins Repo |
 | SMTP_* / `CONTACT_TO` | Für Kontaktmails + Admin-Support/Passwort-Reset an `stefandirnberger@viawen.com` |
 | `INQUIRIES_SECRET` | Optional — eigener Schlüssel für Anfragen-Verschlüsselung |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional Search-Console Meta |
-| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Push-Benachrichtigungen Admin-App (Public) |
-| `VAPID_PRIVATE_KEY` | Push-Benachrichtigungen Admin-App (Private) |
-| `VAPID_SUBJECT` | z. B. `mailto:wassanathaiimbiss@icloud.de` |
-
-VAPID-Keys erzeugen: `npx web-push generate-vapid-keys`  
-Ohne diese Keys funktionieren lokale Mitteilungen auf dem Gerät; Push bei geschlossener App braucht die Keys auf Vercel.
 
 Nach Änderungen an Env-Variablen: Redeploy.
 
@@ -50,7 +46,7 @@ Auf Vercel speichert der Admin so:
 2. kurz zusätzlich in `/tmp` und im Speicher der Function
 3. optional GitHub-Backup, falls `GITHUB_TOKEN` gesetzt ist
 
-`BLOB_READ_WRITE_TOKEN` ist Pflicht für Live-Änderungen (Banner, Texte, Menü, Kochkurs, Betrieb, Bilder).  
+`BLOB_READ_WRITE_TOKEN` ist Pflicht für Live-Änderungen (Speisekarte, Angebote, Öffnungszeiten, Betrieb).  
 Auf Vercel zählt **nur Blob** als live — GitHub-Backup und `/tmp` allein reichen nicht. Ohne Token sagt der Admin klar „Speicher fehlt“ und speichert nicht als live.
 
 Alte überschreibende Blob-Dateien (`cms/data/...`) werden nur noch als Fallback gelesen. Neue Saves liegen unter `cms/v/data/.../<zeitstempel>.json`.
@@ -87,7 +83,7 @@ Google entscheidet selbst, wann Sitelinks (wie bei Safari) erscheinen. Technisch
 - Breadcrumbs, Sitemap, www-only Canonicals
 - FAQ auf der Startseite (sichtbar + `FAQPage`)
 - Speisekarte als `Menu` Schema
-- Kochkurs als `Event` Schema (wenn Termin aktiv)
+- Kochkurs als `Event` Schema (wenn Termin aktiv; Termin wird direkt in `data/cooking-course.json` gepflegt, nicht im Site Manager)
 - Restaurant / LocalBusiness mit Adresse, Geo, Öffnungszeiten, `sameAs` (Facebook/Instagram)
 
 **Zusätzlich wichtig:** Google Business Profile (unten) — ohne GBP kaum lokales Pack in Landshut.
@@ -114,6 +110,7 @@ Technisch vorbereitet: Canonicals (nur www), Open Graph, JSON-LD (Restaurant/Men
 - Anfragen-DB im Admin: Status (Neu/Offen/Erledigt), private Notizen, Archiv, Löschen
 - Dauerhaft auf Vercel nur mit `BLOB_READ_WRITE_TOKEN` (AES-verschlüsselter Blob); sonst `/tmp` + E-Mail
 - Admin & `/api/*` mit `noindex`
+- Keine öffentlichen Links auf `/admin` — nur der Inhaber kennt die Adresse
 
 ## Technik
 
