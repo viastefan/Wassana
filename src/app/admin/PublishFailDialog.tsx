@@ -107,7 +107,7 @@ export function PublishFailDialog({
           ))}
         </ul>
         <div className="mt-5 flex flex-wrap gap-2">
-          <a href={mailto} className="admin-install-cta">
+          <a href={mailto} className="admin-dialog-cta">
             Support kontaktieren
           </a>
           <button

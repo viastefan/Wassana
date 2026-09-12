@@ -4,7 +4,6 @@ import {
   blankMenuItem,
   slugifyMenuId,
   type FullMenuData,
-  type FullMenuItem,
   type FullMenuSection,
 } from "@/lib/menu-store-shared";
 import {

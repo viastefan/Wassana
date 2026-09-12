@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { ComponentType, ReactNode } from "react";
 import { cmsProduct, cmsSite } from "@/cms/config";
+import { CmsSetupNotice } from "./CmsSetupNotice";
 import { StatusDot } from "./ui";
 
 type NavItem = {
@@ -122,7 +123,12 @@ export function AdminShell({
             </div>
           ) : null}
         </header>
-        <div className="cms-body">{children}</div>
+        <div className="cms-body">
+          {authed && health && !health.blob ? (
+            <CmsSetupNotice onRecheck={onRecheck} />
+          ) : null}
+          {children}
+        </div>
       </div>
     </div>
   );
