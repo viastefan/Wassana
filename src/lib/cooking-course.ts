@@ -10,13 +10,8 @@ import {
   sanitizeCourseImage,
   type CookingCourseArchiveEntry,
   type CookingCourseData,
-  type CookingCourseStoreData,
 } from "@/lib/cooking-course-shared";
-import {
-  readJsonWithFallback,
-  writeJsonWithFallback,
-  type PersistResult,
-} from "@/lib/persist-json";
+import { readJsonWithFallback } from "@/lib/persist-json";
 import { sanitizeText } from "@/lib/security";
 
 export type CookingCourse = CookingCourseData & {
@@ -37,7 +32,6 @@ export {
   splitCourseLines,
   suggestNewCourseDate,
   type CookingCourseArchiveEntry,
-  type CookingCourseStoreData,
 } from "@/lib/cooking-course-shared";
 export { formatCourseDate };
 
@@ -203,24 +197,6 @@ function normalizeStore(raw: unknown): CookingCourseStore {
   };
 }
 
-async function writeStore(
-  store: CookingCourseStore,
-  commitMessage: string,
-): Promise<PersistResult> {
-  const payloadObj: CookingCourseStoreData = {
-    current: store.current,
-    archive: store.archive,
-  };
-  const payload = `${JSON.stringify(payloadObj, null, 2)}\n`;
-  return writeJsonWithFallback(
-    DATA_PATH,
-    TMP_PATH,
-    payload,
-    "data/cooking-course.json",
-    commitMessage,
-  );
-}
-
 export async function getCookingCourseStore(): Promise<CookingCourseStore> {
   const raw = await readJsonWithFallback<unknown>(
     DATA_PATH,
@@ -234,154 +210,6 @@ export async function getCookingCourseStore(): Promise<CookingCourseStore> {
 export async function getCookingCourse(): Promise<CookingCourse> {
   const store = await getCookingCourseStore();
   return store.current;
-}
-
-export async function saveCookingCourse(
-  input: Omit<CookingCourse, "updatedAt">,
-): Promise<{ course: CookingCourse; persist: PersistResult }> {
-  const store = await getCookingCourseStore();
-  const next = normalizeCourse({
-    ...input,
-    updatedAt: new Date().toISOString(),
-  });
-  const persist = await writeStore(
-    { current: next, archive: store.archive },
-    "chore: update next cooking course",
-  );
-
-  if (!persist.durable && !persist.tmp) {
-    throw new Error(persist.error || "Kochkurs konnte nicht gespeichert werden.");
-  }
-
-  return { course: next, persist };
-}
-
-export async function completeCookingCourse(input: {
-  fazit?: string;
-  notes?: string;
-}): Promise<{ store: CookingCourseStore; persist: PersistResult }> {
-  const store = await getCookingCourseStore();
-  const current = store.current;
-  if (!current.date || !current.title) {
-    throw new Error("Kein Kurs zum Abhaken vorhanden.");
-  }
-
-  const entry = normalizeArchiveEntry({
-    id: createCourseId(current.date, current.title),
-    date: current.date,
-    title: current.title,
-    teaser: current.teaser,
-    image: current.image,
-    pageTitle: current.pageTitle,
-    pageText: current.pageText,
-    price: current.price,
-    duration: current.duration,
-    startTime: current.startTime,
-    maxParticipants: current.maxParticipants,
-    locationNote: current.locationNote,
-    includes: current.includes,
-    whatToBring: current.whatToBring,
-    level: current.level,
-    dishFocus: current.dishFocus,
-    fazit: input.fazit || "",
-    notes: input.notes || "",
-    completedAt: new Date().toISOString(),
-  });
-
-  if (!entry) {
-    throw new Error("Kurs konnte nicht archiviert werden.");
-  }
-
-  const nextStore: CookingCourseStore = {
-    current: {
-      ...createBlankCourse({ active: false }),
-      updatedAt: new Date().toISOString(),
-    },
-    archive: [entry, ...store.archive.filter((item) => item.id !== entry.id)],
-  };
-
-  const persist = await writeStore(
-    nextStore,
-    `chore: archive cooking course ${entry.date}`,
-  );
-  if (!persist.durable && !persist.tmp) {
-    throw new Error(persist.error || "Abhaken fehlgeschlagen.");
-  }
-  return { store: nextStore, persist };
-}
-
-export async function deleteCurrentCookingCourse(): Promise<{
-  store: CookingCourseStore;
-  persist: PersistResult;
-}> {
-  const store = await getCookingCourseStore();
-  const nextStore: CookingCourseStore = {
-    current: {
-      ...createBlankCourse({ active: false }),
-      updatedAt: new Date().toISOString(),
-    },
-    archive: store.archive,
-  };
-  const persist = await writeStore(
-    nextStore,
-    "chore: clear current cooking course",
-  );
-  if (!persist.durable && !persist.tmp) {
-    throw new Error(persist.error || "Löschen fehlgeschlagen.");
-  }
-  return { store: nextStore, persist };
-}
-
-export async function deleteArchivedCookingCourse(id: string): Promise<{
-  store: CookingCourseStore;
-  persist: PersistResult;
-}> {
-  const store = await getCookingCourseStore();
-  const nextArchive = store.archive.filter((entry) => entry.id !== id);
-  if (nextArchive.length === store.archive.length) {
-    throw new Error("Archiv-Eintrag nicht gefunden.");
-  }
-  const nextStore = { current: store.current, archive: nextArchive };
-  const persist = await writeStore(
-    nextStore,
-    "chore: delete archived cooking course",
-  );
-  if (!persist.durable && !persist.tmp) {
-    throw new Error(persist.error || "Löschen fehlgeschlagen.");
-  }
-  return { store: nextStore, persist };
-}
-
-export async function updateArchivedCookingCourse(input: {
-  id: string;
-  fazit?: string;
-  notes?: string;
-}): Promise<{ store: CookingCourseStore; persist: PersistResult }> {
-  const store = await getCookingCourseStore();
-  const index = store.archive.findIndex((entry) => entry.id === input.id);
-  if (index < 0) {
-    throw new Error("Archiv-Eintrag nicht gefunden.");
-  }
-  const previous = store.archive[index];
-  const updated = normalizeArchiveEntry({
-    ...previous,
-    fazit: input.fazit ?? previous.fazit,
-    notes: input.notes ?? previous.notes,
-  });
-  if (!updated) {
-    throw new Error("Archiv-Eintrag ungültig.");
-  }
-  const archive = [...store.archive];
-  archive[index] = updated;
-  const nextStore = { current: store.current, archive };
-  const persist = await writeStore(
-    nextStore,
-    "chore: update cooking course fazit",
-  );
-  if (!persist.durable && !persist.tmp) {
-    throw new Error(persist.error || "Speichern fehlgeschlagen.");
-  }
-  return { store: nextStore, persist };
 }
 
 export function createAdminSessionToken(): string {

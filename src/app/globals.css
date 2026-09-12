@@ -191,68 +191,8 @@ select:-webkit-autofill:focus {
   overflow: hidden;
 }
 
-.admin-install-hero {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 45%, transparent);
-  border-radius: var(--admin-radius);
-  background:
-    linear-gradient(145deg, #2a2430 0%, #1e2129 48%, #3a1520 100%);
-  color: #f7f3ea;
-  padding: 1.25rem 1.2rem 1.35rem;
-  box-shadow: 0 18px 40px rgba(30, 33, 41, 0.2);
-}
-
-.admin-install-close {
-  position: absolute;
-  top: 0.55rem;
-  right: 0.55rem;
-  z-index: 2;
-  display: inline-grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #f7f3ea;
-  font-size: 1.35rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.18s ease, opacity 0.18s ease;
-}
-
-.admin-install-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.admin-install-hero::after {
-  content: "";
-  position: absolute;
-  inset: auto -20% -40% auto;
-  width: 12rem;
-  height: 12rem;
-  border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--admin-gold) 48%, transparent), transparent 70%);
-  pointer-events: none;
-}
-
-.admin-install-hero h2,
-.admin-install-hero p {
-  position: relative;
-  z-index: 1;
-}
-
-.admin-install-hero .btn-primary,
-.admin-install-hero .btn-gold,
-.admin-install-cta {
-  position: relative;
-  z-index: 1;
-}
-
-/** High-contrast CTA on the dark install hero (avoids red-on-red). */
-.admin-install-hero .admin-install-cta,
-button.admin-install-cta {
+/** Light CTA on the dark publish-failure dialog (avoids red-on-red). */
+.admin-dialog-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -260,8 +200,8 @@ button.admin-install-cta {
   padding: 0.75rem 1.35rem;
   border: 1px solid color-mix(in srgb, var(--admin-gold) 70%, white);
   border-radius: 999px;
-  background: #f7f3ea !important;
-  color: var(--admin-burgundy) !important;
+  background: #f7f3ea;
+  color: var(--admin-burgundy);
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -272,14 +212,12 @@ button.admin-install-cta {
     transform 0.2s ease;
 }
 
-.admin-install-hero .admin-install-cta:hover,
-button.admin-install-cta:hover {
-  background: #ffffff !important;
-  color: var(--admin-burgundy) !important;
+.admin-dialog-cta:hover {
+  background: #ffffff;
   transform: translateY(-1px);
 }
 
-.admin-install-hero .admin-install-cta:focus-visible {
+.admin-dialog-cta:focus-visible {
   outline: 2px solid var(--admin-gold);
   outline-offset: 3px;
 }
@@ -805,41 +743,6 @@ button.admin-install-cta:hover {
 .admin-source-list strong {
   color: var(--admin-burgundy);
   font-weight: 600;
-}
-
-.admin-image-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
-}
-
-.admin-image-option {
-  display: grid;
-  gap: 0.35rem;
-  border: 1px solid color-mix(in srgb, var(--admin-gold) 22%, var(--admin-line));
-  background: var(--admin-raised);
-  padding: 0.4rem;
-  text-align: left;
-  color: var(--admin-ink);
-  font-size: 0.78rem;
-  cursor: pointer;
-  transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
-}
-
-.admin-image-option-img {
-  width: 100%;
-  height: 4.5rem;
-  object-fit: cover;
-  border-radius: 0.2rem;
-}
-
-.admin-image-option.is-selected {
-  border-color: var(--admin-burgundy);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--admin-burgundy) 16%, transparent);
-  transform: translateY(-1px);
 }
 
 .admin-toast {

@@ -447,43 +447,28 @@ export default async function DatenschutzPage() {
           <Reveal>
             <section>
               <h2 className="font-display text-2xl text-[color:var(--ink)]">
-                13. Admin-Bereich / Progressive Web App / Push
+                13. Verwaltungsbereich des Betreibers
               </h2>
               <p className="mt-3">
                 Für den Betreiber existiert ein passwortgeschützter
-                Verwaltungsbereich. Dort können Inhalte der Website gepflegt und
-                eingehende Kontaktanfragen eingesehen werden. Zugang und
-                Sitzungs-Cookie dienen ausschließlich dem Betreiber. Optional kann
-                der Verwaltungsbereich als App auf dem Gerät gespeichert werden
-                (PWA); dabei können technische Dateien lokal zwischengespeichert
-                werden.
+                Verwaltungsbereich. Dort werden Speisekarte, Angebote,
+                Öffnungszeiten und Betriebsdaten gepflegt und eingehende
+                Kontaktanfragen eingesehen. Zugang und Sitzungs-Cookie dienen
+                ausschließlich dem Betreiber. Website-Besucher haben keinen
+                Zugang und erhalten keine Benachrichtigungen.
               </p>
               <p className="mt-3">
-                Optional kann der Betreiber{" "}
-                <strong className="text-[color:var(--ink)]">
-                  Push-Benachrichtigungen
-                </strong>{" "}
-                für diesen Verwaltungsbereich aktivieren (z. B. Hinweise zu
-                Kochkursen). Dafür werden — nach ausdrücklicher Freigabe im
-                Browser — eine Push-Subscription und technische Endpunkt-Daten
-                gespeichert und über den Browser-Push-Dienst (z. B. von Google /
-                Apple / Mozilla je nach Gerät) zugestellt. Rechtsgrundlage:
-                Art. 6 Abs. 1 lit. f DSGVO (Betrieb der eigenen Verwaltung) bzw.
-                Einwilligung des jeweiligen Gerätenutzers in die
-                Browser-Benachrichtigung. Website-Besucher erhalten keine
-                Push-Nachrichten.
-              </p>
-              <p className="mt-3">
-                Website-Inhalte aus dem Admin (z. B. Texte, Gerichte der Woche,
-                Kochkurs-Termine —{" "}
+                Die dort gepflegten Website-Inhalte (z. B. Gerichte, Preise,
+                Öffnungszeiten —{" "}
                 <strong className="text-[color:var(--ink)]">
                   keine Kontaktanfragen / keine privaten Nachrichten
                 </strong>
-                ) können zur dauerhaften Speicherung in einem privaten
-                Git-Repository bei GitHub, Inc. (USA) abgelegt werden, sofern
-                der Betreiber dies technisch konfiguriert hat. Kontaktanfragen
-                werden nicht in dieses Repository geschrieben; der bevorzugte
-                dauerhafte Kanal dafür ist die E-Mail an den Betreiber.
+                ) werden beim Hosting-Anbieter (Vercel Inc., USA) dauerhaft
+                gespeichert. Zusätzlich können sie in einem Git-Repository bei
+                GitHub, Inc. (USA) abgelegt werden, sofern der Betreiber dies
+                technisch konfiguriert hat. Kontaktanfragen werden nicht in
+                dieses Repository geschrieben; der bevorzugte dauerhafte Kanal
+                dafür ist die E-Mail an den Betreiber.
               </p>
             </section>
           </Reveal>
@@ -508,8 +493,7 @@ export default async function DatenschutzPage() {
                 </li>
                 <li>
                   Google Ireland Limited / Google LLC — nur bei Einwilligung in
-                  Google Maps; außerdem ggf. Browser-Push-Infrastruktur bei
-                  Chromium-Geräten (nur Admin-Push)
+                  Google Maps
                 </li>
               </ul>
               <p className="mt-3">

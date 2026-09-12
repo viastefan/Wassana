@@ -53,6 +53,6 @@ export const cmsModuleMeta: Record<
   settings: {
     tab: "settings",
     label: "Betrieb",
-    hint: "Adresse, Status, Zugang",
+    hint: "Öffnungszeiten, Adresse, Zugang",
   },
 };

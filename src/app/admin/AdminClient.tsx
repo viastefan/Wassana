@@ -790,11 +790,45 @@ export function AdminClient() {
           updatedAt: data.updatedAt,
         });
       }
+
+      // Opening hours live in the site content, not the business profile,
+      // but the owner edits both on this one screen.
+      if (content) {
+        const hoursRes = await fetch("/api/admin/content", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(content),
+        });
+        const hoursData = (await hoursRes.json().catch(() => null)) as
+          | (SiteContent & {
+              error?: string;
+              warning?: string;
+              persist?: PersistSnapshot;
+            })
+          | null;
+        if (!hoursRes.ok) {
+          if (hoursRes.status === 401) setAuthed(false);
+          return {
+            ok: false,
+            error: hoursData?.error || "Öffnungszeiten speichern fehlgeschlagen.",
+            persist: hoursData?.persist,
+          };
+        }
+        if (!(await confirmLiveHtml("/", content.hours.weekdays))) {
+          return {
+            ok: false,
+            error:
+              "Gespeichert, aber die Website zeigt die Öffnungszeiten noch nicht. Nochmal veröffentlichen.",
+            persist: hoursData?.persist,
+          };
+        }
+      }
+
       return {
         ok: true,
         warning: data?.warning,
         persist: data?.persist,
-        successMessage: "Online — Betriebsdaten live",
+        successMessage: "Online — Betriebsdaten und Öffnungszeiten live",
       };
     });
   }
@@ -930,7 +964,11 @@ export function AdminClient() {
       void loadWeekly();
       void loadFullMenu();
     }
-    if (next === "settings") void loadBusiness();
+    if (next === "settings") {
+      void loadBusiness();
+      // Opening hours are edited here but stored in the site content.
+      void loadContent();
+    }
   }
 
   const filteredWeeklyDays = useMemo(() => {
@@ -2062,7 +2100,7 @@ export function AdminClient() {
               <form onSubmit={saveBusiness} className="admin-form space-y-3">
                 <ScreenHeader
                   title="Betrieb"
-                  description="Live-Status, Stammdaten und Abmelden."
+                  description="Öffnungszeiten, Stammdaten und Abmelden."
                 />
                 <Section title="Live-Speicher">
                   <div className="admin-status-grid">
@@ -2110,6 +2148,52 @@ export function AdminClient() {
                     Abmelden
                   </button>
                 </Section>
+              {content ? (
+                <Section title="Öffnungszeiten">
+                  <Field label="Kurz (Kopf und Fuß der Website)">
+                    <input
+                      value={content.hours.weekdays}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          hours: { ...content.hours, weekdays: e.target.value },
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="Mo–Fr 11:00–18:00"
+                    />
+                  </Field>
+                  <Field label="Ausgeschrieben (Kontakt, Impressum)">
+                    <input
+                      value={content.hours.weekdaysLong}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          hours: {
+                            ...content.hours,
+                            weekdaysLong: e.target.value,
+                          },
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="Montag bis Freitag von 11:00–18:00 Uhr"
+                    />
+                  </Field>
+                  <Field label="Ruhetage und Feiertage">
+                    <input
+                      value={content.hours.weekend}
+                      onChange={(e) =>
+                        setContent({
+                          ...content,
+                          hours: { ...content.hours, weekend: e.target.value },
+                        })
+                      }
+                      className={fieldClass}
+                      placeholder="Sa, So & Feiertage geschlossen"
+                    />
+                  </Field>
+                </Section>
+              ) : null}
                 <details className="admin-advanced">
                   <summary>Betrieb (Adresse, Telefon)</summary>
                 <Section title="Betrieb">
@@ -2252,10 +2336,10 @@ export function AdminClient() {
 
                 <Section title="E-Mail bei Admin-Änderungen">
                   <p className="text-sm text-[color:var(--admin-muted)]">
-                    Bei jeder Veröffentlichung (Banner, Texte, Menü, Betrieb,
-                    Kochkurs) geht automatisch eine Info-Mail an{" "}
-                    <strong>stefandirnberger@viawen.com</strong> — sofern SMTP
-                    auf Vercel gesetzt ist.
+                    Bei jeder Veröffentlichung (Speisekarte, Angebote, Betrieb)
+                    geht automatisch eine Info-Mail an{" "}
+                    <strong>stefandirnberger@viawen.com</strong> — sofern der
+                    E-Mail-Versand auf Vercel eingerichtet ist.
                   </p>
                 </Section>
 

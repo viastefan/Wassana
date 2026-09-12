@@ -404,36 +404,3 @@ async function maybeCommitToGitHub(
     };
   }
 }
-
-export async function putPublicMedia(params: {
-  pathname: string;
-  body: Buffer | Blob | File | string;
-  contentType: string;
-}): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
-  const token = blobToken();
-  if (!token) {
-    return {
-      ok: false,
-      error: "BLOB_READ_WRITE_TOKEN fehlt — Bilder können nicht gespeichert werden.",
-    };
-  }
-
-  try {
-    const stored = await put(params.pathname, params.body, {
-      access: "public",
-      token,
-      contentType: params.contentType,
-      addRandomSuffix: false,
-      cacheControlMaxAge: 60 * 60 * 24 * 365,
-    });
-    return { ok: true, url: stored.url };
-  } catch (error) {
-    return {
-      ok: false,
-      error:
-        error instanceof Error
-          ? `Bild-Upload fehlgeschlagen: ${error.message}`
-          : "Bild-Upload fehlgeschlagen.",
-    };
-  }
-}
