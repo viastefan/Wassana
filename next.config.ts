@@ -65,6 +65,24 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, no-cache, must-revalidate",
+          },
+        ],
+      },
+      {
+        source: "/speisekarte",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, no-cache, must-revalidate",
+          },
+        ],
+      },
     ];
   },
 };

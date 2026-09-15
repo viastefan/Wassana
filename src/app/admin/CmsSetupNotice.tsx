@@ -14,7 +14,7 @@ export function CmsSetupNotice({ onRecheck }: { onRecheck: () => void }) {
       <p className="cms-setup-kicker">Einmalig einrichten</p>
       <h2 className="cms-setup-title">Speicher noch nicht verbunden</h2>
       <p className="cms-setup-lead">
-        Ohne Speicher bleibt jede Änderung hier im Programm und erscheint nicht
+        Ohne Speicher bleibt jede Änderung hier in der App und erscheint nicht
         auf der Website. Zwei Klicks im Hosting, dann läuft es dauerhaft.
       </p>
 

@@ -42,6 +42,12 @@ export function cmsVersionPrefix(githubPath: string) {
   return `cms/v/${githubPath.replace(/^\//, "")}/`;
 }
 
+/** Stable live pointer. Overwritten on every save; read with uploadedAt cache-bust. */
+export function cmsLivePath(githubPath: string) {
+  const clean = githubPath.replace(/^\//, "");
+  return `cms/live/${clean}`;
+}
+
 function remember(githubPath: string, payload: string) {
   try {
     memoryCache.set(githubPath, {
@@ -92,15 +98,12 @@ async function readJsonFromVersionedBlob<T>(
   }
 }
 
-/** Fallback for CMS files written before versioned publishes. */
-async function readJsonFromLegacyBlob<T>(
-  githubPath: string,
-): Promise<T | null> {
+async function readBlobByHead<T>(pathname: string): Promise<T | null> {
   const token = blobToken();
   if (!token) return null;
 
   try {
-    const meta = await head(cmsBlobPath(githubPath), { token });
+    const meta = await head(pathname, { token });
     const bust = encodeURIComponent(
       String(meta.uploadedAt || meta.pathname || Date.now()),
     );
@@ -111,12 +114,33 @@ async function readJsonFromLegacyBlob<T>(
   }
 }
 
+/** Overwritten live pointer — other isolates see this without waiting for list(). */
+async function readJsonFromLiveBlob<T>(githubPath: string): Promise<T | null> {
+  return readBlobByHead<T>(cmsLivePath(githubPath));
+}
+
+/** Fallback for CMS files written before versioned publishes. */
+async function readJsonFromLegacyBlob<T>(
+  githubPath: string,
+): Promise<T | null> {
+  return readBlobByHead<T>(cmsBlobPath(githubPath));
+}
+
 export async function readJsonFromBlob<T>(
   githubPath: string,
 ): Promise<T | null> {
-  const versioned = await readJsonFromVersionedBlob<T>(githubPath);
-  if (versioned) return versioned;
-  return readJsonFromLegacyBlob<T>(githubPath);
+  const [live, versioned, legacy] = await Promise.all([
+    readJsonFromLiveBlob<T>(githubPath),
+    readJsonFromVersionedBlob<T>(githubPath),
+    readJsonFromLegacyBlob<T>(githubPath),
+  ]);
+  const candidates: T[] = [];
+  if (live) candidates.push(live);
+  if (versioned) candidates.push(versioned);
+  if (legacy) candidates.push(legacy);
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => updatedAtMs(b) - updatedAtMs(a));
+  return candidates[0] ?? null;
 }
 
 function updatedAtMs(value: unknown) {
@@ -255,6 +279,68 @@ async function writeVersionedBlob(
   return { ok: true };
 }
 
+async function writeLiveBlob(
+  githubPath: string,
+  content: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const token = blobToken();
+  if (!token) {
+    return {
+      ok: false,
+      error:
+        "BLOB_READ_WRITE_TOKEN fehlt — Live-CMS auf Vercel nicht möglich.",
+    };
+  }
+
+  const pathname = cmsLivePath(githubPath);
+  const body = content.endsWith("\n") ? content : `${content}\n`;
+
+  try {
+    const uploaded = await put(pathname, body, {
+      access: "public",
+      token,
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      cacheControlMaxAge: 0,
+    });
+    const check = await fetchBlobJson(
+      `${uploaded.url}${uploaded.url.includes("?") ? "&" : "?"}v=${Date.now()}`,
+    );
+    if (!check) {
+      return {
+        ok: false,
+        error:
+          "Live-Stand gespeichert, aber nicht lesbar. BLOB_READ_WRITE_TOKEN / Store prüfen.",
+      };
+    }
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? `Blob-Speichern fehlgeschlagen: ${error.message}`
+          : "Blob-Speichern fehlgeschlagen.",
+    };
+  }
+}
+
+async function writeCmsBlobs(
+  githubPath: string,
+  content: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const [versioned, live] = await Promise.all([
+    writeVersionedBlob(githubPath, content),
+    writeLiveBlob(githubPath, content),
+  ]);
+  if (live.ok || versioned.ok) return { ok: true };
+  return {
+    ok: false,
+    error: live.error || versioned.error,
+  };
+}
+
 export async function writeJsonWithFallback(
   dataPath: string,
   tmpPath: string,
@@ -283,7 +369,7 @@ export async function writeJsonWithFallback(
     // ignore
   }
 
-  const blob = await writeVersionedBlob(githubPath, payload);
+  const blob = await writeCmsBlobs(githubPath, payload);
   const github = await maybeCommitToGitHub(githubPath, payload, commitMessage);
 
   // On Vercel the git checkout and GitHub commits are not the live site.

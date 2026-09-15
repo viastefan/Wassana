@@ -33,12 +33,28 @@ import {
   Toggle,
   type PublishPhase,
 } from "./ui";
-import { cmsModuleMeta, cmsProduct, cmsSite } from "@/cms/config";
+import { cmsModuleMeta, cmsSite } from "@/cms/config";
 import { AdminFullMenuEditor } from "./AdminFullMenuEditor";
 import { AdminShell } from "./AdminShell";
 import { AdminWeeklyTable } from "./AdminWeeklyTable";
 import { ADMIN_TAB_ICONS } from "./icons";
 import { PublishFailDialog } from "./PublishFailDialog";
+
+type LiveSitePayload = {
+  weekly: {
+    updatedAt: string;
+    note: string;
+    table: { dish: string; price: string }[];
+  };
+  content: {
+    updatedAt: string;
+    banner: string;
+    highlight: string;
+    hours: string;
+    studentPrice: string;
+  };
+};
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -522,15 +538,18 @@ export function AdminClient() {
         content.topBanner.text ||
         content.studentLunch.price ||
         "";
-      let live = await confirmLiveHtml("/", probe);
-      if (!live) {
-        await sleep(600);
-        live = await confirmLiveHtml("/", probe);
-      }
-      if (!live) {
-        live = await confirmLiveHtml("/speisekarte", probe);
-      }
-      if (!live) {
+      const seen = await confirmLiveSite((live) => {
+        if (data?.updatedAt && live.content.updatedAt === data.updatedAt) {
+          return true;
+        }
+        const hay = [
+          live.content.banner,
+          live.content.highlight,
+          live.content.studentPrice,
+        ].join(" ");
+        return Boolean(probe) && hay.includes(probe.trim().slice(0, 40));
+      });
+      if (!seen && data?.persist?.durable !== true) {
         return {
           ok: false,
           error:
@@ -547,22 +566,24 @@ export function AdminClient() {
     });
   }
 
-  async function confirmLiveHtml(path: string, needle: string) {
-    const probe = needle.trim().slice(0, 60);
-    if (probe.length < 3) return true;
-    try {
-      await sleep(200);
-      const res = await fetch(path, { cache: "no-store" });
-      if (!res.ok) return false;
-      const html = await res.text();
-      return html.includes(probe);
-    } catch {
-      return false;
+  async function confirmLiveSite(
+    match: (live: LiveSitePayload) => boolean,
+  ) {
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      try {
+        const res = await fetch(`/api/live-site?t=${Date.now()}`, {
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const live = (await res.json()) as LiveSitePayload;
+          if (match(live)) return true;
+        }
+      } catch {
+        // retry
+      }
+      await sleep(350);
     }
-  }
-
-  async function confirmLiveSpeisekarte(needle: string) {
-    return confirmLiveHtml("/speisekarte", needle);
+    return false;
   }
 
   async function saveWeekly(event: FormEvent) {
@@ -606,12 +627,16 @@ export function AdminClient() {
       const probe =
         (data?.table || weekly.table || []).find((row) => row.dish.trim())
           ?.dish || "";
-      let live = await confirmLiveSpeisekarte(probe);
-      if (!live) {
-        await sleep(600);
-        live = await confirmLiveSpeisekarte(probe);
-      }
-      if (!live) {
+      const seen = await confirmLiveSite((live) => {
+        if (data?.updatedAt && live.weekly.updatedAt === data.updatedAt) {
+          return true;
+        }
+        if (!probe) return false;
+        return live.weekly.table.some(
+          (row) => row.dish === probe || row.dish.includes(probe),
+        );
+      });
+      if (!seen && data?.persist?.durable !== true) {
         return {
           ok: false,
           error:
@@ -814,7 +839,10 @@ export function AdminClient() {
             persist: hoursData?.persist,
           };
         }
-        if (!(await confirmLiveHtml("/", content.hours.weekdays))) {
+        const hoursSeen = await confirmLiveSite(
+          (live) => live.content.hours === content.hours.weekdays,
+        );
+        if (!hoursSeen && hoursData?.persist?.durable !== true) {
           return {
             ok: false,
             error:
@@ -943,6 +971,7 @@ export function AdminClient() {
         return {
           id: meta.tab,
           label: meta.label,
+          title: meta.title,
           hint: meta.hint,
           unread: meta.tab === "inbox" ? unread : 0,
           Icon: ADMIN_TAB_ICONS[meta.tab],
@@ -1070,8 +1099,8 @@ export function AdminClient() {
                 priority
               />
             </div>
-            <p className="admin-splash-title">{cmsProduct.name}</p>
-            <p className="admin-splash-sub">{cmsSite.name}</p>
+            <p className="admin-splash-title">Wassana</p>
+            <p className="admin-splash-sub">App startet …</p>
             <div className="admin-splash-bar" aria-hidden>
               <span className="admin-splash-bar-fill" />
             </div>
@@ -1119,10 +1148,11 @@ export function AdminClient() {
                   priority
                 />
               </div>
-              <p className="admin-kicker">{cmsProduct.vendor}</p>
-              <h1 className="admin-screen-title">{cmsProduct.name}</h1>
+              <p className="admin-kicker">Wassana Thai Imbiss</p>
+              <h1 className="admin-screen-title">Anmelden</h1>
               <p className="admin-screen-desc">
-                {cmsProduct.tagline} Mandant: {cmsSite.name}. Nur der Inhaber.
+                Speisekarte und Angebote ändern — tippen, und es steht live
+                auf der Website.
               </p>
               <label className="block">
                 <span className="text-sm text-[color:var(--admin-muted)]">
@@ -1726,6 +1756,11 @@ export function AdminClient() {
                   description="Gericht und Preis tippen, unten live schalten. Steht sofort auf der Website."
                 />
                 <AdminWeeklyTable weekly={weekly} setWeekly={setWeekly} />
+                <p className="admin-pdf-fallback">
+                  <a href="/api/menu-pdf" target="_blank" rel="noreferrer">
+                    Speisekarte als PDF öffnen
+                  </a>
+                </p>
                 <details className="admin-advanced">
                   <summary>Alle Gerichte und Tageskarten</summary>
                   <div className="admin-menu-switch" role="tablist" aria-label="Menübereich">
@@ -2332,15 +2367,6 @@ export function AdminClient() {
                       rows={3}
                     />
                   </Field>
-                </Section>
-
-                <Section title="E-Mail bei Admin-Änderungen">
-                  <p className="text-sm text-[color:var(--admin-muted)]">
-                    Bei jeder Veröffentlichung (Speisekarte, Angebote, Betrieb)
-                    geht automatisch eine Info-Mail an{" "}
-                    <strong>stefandirnberger@viawen.com</strong> — sofern der
-                    E-Mail-Versand auf Vercel eingerichtet ist.
-                  </p>
                 </Section>
 
                 </details>

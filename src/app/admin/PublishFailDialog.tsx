@@ -132,7 +132,9 @@ export function PublishFailDialog({
             Schließen
           </button>
         </div>
-        <p className="mt-4 text-xs text-white/60">{SUPPORT_EMAIL}</p>
+        <p className="mt-3 text-sm leading-relaxed text-white/85">
+          {report.summary}
+        </p>
       </div>
     </div>
   );

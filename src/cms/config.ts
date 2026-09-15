@@ -1,14 +1,12 @@
 /**
- * Reusable website-manager product.
- * Next client: copy this file, change `cmsSite`, keep `cmsProduct`.
- * Modules you don't need: drop them from `modules`.
+ * Mandant-Daten für die Inhaber-App unter /admin.
  */
 export type CmsModuleId = "menu" | "offers" | "inbox" | "settings";
 
 export const cmsProduct = {
-  name: "Site Manager",
-  vendor: "viawen",
-  tagline: "Website steuern — Speisekarte, Angebote, Anfragen.",
+  name: "Wassana",
+  vendor: "",
+  tagline: "Speisekarte und Angebote live ändern.",
 } as const;
 
 export const cmsSite = {
@@ -33,26 +31,35 @@ export const cmsHostingUrls = {
 
 export const cmsModuleMeta: Record<
   CmsModuleId,
-  { tab: "menu" | "banner" | "inbox" | "settings"; label: string; hint: string }
+  {
+    tab: "menu" | "banner" | "inbox" | "settings";
+    label: string;
+    title: string;
+    hint: string;
+  }
 > = {
   menu: {
     tab: "menu",
-    label: "Speisekarte",
+    label: "Karte",
+    title: "Speisekarte",
     hint: "Gerichte und Preise live",
   },
   offers: {
     tab: "banner",
-    label: "Angebote",
+    label: "Angebot",
+    title: "Angebote",
     hint: "Banner und Mittag",
   },
   inbox: {
     tab: "inbox",
-    label: "Anfragen",
+    label: "Post",
+    title: "Anfragen",
     hint: "Kontakt, Catering, Kurs",
   },
   settings: {
     tab: "settings",
-    label: "Betrieb",
+    label: "Mehr",
+    title: "Betrieb",
     hint: "Öffnungszeiten, Adresse, Zugang",
   },
 };

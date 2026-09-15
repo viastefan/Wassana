@@ -1,14 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import type { ComponentType, ReactNode } from "react";
-import { cmsProduct, cmsSite } from "@/cms/config";
+import { cmsSite } from "@/cms/config";
 import { CmsSetupNotice } from "./CmsSetupNotice";
 import { StatusDot } from "./ui";
 
 type NavItem = {
   id: string;
   label: string;
+  title?: string;
   hint?: string;
   unread: number;
   Icon: ComponentType<{ className?: string; filled?: boolean }>;
@@ -33,70 +33,20 @@ export function AdminShell({
   onRecheck: () => void;
   children: ReactNode;
 }) {
-  return (
-    <div className="cms-frame">
-      <aside className="cms-sidebar">
-        <div className="cms-brand">
-          <p className="cms-brand-product">{cmsProduct.name}</p>
-          <p className="cms-brand-vendor">{cmsProduct.vendor}</p>
-        </div>
-        {authed ? (
-          <nav className="cms-nav" aria-label="Module">
-            {nav.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`cms-nav-btn ${tab === item.id ? "is-active" : ""}`}
-                onClick={() => onNavigate(item.id)}
-                aria-current={tab === item.id ? "page" : undefined}
-              >
-                <span className="cms-nav-icon" aria-hidden>
-                  <item.Icon className="cms-nav-svg" filled={tab === item.id} />
-                </span>
-                <span className="cms-nav-copy">
-                  <span className="cms-nav-label">{item.label}</span>
-                  {item.hint ? (
-                    <span className="cms-nav-hint">{item.hint}</span>
-                  ) : null}
-                </span>
-                {item.unread > 0 ? (
-                  <span className="cms-nav-badge">
-                    {item.unread > 9 ? "9+" : item.unread}
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </nav>
-        ) : (
-          <p className="cms-sidebar-note">Nur Inhaber-Zugang.</p>
-        )}
-        <div className="cms-sidebar-foot">
-          <Image
-            src={cmsSite.logoSrc}
-            alt=""
-            width={36}
-            height={36}
-            className="cms-sidebar-logo"
-          />
-          <div>
-            <p className="cms-sidebar-site">{cmsSite.name}</p>
-            <p className="cms-sidebar-city">{cmsSite.city}</p>
-          </div>
-        </div>
-      </aside>
+  const current = nav.find((item) => item.id === tab);
+  const title = authed
+    ? current?.title || current?.label || cmsSite.name
+    : "Anmelden";
 
-      <div className="cms-stage">
-        <header className="cms-toolbar">
-          <div className="cms-toolbar-title">
-            <p className="cms-toolbar-kicker">{cmsProduct.name}</p>
-            <h1 className="cms-toolbar-heading">
-              {authed
-                ? nav.find((item) => item.id === tab)?.label || cmsSite.name
-                : "Anmelden"}
-            </h1>
-          </div>
+  return (
+    <>
+      <header className={`admin-topbar ${authed ? "" : "is-plain"}`}>
+        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2">
           {authed ? (
-            <div className="cms-toolbar-actions">
+            <>
+              <p className="min-w-0 flex-1 truncate text-[17px] font-semibold tracking-tight">
+                {title}
+              </p>
               <button
                 type="button"
                 className={`admin-chip ${
@@ -104,32 +54,56 @@ export function AdminShell({
                 }`}
                 onClick={onRecheck}
               >
-                <StatusDot
-                  tone={health?.blob ? "ok" : health ? "bad" : "warn"}
-                />
-                {health?.blob ? "Live" : health ? "Speicher fehlt" : "Prüfen"}
+                <StatusDot tone={health?.blob ? "ok" : health ? "bad" : "warn"} />
+                {health?.blob ? "Live" : health ? "Offline" : "Prüfen"}
               </button>
-              <a
-                className="cms-toolbar-link"
-                href={cmsSite.publicUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Website
-              </a>
-              <button type="button" className="cms-toolbar-link" onClick={onLogout}>
-                Abmelden
+              <button type="button" className="admin-nav-link" onClick={onLogout}>
+                Fertig
               </button>
-            </div>
-          ) : null}
-        </header>
-        <div className="cms-body">
-          {authed && health && !health.blob ? (
-            <CmsSetupNotice onRecheck={onRecheck} />
-          ) : null}
-          {children}
+            </>
+          ) : (
+            <p className="flex-1 text-center text-[17px] font-semibold tracking-tight">
+              Anmelden
+            </p>
+          )}
         </div>
-      </div>
-    </div>
+      </header>
+
+      <main className="admin-main mx-auto max-w-3xl px-4 pt-5">
+        {authed && health && !health.blob ? (
+          <CmsSetupNotice onRecheck={onRecheck} />
+        ) : null}
+        {children}
+      </main>
+
+      {authed ? (
+        <nav className="admin-tabbar fixed inset-x-0 bottom-0 z-40" aria-label="App">
+          <div className="admin-tabbar-inner">
+            {nav.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`admin-tab ${tab === item.id ? "is-active" : ""}`}
+                onClick={() => onNavigate(item.id)}
+                aria-current={tab === item.id ? "page" : undefined}
+              >
+                <span className="admin-tab-glyph" aria-hidden>
+                  <item.Icon
+                    className="admin-tab-icon"
+                    filled={tab === item.id}
+                  />
+                </span>
+                <span className="admin-tab-label">{item.label}</span>
+                {item.unread > 0 ? (
+                  <span className="admin-tab-badge">
+                    {item.unread > 9 ? "9+" : item.unread}
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          </div>
+        </nav>
+      ) : null}
+    </>
   );
 }
