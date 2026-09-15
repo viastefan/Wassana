@@ -2393,7 +2393,6 @@ export function AdminClient() {
                 >
                   {tab === "banner" ? "Website ansehen" : "Speisekarte ansehen"}
                 </a>
-                <PersistChips persist={lastPersist} />
               </div>
             ) : null}
           </>
