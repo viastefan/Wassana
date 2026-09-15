@@ -3,19 +3,29 @@
 import { cmsHostingUrls } from "@/cms/config";
 
 /**
- * Without a Blob store attached to the project, nothing the owner saves
- * survives — so the program says so plainly instead of failing on save.
- * Attaching the store sets BLOB_READ_WRITE_TOKEN itself; there is no
- * token to copy anywhere.
+ * Without a working Blob store, nothing the owner saves survives on .de.
  */
-export function CmsSetupNotice({ onRecheck }: { onRecheck: () => void }) {
+export function CmsSetupNotice({
+  onRecheck,
+  suspended = false,
+}: {
+  onRecheck: () => void;
+  suspended?: boolean;
+}) {
   return (
     <section className="cms-setup" role="alert">
-      <p className="cms-setup-kicker">Einmalig einrichten</p>
-      <h2 className="cms-setup-title">Speicher noch nicht verbunden</h2>
+      <p className="cms-setup-kicker">
+        {suspended ? "Speicher gesperrt" : "Einmalig einrichten"}
+      </p>
+      <h2 className="cms-setup-title">
+        {suspended
+          ? "Live-Speicher ist blockiert"
+          : "Speicher noch nicht verbunden"}
+      </h2>
       <p className="cms-setup-lead">
-        Ohne Speicher bleibt jede Änderung hier in der App und erscheint nicht
-        auf der Website. Zwei Klicks im Hosting, dann läuft es dauerhaft.
+        {suspended
+          ? "Vercel hat den alten Speicher gesperrt. Deshalb geht die Speisekarte nicht live. Einen neuen Blob anlegen und der Website zuweisen — zwei Klicks."
+          : "Ohne Speicher bleibt jede Änderung hier in der App und erscheint nicht auf der Website. Zwei Klicks im Hosting, dann läuft es dauerhaft."}
       </p>
 
       <ol className="cms-setup-steps">
@@ -24,11 +34,21 @@ export function CmsSetupNotice({ onRecheck }: { onRecheck: () => void }) {
             1
           </span>
           <div className="cms-setup-copy">
-            <p className="cms-setup-step-title">Speicher anlegen</p>
+            <p className="cms-setup-step-title">Neuen Blob anlegen</p>
             <p className="cms-setup-step-body">
-              Auf <em>Create Database</em> → <em>Blob</em> → dem Projekt
-              zuweisen. Mehr ist nicht nötig, der Zugang wird dabei automatisch
-              gesetzt.
+              {suspended ? (
+                <>
+                  Oben <em>Create Database</em> → <em>Blob</em>. Dem Projekt{" "}
+                  <em>wassana</em> zuweisen (Production). Der alte gesperrte
+                  Store darf bleiben.
+                </>
+              ) : (
+                <>
+                  Auf <em>Create Database</em> → <em>Blob</em> → dem Projekt
+                  zuweisen. Mehr ist nicht nötig, der Zugang wird dabei
+                  automatisch gesetzt.
+                </>
+              )}
             </p>
             <a
               className="cms-setup-link"

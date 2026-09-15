@@ -27,7 +27,7 @@ export function AdminShell({
   authed: boolean;
   nav: NavItem[];
   tab: string;
-  health: { blob?: boolean } | null;
+  health: { blob?: boolean; blobSuspended?: boolean } | null;
   onNavigate: (id: string) => void;
   onLogout: () => void;
   onRecheck: () => void;
@@ -50,12 +50,28 @@ export function AdminShell({
               <button
                 type="button"
                 className={`admin-chip ${
-                  health?.blob ? "is-live" : health ? "is-bad" : "is-warn"
+                  health?.blob
+                    ? "is-live"
+                    : health?.blobSuspended
+                      ? "is-bad"
+                      : health
+                        ? "is-bad"
+                        : "is-warn"
                 }`}
                 onClick={onRecheck}
               >
-                <StatusDot tone={health?.blob ? "ok" : health ? "bad" : "warn"} />
-                {health?.blob ? "Live" : health ? "Offline" : "Prüfen"}
+                <StatusDot
+                  tone={
+                    health?.blob ? "ok" : health ? "bad" : "warn"
+                  }
+                />
+                {health?.blob
+                  ? "Live"
+                  : health?.blobSuspended
+                    ? "Gesperrt"
+                    : health
+                      ? "Offline"
+                      : "Prüfen"}
               </button>
               <button type="button" className="admin-nav-link" onClick={onLogout}>
                 Fertig
@@ -71,7 +87,10 @@ export function AdminShell({
 
       <main className="admin-main mx-auto max-w-3xl px-4 pt-5">
         {authed && health && !health.blob ? (
-          <CmsSetupNotice onRecheck={onRecheck} />
+          <CmsSetupNotice
+            onRecheck={onRecheck}
+            suspended={Boolean(health.blobSuspended)}
+          />
         ) : null}
         {children}
       </main>

@@ -107,6 +107,7 @@ export function AdminClient() {
   const [lastPersist, setLastPersist] = useState<PersistSnapshot | null>(null);
   const [cmsHealth, setCmsHealth] = useState<{
     blob: boolean;
+    blobSuspended?: boolean;
     vercel: boolean;
     githubToken: boolean;
     summary: string;
@@ -243,13 +244,16 @@ export function AdminClient() {
       if (!data.env) return;
       setCmsHealth({
         blob: data.env.blob,
+        blobSuspended: data.env.blobSuspended,
         vercel: data.env.vercel,
         githubToken: data.env.githubToken,
         summary:
           data.report?.summary ||
           (data.env.blob
             ? "Live-Speicher bereit — Änderungen können sofort online gehen."
-            : "Live-Speicher fehlt — Veröffentlichung auf .de ist blockiert."),
+            : data.env.blobSuspended
+              ? "Live-Speicher gesperrt — neuen Blob anlegen."
+              : "Live-Speicher fehlt — Veröffentlichung auf .de ist blockiert."),
         checkedAt: new Date().toISOString(),
       });
     } catch {
@@ -331,8 +335,7 @@ export function AdminClient() {
 
       if (
         !result.ok ||
-        result.persist?.durable === false ||
-        (cmsHealth?.vercel && result.persist && result.persist.blob !== true)
+        result.persist?.durable === false
       ) {
         const report = await finalizeFailReport({
           action,
@@ -2155,9 +2158,11 @@ export function AdminClient() {
                       <p className="admin-status-value">
                         {cmsHealth?.blob
                           ? "Bereit"
-                          : cmsHealth
-                            ? "Fehlt"
-                            : "—"}
+                          : cmsHealth?.blobSuspended
+                            ? "Gesperrt"
+                            : cmsHealth
+                              ? "Fehlt"
+                              : "—"}
                       </p>
                       <p className="admin-status-meta">
                         Speisekarte und Angebote gehen direkt auf die Website.

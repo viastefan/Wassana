@@ -8,6 +8,7 @@ import {
   buildPublishDiagnostic,
   envDiagnostics,
 } from "@/lib/admin-support";
+import { probeBlobStore } from "@/lib/persist-json";
 
 export const dynamic = "force-dynamic";
 
@@ -17,14 +18,20 @@ export async function GET() {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
 
-  const env = envDiagnostics();
+  const probe = await probeBlobStore();
+  const env = {
+    ...envDiagnostics(),
+    blob: probe.usable,
+    blobSuspended: probe.suspended,
+  };
   const report = buildPublishDiagnostic({
     action: "Statusprüfung",
     ok: !env.vercel || env.blob,
-    error:
-      env.vercel && !env.blob
-        ? "BLOB_READ_WRITE_TOKEN fehlt — Live-Veröffentlichung auf .de ist blockiert."
-        : undefined,
+    error: env.vercel && !env.blob
+      ? probe.suspended
+        ? "Der Live-Speicher ist gesperrt. Neuen Blob-Store anlegen, dem Projekt zuweisen und neu veröffentlichen."
+        : "BLOB_READ_WRITE_TOKEN fehlt — Live-Veröffentlichung auf .de ist blockiert."
+      : undefined,
   });
 
   return NextResponse.json(

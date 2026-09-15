@@ -1,6 +1,6 @@
 /** Durable CMS persistence: versioned Vercel Blob (live) + optional GitHub backup + disk/tmp. */
 
-import { del, head, list, put } from "@vercel/blob";
+import { head, put } from "@vercel/blob";
 
 export type PersistResult = {
   disk: boolean;
@@ -27,6 +27,46 @@ export function isBlobConfigured() {
   return Boolean(blobToken());
 }
 
+export function isBlobSuspendedError(message: string) {
+  return /suspended|blocked/i.test(message);
+}
+
+export async function probeBlobStore(): Promise<{
+  configured: boolean;
+  usable: boolean;
+  suspended: boolean;
+  error?: string;
+}> {
+  const token = blobToken();
+  if (!token) {
+    return { configured: false, usable: false, suspended: false };
+  }
+
+  try {
+    await head(cmsLivePath("data/weekly-menu.json"), { token });
+    return { configured: true, usable: true, suspended: false };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (isBlobSuspendedError(message)) {
+      return {
+        configured: true,
+        usable: false,
+        suspended: true,
+        error: message,
+      };
+    }
+    if (/not found|does not exist|404/i.test(message)) {
+      return { configured: true, usable: true, suspended: false };
+    }
+    return {
+      configured: true,
+      usable: false,
+      suspended: false,
+      error: message,
+    };
+  }
+}
+
 function onVercel() {
   return Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
 }
@@ -35,11 +75,6 @@ function onVercel() {
 export function cmsBlobPath(githubPath: string) {
   const clean = githubPath.replace(/^\//, "");
   return clean.startsWith("cms/") ? clean : `cms/${clean}`;
-}
-
-/** Versioned prefix — each publish gets a unique file, so CDN cache cannot serve an old overwrite. */
-export function cmsVersionPrefix(githubPath: string) {
-  return `cms/v/${githubPath.replace(/^\//, "")}/`;
 }
 
 /** Stable live pointer. Overwritten on every save; read with uploadedAt cache-bust. */
@@ -74,30 +109,6 @@ async function fetchBlobJson<T>(url: string): Promise<T | null> {
   return (await res.json()) as T;
 }
 
-/**
- * Read the newest versioned CMS blob via list() (Blob API, not CDN).
- * Unique pathnames are immutable, so a cached unique URL is still the correct version.
- */
-async function readJsonFromVersionedBlob<T>(
-  githubPath: string,
-): Promise<T | null> {
-  const token = blobToken();
-  if (!token) return null;
-
-  try {
-    const prefix = cmsVersionPrefix(githubPath);
-    const listed = await list({ prefix, token, limit: 20 });
-    if (!listed.blobs.length) return null;
-    const newest = [...listed.blobs].sort(
-      (a, b) => +new Date(b.uploadedAt) - +new Date(a.uploadedAt),
-    )[0];
-    if (!newest?.url) return null;
-    return await fetchBlobJson<T>(newest.url);
-  } catch {
-    return null;
-  }
-}
-
 async function readBlobByHead<T>(pathname: string): Promise<T | null> {
   const token = blobToken();
   if (!token) return null;
@@ -109,12 +120,14 @@ async function readBlobByHead<T>(pathname: string): Promise<T | null> {
     );
     const url = `${meta.url}${meta.url.includes("?") ? "&" : "?"}v=${bust}`;
     return await fetchBlobJson<T>(url);
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (isBlobSuspendedError(message)) return null;
     return null;
   }
 }
 
-/** Overwritten live pointer — other isolates see this without waiting for list(). */
+/** Overwritten live pointer — no list() (Hobby advanced-ops limit). */
 async function readJsonFromLiveBlob<T>(githubPath: string): Promise<T | null> {
   return readBlobByHead<T>(cmsLivePath(githubPath));
 }
@@ -129,18 +142,9 @@ async function readJsonFromLegacyBlob<T>(
 export async function readJsonFromBlob<T>(
   githubPath: string,
 ): Promise<T | null> {
-  const [live, versioned, legacy] = await Promise.all([
-    readJsonFromLiveBlob<T>(githubPath),
-    readJsonFromVersionedBlob<T>(githubPath),
-    readJsonFromLegacyBlob<T>(githubPath),
-  ]);
-  const candidates: T[] = [];
-  if (live) candidates.push(live);
-  if (versioned) candidates.push(versioned);
-  if (legacy) candidates.push(legacy);
-  if (!candidates.length) return null;
-  candidates.sort((a, b) => updatedAtMs(b) - updatedAtMs(a));
-  return candidates[0] ?? null;
+  const live = await readJsonFromLiveBlob<T>(githubPath);
+  if (live) return live;
+  return readJsonFromLegacyBlob<T>(githubPath);
 }
 
 function updatedAtMs(value: unknown) {
@@ -173,6 +177,9 @@ export async function readJsonWithFallback<T>(
     readJsonFile<T>(tmpPath),
     readJsonFile<T>(dataPath),
   ]);
+  const fromGithub = fromBlob
+    ? null
+    : await readJsonFromGitHub<T>(githubPath);
 
   type Candidate = { data: T; ts: number; rank: number };
   const candidates: Candidate[] = [];
@@ -191,12 +198,19 @@ export async function readJsonWithFallback<T>(
       rank: 1,
     });
   }
+  if (fromGithub) {
+    candidates.push({
+      data: fromGithub,
+      ts: Math.max(updatedAtMs(fromGithub), 1),
+      rank: 1,
+    });
+  }
   if (fromTmp) {
     candidates.push({ data: fromTmp, ts: updatedAtMs(fromTmp), rank: 2 });
   }
   if (fromDisk) {
     // Git disk on Vercel is only a fallback when nothing else exists.
-    if (!onVercel() || (!fromBlob && !fromTmp && !fromMemoryHit)) {
+    if (!onVercel() || (!fromBlob && !fromGithub && !fromTmp && !fromMemoryHit)) {
       candidates.push({ data: fromDisk, ts: updatedAtMs(fromDisk), rank: 3 });
     }
   }
@@ -204,79 +218,6 @@ export async function readJsonWithFallback<T>(
   if (!candidates.length) return null;
   candidates.sort((a, b) => b.ts - a.ts || a.rank - b.rank);
   return candidates[0]?.data ?? null;
-}
-
-async function writeVersionedBlob(
-  githubPath: string,
-  content: string,
-): Promise<{ ok: boolean; error?: string }> {
-  const token = blobToken();
-  if (!token) {
-    return {
-      ok: false,
-      error:
-        "BLOB_READ_WRITE_TOKEN fehlt — Live-CMS auf Vercel nicht möglich.",
-    };
-  }
-
-  const prefix = cmsVersionPrefix(githubPath);
-  const pathname = `${prefix}${Date.now()}.json`;
-  const body = content.endsWith("\n") ? content : `${content}\n`;
-
-  try {
-    const uploaded = await put(pathname, body, {
-      access: "public",
-      token,
-      contentType: "application/json",
-      addRandomSuffix: false,
-      // Unique pathname: long cache is safe and cheap.
-      cacheControlMaxAge: 60 * 60 * 24 * 365,
-    });
-
-    let readable = false;
-    try {
-      const listed = await list({ prefix, token, limit: 20 });
-      readable = listed.blobs.some(
-        (blob) =>
-          blob.pathname === uploaded.pathname || blob.url === uploaded.url,
-      );
-    } catch {
-      readable = false;
-    }
-    if (!readable) {
-      const check = await fetchBlobJson(uploaded.url);
-      readable = Boolean(check);
-    }
-    if (!readable) {
-      return {
-        ok: false,
-        error:
-          "Blob gespeichert, aber nicht lesbar. BLOB_READ_WRITE_TOKEN / Store prüfen.",
-      };
-    }
-  } catch (error) {
-    return {
-      ok: false,
-      error:
-        error instanceof Error
-          ? `Blob-Speichern fehlgeschlagen: ${error.message}`
-          : "Blob-Speichern fehlgeschlagen.",
-    };
-  }
-
-  // Keep a handful of versions; delete older ones so the store does not grow forever.
-  try {
-    const listed = await list({ prefix, token, limit: 30 });
-    const sorted = [...listed.blobs].sort(
-      (a, b) => +new Date(b.uploadedAt) - +new Date(a.uploadedAt),
-    );
-    const stale = sorted.slice(8).map((blob) => blob.url);
-    if (stale.length) await del(stale, { token });
-  } catch {
-    // cleanup is best-effort
-  }
-
-  return { ok: true };
 }
 
 async function writeLiveBlob(
@@ -316,29 +257,20 @@ async function writeLiveBlob(
     }
     return { ok: true };
   } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Blob-Speichern fehlgeschlagen.";
+    if (isBlobSuspendedError(message)) {
+      return {
+        ok: false,
+        error:
+          "Der Live-Speicher bei Vercel ist gesperrt. Neuen Blob-Store anlegen, dem Projekt zuweisen und neu veröffentlichen.",
+      };
+    }
     return {
       ok: false,
-      error:
-        error instanceof Error
-          ? `Blob-Speichern fehlgeschlagen: ${error.message}`
-          : "Blob-Speichern fehlgeschlagen.",
+      error: `Blob-Speichern fehlgeschlagen: ${message}`,
     };
   }
-}
-
-async function writeCmsBlobs(
-  githubPath: string,
-  content: string,
-): Promise<{ ok: boolean; error?: string }> {
-  const [versioned, live] = await Promise.all([
-    writeVersionedBlob(githubPath, content),
-    writeLiveBlob(githubPath, content),
-  ]);
-  if (live.ok || versioned.ok) return { ok: true };
-  return {
-    ok: false,
-    error: live.error || versioned.error,
-  };
 }
 
 export async function writeJsonWithFallback(
@@ -369,12 +301,11 @@ export async function writeJsonWithFallback(
     // ignore
   }
 
-  const blob = await writeCmsBlobs(githubPath, payload);
+  const blob = await writeLiveBlob(githubPath, payload);
   const github = await maybeCommitToGitHub(githubPath, payload, commitMessage);
 
-  // On Vercel the git checkout and GitHub commits are not the live site.
-  // Only a readable Blob version makes Admin changes appear on .de.
-  const durable = onVercel() ? blob.ok : disk || blob.ok;
+  // On Vercel only Blob (or a successful GitHub backup we can also read) is live.
+  const durable = onVercel() ? blob.ok || github.ok : disk || blob.ok;
   if (durable) remember(githubPath, payload);
 
   const result: PersistResult = {
@@ -389,7 +320,7 @@ export async function writeJsonWithFallback(
     result.error =
       blob.error ||
       (onVercel()
-        ? "Nicht live gespeichert. BLOB_READ_WRITE_TOKEN in Vercel (Production) setzen und neu deployen."
+        ? "Nicht live gespeichert. Neuen Blob-Store in Vercel anlegen, dem Projekt zuweisen und neu veröffentlichen."
         : "Speichern fehlgeschlagen — Datei konnte nicht geschrieben werden.");
   }
 
@@ -406,12 +337,8 @@ export async function readJsonFile<T>(filePath: string): Promise<T | null> {
   }
 }
 
-async function maybeCommitToGitHub(
-  filePath: string,
-  content: string,
-  message: string,
-): Promise<{ ok: boolean; error?: string }> {
-  const token = process.env.GITHUB_TOKEN;
+function githubRepoRef() {
+  const token = process.env.GITHUB_TOKEN?.trim();
   const repo =
     process.env.GITHUB_REPO ||
     (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG
@@ -421,6 +348,42 @@ async function maybeCommitToGitHub(
     process.env.GITHUB_BRANCH ||
     process.env.VERCEL_GIT_COMMIT_REF ||
     "main";
+  return { token, repo, branch };
+}
+
+async function readJsonFromGitHub<T>(filePath: string): Promise<T | null> {
+  const { token, repo, branch } = githubRepoRef();
+  if (!token || !repo) return null;
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${encodeURIComponent(branch)}`,
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${token}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+          "User-Agent": "wassana-admin",
+        },
+        cache: "no-store",
+      },
+    );
+    if (!res.ok) return null;
+    const body = (await res.json()) as { content?: string; encoding?: string };
+    if (!body.content) return null;
+    const decoded = Buffer.from(body.content, "base64").toString("utf8");
+    return JSON.parse(decoded) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function maybeCommitToGitHub(
+  filePath: string,
+  content: string,
+  message: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const { token, repo, branch } = githubRepoRef();
 
   if (!token || !repo) {
     return { ok: false };

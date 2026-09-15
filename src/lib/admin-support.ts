@@ -24,6 +24,7 @@ export type DiagnosticReport = {
     githubRepo: boolean;
     smtp: boolean;
     blob: boolean;
+    blobSuspended?: boolean;
     siteUrl: string;
   };
 };
@@ -92,6 +93,7 @@ export function envDiagnostics(): DiagnosticReport["env"] {
       githubRepo: false,
       smtp: false,
       blob: false,
+      blobSuspended: false,
       siteUrl:
         process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
         "https://www.wassana-thai-imbiss.de",
@@ -112,6 +114,7 @@ export function envDiagnostics(): DiagnosticReport["env"] {
       process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
     ),
     blob: Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim()),
+    blobSuspended: false,
     siteUrl:
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.wassana-thai-imbiss.de",
@@ -153,7 +156,9 @@ export function buildPublishDiagnostic(input: {
 
   if (!env.blob && env.vercel) {
     details.push(
-      "KRITISCH: BLOB_READ_WRITE_TOKEN fehlt in Vercel → Admin-Änderungen kommen nicht dauerhaft live.",
+      env.blobSuspended
+        ? "KRITISCH: Der Blob-Store ist gesperrt. Neuen Store anlegen, dem Projekt zuweisen, Redeploy."
+        : "KRITISCH: BLOB_READ_WRITE_TOKEN fehlt in Vercel → Admin-Änderungen kommen nicht dauerhaft live.",
     );
   }
   if (!env.smtp) {
@@ -174,7 +179,9 @@ export function buildPublishDiagnostic(input: {
     ? "Veröffentlichung erfolgreich."
     : input.error ||
       (!env.blob
-        ? "Nicht live: BLOB_READ_WRITE_TOKEN fehlt auf Vercel."
+        ? env.blobSuspended
+          ? "Nicht live: Blob-Store ist gesperrt. Neuen Store in Vercel anlegen."
+          : "Nicht live: BLOB_READ_WRITE_TOKEN fehlt auf Vercel."
         : "Veröffentlichung fehlgeschlagen.");
 
   return {
